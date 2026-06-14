@@ -3,1134 +3,1693 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<title>胜率面板</title>
+	<title>Polymarket Goal Pulse</title>
 	<style>
 		:root {
-			--blue-deep: #061A3A;
-			--blue-accent: #2EA8FF;
-			--red-deep: #3A0610;
-			--red-accent: #FF4D6D;
-			--green-deep: #0A3A1A;
-			--green-accent: #4DFF6D;
-			--purple-deep: #2A0A3A;
-			--purple-accent: #B84DFF;
-			--yellow-deep: #3A2A0A;
-			--yellow-accent: #FFD84D;
-			--text-strong: #E9F1FF;
-			--text-dim: #9BB2D1;
-			--bg: #0A0F1C;
-			--card: #0F172A;
+			--bg: #080b10;
+			--panel: #101720;
+			--panel-2: #151f2b;
+			--line: rgba(255, 255, 255, 0.1);
+			--text: #f3f7fb;
+			--muted: #91a0af;
+			--accent: #22c55e;
+			--accent-2: #38bdf8;
+			--warn: #f59e0b;
+			--danger: #ef4444;
+			--shadow: 0 22px 60px rgba(0, 0, 0, 0.35);
 		}
 
 		* { box-sizing: border-box; }
+
 		html, body {
-			height: 100%;
 			margin: 0;
+			width: 100%;
+			height: 100%;
+			overflow: hidden;
 			background: var(--bg);
-			color: var(--text-strong);
-			font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+			color: var(--text);
+			font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "PingFang SC", "Microsoft YaHei", sans-serif;
+		}
+
+		body {
+			background:
+				linear-gradient(115deg, rgba(34, 197, 94, 0.12), transparent 28%),
+				linear-gradient(245deg, rgba(56, 189, 248, 0.14), transparent 30%),
+				#080b10;
+		}
+
+		button, input, select {
+			font: inherit;
+		}
+
+		button {
+			border: 0;
+			cursor: pointer;
 		}
 
 		.app {
-			position: relative;
-			height: 100%;
-			width: 100%;
+			height: 100vh;
+			height: 100dvh;
+			display: grid;
+			grid-template-rows: auto minmax(0, 1fr);
 			overflow: hidden;
-			display: flex;
-			flex-direction: column;
 		}
 
-		/* 顶部栏 */
-		.header {
+		.topbar {
+			display: flex;
+			align-items: center;
+			justify-content: space-between;
+			gap: 20px;
+			padding: 18px 24px;
+			border-bottom: 1px solid var(--line);
+			background: rgba(8, 11, 16, 0.82);
+			backdrop-filter: blur(16px);
 			position: sticky;
 			top: 0;
-			z-index: 10;
-			height: 64px;
+			z-index: 20;
+		}
+
+		.brand {
 			display: flex;
 			align-items: center;
-			justify-content: center;
-			background: #0f172a;
-			backdrop-filter: saturate(150%) blur(8px);
-			border-bottom: 1px solid rgba(148,163,184,0.15);
-			padding: 0 88px;
+			gap: 14px;
+			min-width: 260px;
 		}
-		.header-logo {
-			position: absolute;
-			left: 16px;
-			height: 40px;
-			width: auto;
+
+		.logo {
+			width: 42px;
+			height: 42px;
+			border-radius: 10px;
+			background: linear-gradient(135deg, #22c55e, #38bdf8);
+			display: grid;
+			place-items: center;
+			color: #04110a;
+			font-weight: 900;
+			box-shadow: 0 14px 35px rgba(34, 197, 94, 0.22);
 		}
-		.header .title {
+
+		.brand-title {
 			font-size: 18px;
-			font-weight: 600;
-			letter-spacing: 0.5px;
-			color: #FFFFFF;
+			font-weight: 780;
+			line-height: 1.1;
+			letter-spacing: 0;
 		}
 
-		/* 设置按钮和GitHub链接 */
-		.header-actions {
-			position: absolute;
-			right: 16px;
-			top: 50%;
-			transform: translateY(-50%);
-			display: flex;
-			align-items: center;
-			gap: 12px;
-		}
-		.settings-btn {
-			height: 36px;
-			padding: 0 14px;
-			border-radius: 8px;
-			border: 1px solid rgba(255,255,255,0.3);
-			background: rgba(255,255,255,0.1);
-			color: #FFFFFF;
-			cursor: pointer;
-			transition: all .2s ease;
-		}
-		.settings-btn:hover { 
-			border-color: rgba(255,255,255,0.5); 
-			background: rgba(255,255,255,0.2);
-			transform: translateZ(0) scale(1.02); 
-		}
-		.github-link {
-			display: flex;
-			align-items: center;
-			justify-content: center;
-			height: 36px;
-			width: 36px;
-			border-radius: 8px;
-			border: 1px solid rgba(255,255,255,0.3);
-			background: rgba(255,255,255,0.1);
-			color: #FFFFFF;
-			text-decoration: none;
-			transition: all .2s ease;
-		}
-		.github-link:hover { 
-			border-color: rgba(255,255,255,0.5); 
-			background: rgba(255,255,255,0.2);
-			transform: translateZ(0) scale(1.02); 
-		}
-		.github-link svg {
-			width: 20px;
-			height: 20px;
-			fill: currentColor;
+		.brand-subtitle {
+			margin-top: 4px;
+			color: var(--muted);
+			font-size: 12px;
+			line-height: 1.2;
 		}
 
-		/* 主体分屏 */
-		.main {
-			flex: 1 1 auto;
-			position: relative;
-			display: flex;
-			width: 100%;
-			height: calc(100% - 64px);
-		}
-
-		.panel {
-			position: relative;
+		.status-strip {
 			display: flex;
 			align-items: center;
-			justify-content: center;
-			user-select: none;
-			transition: width .6s cubic-bezier(.25,.8,.25,1);
+			justify-content: flex-end;
+			gap: 10px;
+			flex-wrap: wrap;
+		}
+
+		.pill {
+			display: inline-flex;
+			align-items: center;
+			gap: 8px;
+			height: 34px;
+			padding: 0 12px;
+			border-radius: 999px;
+			background: rgba(255, 255, 255, 0.06);
+			border: 1px solid var(--line);
+			color: var(--muted);
+			font-size: 12px;
+			white-space: nowrap;
+		}
+
+		.dot {
+			width: 8px;
+			height: 8px;
+			border-radius: 50%;
+			background: var(--muted);
+			box-shadow: 0 0 0 3px rgba(145, 160, 175, 0.14);
+		}
+
+		.dot.ok { background: var(--accent); box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18); }
+		.dot.warn { background: var(--warn); box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.18); }
+		.dot.bad { background: var(--danger); box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.18); }
+
+		.workspace {
+			display: grid;
+			grid-template-columns: 380px minmax(0, 1fr) 340px;
+			gap: 18px;
+			padding: 18px;
+			min-height: 0;
+			height: 100%;
 			overflow: hidden;
 		}
 
-		.value-wrap {
+		.sidebar, .watch, .activity {
+			min-height: 0;
+			background: rgba(16, 23, 32, 0.86);
+			border: 1px solid var(--line);
+			border-radius: 8px;
+			box-shadow: var(--shadow);
+			overflow: hidden;
+		}
+
+		.sidebar, .activity {
+			display: flex;
+			flex-direction: column;
+		}
+
+		.sidebar .results {
+			flex: 0 0 auto;
+		}
+
+		.sidebar #selectedEvent {
+			flex: 0 0 auto;
+		}
+
+		.sidebar .markets {
+			flex: 1 1 auto;
+		}
+
+		.section {
+			padding: 16px;
+			border-bottom: 1px solid var(--line);
+		}
+
+		.section:last-child { border-bottom: 0; }
+
+		.section-title {
+			font-size: 13px;
+			font-weight: 760;
+			color: #dce8f3;
+			margin-bottom: 10px;
+		}
+
+		.search-row {
+			display: grid;
+			grid-template-columns: 1fr auto;
+			gap: 10px;
+		}
+
+		.field, .select {
+			width: 100%;
+			height: 42px;
+			border-radius: 8px;
+			border: 1px solid rgba(255, 255, 255, 0.13);
+			background: rgba(255, 255, 255, 0.06);
+			color: var(--text);
+			padding: 0 12px;
+			outline: none;
+		}
+
+		.field:focus, .select:focus {
+			border-color: rgba(56, 189, 248, 0.75);
+			box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.14);
+		}
+
+		.select option {
+			background: #111827;
+			color: var(--text);
+		}
+
+		.btn {
+			height: 42px;
+			padding: 0 14px;
+			border-radius: 8px;
+			background: rgba(255, 255, 255, 0.08);
+			border: 1px solid rgba(255, 255, 255, 0.13);
+			color: var(--text);
+			font-weight: 700;
+		}
+
+		.btn.primary {
+			background: linear-gradient(135deg, #22c55e, #38bdf8);
+			color: #04110a;
+			border-color: transparent;
+		}
+
+		.btn.danger {
+			background: rgba(239, 68, 68, 0.12);
+			border-color: rgba(239, 68, 68, 0.3);
+			color: #fecaca;
+		}
+
+		.btn:disabled {
+			opacity: 0.45;
+			cursor: not-allowed;
+		}
+
+		.helper {
+			margin-top: 10px;
+			color: var(--muted);
+			font-size: 12px;
+			line-height: 1.55;
+		}
+
+		.results, .markets, .feed {
+			overflow: auto;
+			min-height: 0;
+		}
+
+		.results { max-height: 310px; }
+
+		.result-item, .market-item, .feed-item {
+			width: 100%;
+			text-align: left;
+			background: rgba(255, 255, 255, 0.045);
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			border-radius: 8px;
+			color: var(--text);
+			padding: 12px;
+			margin-bottom: 10px;
+		}
+
+		.result-item:hover, .market-item:hover {
+			border-color: rgba(56, 189, 248, 0.45);
+			background: rgba(56, 189, 248, 0.08);
+		}
+
+		.result-title, .market-title {
+			font-size: 13px;
+			font-weight: 720;
+			line-height: 1.35;
+		}
+
+		.meta {
+			margin-top: 8px;
+			display: flex;
+			gap: 8px;
+			flex-wrap: wrap;
+			color: var(--muted);
+			font-size: 11px;
+		}
+
+		.event-card {
+			background: rgba(255, 255, 255, 0.045);
+			border: 1px solid rgba(255, 255, 255, 0.08);
+			border-radius: 8px;
+			padding: 13px;
+		}
+
+		.event-title {
+			font-size: 15px;
+			font-weight: 780;
+			line-height: 1.3;
+		}
+
+		.event-description {
+			margin-top: 8px;
+			color: var(--muted);
+			font-size: 12px;
+			line-height: 1.5;
+			max-height: 76px;
+			overflow: hidden;
+		}
+
+		.market-header {
+			display: flex;
+			align-items: flex-start;
+			justify-content: space-between;
+			gap: 10px;
+			margin-bottom: 10px;
+		}
+
+		.outcomes {
+			display: grid;
+			gap: 8px;
+		}
+
+		.outcome {
+			display: grid;
+			grid-template-columns: 1fr auto auto;
+			align-items: center;
+			gap: 8px;
+			padding: 8px;
+			border-radius: 7px;
+			background: rgba(0, 0, 0, 0.16);
+			border: 1px solid rgba(255, 255, 255, 0.07);
+		}
+
+		.outcome-name {
+			min-width: 0;
+			font-size: 12px;
+			color: #dce8f3;
+			overflow: hidden;
+			text-overflow: ellipsis;
+			white-space: nowrap;
+		}
+
+		.price {
+			font-variant-numeric: tabular-nums;
+			color: #bfdbfe;
+			font-size: 12px;
+		}
+
+		.add {
+			height: 30px;
+			padding: 0 10px;
+			border-radius: 7px;
+			background: rgba(34, 197, 94, 0.14);
+			color: #bbf7d0;
+			border: 1px solid rgba(34, 197, 94, 0.3);
+			font-size: 12px;
+			font-weight: 740;
+		}
+
+		.add.market-add {
+			height: 34px;
+			white-space: nowrap;
+		}
+
+		.watch {
+			display: grid;
+			grid-template-rows: auto minmax(0, 1fr);
+		}
+
+		.hero {
+			padding: 18px;
+			border-bottom: 1px solid var(--line);
+			display: grid;
+			grid-template-columns: minmax(0, 1fr) auto;
+			gap: 16px;
+			align-items: start;
+		}
+
+		.hero h1 {
+			margin: 0;
+			font-size: 28px;
+			line-height: 1.08;
+			letter-spacing: 0;
+		}
+
+		.hero p {
+			margin: 10px 0 0;
+			color: var(--muted);
+			font-size: 13px;
+			line-height: 1.5;
+			max-width: 760px;
+		}
+
+		.hero-actions {
+			display: flex;
+			gap: 10px;
+			flex-wrap: wrap;
+			justify-content: flex-end;
+		}
+
+		.watch-grid {
+			padding: 18px;
+			display: grid;
+			grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+			gap: 14px;
+			align-content: start;
+			overflow: auto;
+			min-height: 0;
+		}
+
+		.watch-grid.single {
+			grid-template-columns: 1fr;
+			align-content: stretch;
+		}
+
+		.watch-grid.quad {
+			grid-template-columns: repeat(2, minmax(0, 1fr));
+			grid-template-rows: repeat(2, minmax(0, 1fr));
+			align-content: stretch;
+		}
+
+		.empty {
+			grid-column: 1 / -1;
+			border: 1px dashed rgba(255, 255, 255, 0.16);
+			border-radius: 8px;
+			padding: 28px;
+			color: var(--muted);
+			text-align: center;
+			line-height: 1.6;
+		}
+
+		.watch-card {
+			position: relative;
+			overflow: hidden;
+			border-radius: 8px;
+			border: 1px solid rgba(255, 255, 255, 0.11);
+			background: rgba(255, 255, 255, 0.035);
+			padding: 0;
+			min-height: 230px;
+			display: grid;
+			grid-template-rows: auto minmax(0, 1fr) auto;
+		}
+
+		.watch-grid.single .watch-card {
+			height: 100%;
+			min-height: 0;
+		}
+
+		.watch-grid.quad .watch-card {
+			min-height: 0;
+		}
+
+		.watch-card.flash {
+			animation: flashCard 900ms ease;
+		}
+
+		@keyframes flashCard {
+			0%, 100% { border-color: rgba(255, 255, 255, 0.11); }
+			20%, 70% { border-color: rgba(34, 197, 94, 0.9); box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.18); }
+		}
+
+		.watch-top {
+			display: flex;
+			justify-content: space-between;
+			gap: 10px;
+			align-items: flex-start;
+			padding: 14px 16px 0;
+			z-index: 1;
+		}
+
+		.watch-name {
+			font-size: 13px;
+			color: var(--muted);
+			line-height: 1.35;
+		}
+
+		.remove {
+			width: 30px;
+			height: 30px;
+			border-radius: 7px;
+			background: rgba(255, 255, 255, 0.06);
+			color: var(--muted);
+			border: 1px solid rgba(255, 255, 255, 0.1);
+		}
+
+		.big-price {
+			align-self: center;
+			font-size: clamp(54px, 8vw, 132px);
+			line-height: 0.9;
+			font-weight: 900;
+			letter-spacing: 0;
+			font-variant-numeric: tabular-nums;
+			color: #eafff1;
+			text-shadow: 0 0 38px rgba(34, 197, 94, 0.34);
+		}
+
+		.outcome-panels {
+			display: grid;
+			min-height: 0;
+		}
+
+		.outcome-panels.two {
+			display: grid;
+		}
+
+		.outcome-panel {
+			min-height: 0;
+			min-width: 0;
+			display: grid;
+			place-items: center;
 			text-align: center;
 			padding: 24px 16px;
-		}
-		.value {
-			font-weight: 800;
-			line-height: 1;
-			letter-spacing: 1px;
-			text-shadow: 0 0 12px rgba(255,255,255,0.08);
-		}
-		/* 大屏适配字号（作为默认值，会被内联样式覆盖） */
-		.value { font-size: clamp(37.33px, 8.67vw, 106.67px); }
-		.label { margin-top: 10px; font-size: clamp(42px, 6.6vw, 60px); opacity: .8; }
-		
-		/* 颜色选择器样式 */
-		.color-picker-wrapper {
-			display: flex;
-			flex-direction: column;
-			gap: 8px;
-		}
-		.color-presets {
-			display: grid;
-			grid-template-columns: repeat(5, 1fr);
-			gap: 8px;
-		}
-		.color-preset {
-			width: 100%;
-			height: 32px;
-			border-radius: 6px;
-			border: 2px solid transparent;
-			cursor: pointer;
-			transition: all .2s ease;
-		}
-		.color-preset:hover {
-			transform: scale(1.05);
-			border-color: rgba(255,255,255,0.5);
-		}
-		.color-preset.selected {
-			border-color: #3B82F6;
-			box-shadow: 0 0 0 2px rgba(59,130,246,0.3);
-		}
-		.color-custom-input {
-			display: flex;
-			align-items: center;
-			gap: 8px;
-		}
-		.color-custom-input input[type="color"] {
-			width: 40px;
-			height: 32px;
-			border: 1px solid rgba(148,163,184,0.25);
-			border-radius: 6px;
-			cursor: pointer;
-			padding: 0;
-		}
-		.color-custom-input input[type="text"] {
-			flex: 1;
+			position: relative;
+			overflow: hidden;
+			border-right: 1px solid rgba(255, 255, 255, 0.08);
 		}
 
-		/* 错误提示 */
-		.toast {
+		.outcome-panel:last-child {
+			border-right: 0;
+		}
+
+		.outcome-panel::before {
+			content: "";
 			position: absolute;
-			top: 16px;
-			left: 50%;
-			transform: translateX(-50%);
-			background: rgba(255, 77, 109, 0.1);
-			border: 1px solid rgba(255,77,109,0.35);
-			color: #FFD5DC;
-			padding: 8px 12px;
-			border-radius: 8px;
-			font-size: 12px;
-			backdrop-filter: blur(6px);
-			opacity: 0;
-			pointer-events: none;
-			transition: opacity .25s ease;
-		}
-		.toast.show { opacity: 1; }
-
-		/* 弹窗样式 */
-		.modal {
-			position: fixed;
 			inset: 0;
-			display: none;
+			background: radial-gradient(circle at center, currentColor, transparent 58%);
+			opacity: 0.08;
+		}
+
+		.outcome-panel:nth-child(odd) {
+			color: #22d3ee;
+			background: rgba(8, 145, 178, 0.18);
+		}
+
+		.outcome-panel:nth-child(even) {
+			color: #fb7185;
+			background: rgba(127, 29, 29, 0.32);
+		}
+
+		.outcome-panel .big-price {
+			color: currentColor;
+			text-shadow: 0 0 38px color-mix(in srgb, currentColor 34%, transparent);
+		}
+
+		.outcome-label {
+			margin-top: 14px;
+			font-size: clamp(20px, 2.4vw, 38px);
+			font-weight: 760;
+			opacity: 0.72;
+			line-height: 1.1;
+		}
+
+		.watch-grid.single .big-price {
+			font-size: clamp(58px, 9vw, 118px);
+		}
+
+		.watch-grid.quad .big-price {
+			font-size: clamp(68px, 8.4vw, 154px);
+		}
+
+		.delta {
+			display: inline-flex;
 			align-items: center;
-			justify-content: center;
-			background: rgba(0,0,0,0.5);
-			backdrop-filter: blur(2px);
-			z-index: 50;
-		}
-		.modal.show { display: flex; }
-		.modal-card {
-			width: 100%;
-			height: 100%;
-			background: var(--card);
-			border: none;
-			border-radius: 0;
-			box-shadow: none;
-			padding: 24px;
-			overflow-y: auto;
-			display: flex;
-			flex-direction: column;
-		}
-		.modal-title {
-			font-size: 24px;
-			font-weight: 700;
-			margin: 6px 4px 20px 4px;
-			color: var(--text-strong);
-		}
-		.options-list {
-			flex: 1;
-			overflow-y: auto;
-			margin-bottom: 20px;
-		}
-		.option-item {
-			background: #0B1222;
-			border: 1px solid rgba(148,163,184,0.2);
-			border-radius: 12px;
-			padding: 16px;
-			margin-bottom: 12px;
-		}
-		.option-header {
-			display: flex;
-			justify-content: space-between;
-			align-items: center;
-			margin-bottom: 12px;
-		}
-		.option-number {
-			font-size: 14px;
-			font-weight: 600;
-			color: var(--text-dim);
-		}
-		.btn-remove {
-			height: 28px;
-			padding: 0 12px;
-			border-radius: 6px;
-			border: 1px solid rgba(255,77,109,0.3);
-			background: rgba(255,77,109,0.1);
-			color: #FF9AB0;
-			cursor: pointer;
+			gap: 6px;
+			color: var(--muted);
 			font-size: 12px;
-			transition: all .2s ease;
+			font-variant-numeric: tabular-nums;
 		}
-		.btn-remove:hover {
-			background: rgba(255,77,109,0.2);
-			border-color: rgba(255,77,109,0.5);
+
+		.delta.up { color: #bbf7d0; }
+		.delta.down { color: #fecaca; }
+
+		.controls {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 10px;
 		}
-		.form-row { display: flex; gap: 12px; margin-bottom: 12px; }
-		.form-col { flex: 1; display: flex; flex-direction: column; }
-		.label-sm { font-size: 12px; color: var(--text-dim); margin: 4px 2px 6px 2px; }
-		input[type="text"], select {
-			background: #0B1222;
-			border: 1px solid rgba(148,163,184,0.25);
-			border-radius: 10px;
-			padding: 12px 12px;
-			color: #CCE1FF;
-			outline: none;
-			transition: border-color .2s ease, box-shadow .2s ease;
+
+		.control-row {
+			display: grid;
+			gap: 7px;
+			margin-bottom: 12px;
 		}
-		input[type="text"]::placeholder { color: #7C8CA3; }
-		input[type="text"]:focus, select:focus {
-			border-color: #3B82F6;
-			box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+
+		.control-row label {
+			color: var(--muted);
+			font-size: 12px;
 		}
-		.token-custom-input {
-			margin-top: 8px;
+
+		.feed {
+			padding: 16px;
+			flex: 1 1 auto;
+		}
+
+		.feed-item {
+			margin-bottom: 9px;
+			font-size: 12px;
+			line-height: 1.45;
+		}
+
+		.feed-time {
+			color: var(--muted);
+			font-size: 11px;
+			margin-bottom: 4px;
+		}
+
+		.alert-overlay {
+			position: fixed;
+			top: 18px;
+			right: 18px;
+			z-index: 80;
 			display: none;
+			width: min(420px, calc(100vw - 36px));
+			pointer-events: none;
 		}
-		.token-custom-input.show {
+
+		.alert-overlay.show {
 			display: block;
 		}
-		.modal-actions {
+
+		.alert-box {
+			width: 100%;
+			text-align: left;
+			border-radius: 8px;
+			border: 1px solid rgba(34, 197, 94, 0.55);
+			background: linear-gradient(180deg, rgba(20, 83, 45, 0.96), rgba(5, 46, 22, 0.96));
+			box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48);
+			padding: 18px;
+			pointer-events: auto;
+			animation: toastPulse 1100ms ease infinite;
+		}
+
+		@keyframes toastPulse {
+			0%, 100% { transform: translateY(0); box-shadow: 0 24px 70px rgba(0, 0, 0, 0.48); }
+			50% { transform: translateY(2px); box-shadow: 0 24px 90px rgba(34, 197, 94, 0.24); }
+		}
+
+		.alert-kicker {
+			color: #bbf7d0;
+			font-size: 13px;
+			font-weight: 850;
+		}
+
+		.alert-main {
+			margin-top: 8px;
+			font-size: 34px;
+			line-height: 1;
+			font-weight: 950;
+			letter-spacing: 0;
+		}
+
+		.alert-detail {
 			margin-top: 10px;
-			display: flex;
-			gap: 10px;
-			justify-content: space-between;
-			align-items: center;
+			color: #dcfce7;
+			font-size: 13px;
+			line-height: 1.45;
 		}
-		.btn {
-			height: 38px;
-			padding: 0 16px;
-			border-radius: 10px;
-			border: 1px solid rgba(148,163,184,0.35);
-			background: #0B1222;
-			color: #D8E7FF;
-			cursor: pointer;
-			transition: all .2s ease;
+
+		.alert-close {
+			margin-top: 14px;
+			background: #f0fdf4;
+			color: #052e16;
 		}
-		.btn.primary {
-			background: linear-gradient(90deg, #2563EB, #7C3AED);
-			border: none;
-			color: #EAF2FF;
+
+		@media (max-width: 1180px) {
+			.workspace {
+				grid-template-columns: 360px minmax(0, 1fr);
+			}
+			.activity {
+				grid-column: 1 / -1;
+			}
 		}
-		.btn:hover { transform: translateZ(0) scale(1.02); }
-		.btn-add {
-			background: linear-gradient(90deg, #059669, #10B981);
-			border: none;
-			color: #EAF2FF;
-		}
-		.btn-export {
-			background: linear-gradient(90deg, #7C3AED, #A855F7);
-			border: none;
-			color: #EAF2FF;
-		}
-		.btn-import {
-			background: linear-gradient(90deg, #DC2626, #EF4444);
-			border: none;
-			color: #EAF2FF;
-		}
-		input[type="number"] {
-			background: #0B1222;
-			border: 1px solid rgba(148,163,184,0.25);
-			border-radius: 10px;
-			padding: 12px 12px;
-			color: #CCE1FF;
-			outline: none;
-			transition: border-color .2s ease, box-shadow .2s ease;
-		}
-		input[type="number"]:focus {
-			border-color: #3B82F6;
-			box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
-		}
-		input[type="file"] {
-			display: none;
-		}
-		.config-section {
-			background: #0B1222;
-			border: 1px solid rgba(148,163,184,0.2);
-			border-radius: 12px;
-			padding: 16px;
-			margin-bottom: 16px;
-		}
-		.config-section-title {
-			font-size: 14px;
-			font-weight: 600;
-			color: var(--text-strong);
-			margin-bottom: 12px;
-		}
-		.count-selector {
-			display: flex;
-			align-items: center;
-			gap: 12px;
-		}
-		.count-selector label {
-			font-size: 12px;
-			color: var(--text-dim);
-		}
-		.count-selector input {
-			width: 80px;
-		}
-		.import-export-buttons {
-			display: flex;
-			gap: 10px;
+
+		@media (max-width: 760px) {
+			.topbar {
+				align-items: flex-start;
+				flex-direction: column;
+			}
+			.brand {
+				min-width: 0;
+			}
+			.status-strip {
+				justify-content: flex-start;
+			}
+			.workspace {
+				grid-template-columns: 1fr;
+				padding: 12px;
+			}
+			.hero {
+				grid-template-columns: 1fr;
+			}
+			.hero-actions {
+				justify-content: flex-start;
+			}
+			.controls {
+				grid-template-columns: 1fr;
+			}
+			.watch-grid.quad {
+				grid-template-columns: 1fr;
+				grid-template-rows: none;
+			}
+			.outcome-panel {
+				border-right: 1px solid rgba(255, 255, 255, 0.08);
+				border-bottom: 0;
+			}
+			.outcome-panel:last-child {
+				border-right: 0;
+			}
 		}
 	</style>
 </head>
 <body>
-		<div class="app">
-		<div class="header">
-			<img src="https://i.mji.rip/2025/11/12/142a4a77b2d0c04dc481e1057a0d4be1.png" alt="Polymarket Logo" class="header-logo">
-			<div class="title" id="headerTitle">Fed decision in March?</div>
-			<div class="header-actions">
-				<a href="https://github.com/WandsgYu/polymarket-odds-visualizer" target="_blank" rel="noopener noreferrer" class="github-link" title="GitHub">
-					<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-						<path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
-					</svg>
-				</a>
-				<button class="settings-btn" id="openSettings">配置</button>
+	<div class="app">
+		<header class="topbar">
+			<div class="brand">
+				<div class="logo">GP</div>
+				<div>
+					<div class="brand-title">Polymarket Goal Pulse</div>
+					<div class="brand-subtitle">搜索赛事，订阅盘口，用 WebSocket 抓突变和进球</div>
+				</div>
 			</div>
-		</div>
-		<div class="main" id="mainContainer">
-			<!-- 面板将动态生成 -->
-		</div>
+			<div class="status-strip">
+				<div class="pill"><span id="marketDot" class="dot warn"></span><span id="marketStatus">Market WS 未连接</span></div>
+				<div class="pill"><span id="sportsDot" class="dot warn"></span><span id="sportsStatus">Sports WS 未连接</span></div>
+				<div class="pill" id="latencyPill">最后更新 --</div>
+			</div>
+		</header>
+
+		<main class="workspace">
+			<aside class="sidebar">
+				<section class="section">
+					<div class="section-title">1. 搜索事件</div>
+					<div class="search-row">
+						<input id="searchInput" class="field" value="soccer" placeholder="输入球队、联赛、事件关键词">
+						<button id="searchBtn" class="btn primary">搜索</button>
+					</div>
+					<div class="helper">使用 Gamma 公共搜索接口，不需要打开 Polymarket 页面，也不需要手动进 DevTools 抓 token。</div>
+				</section>
+
+				<section class="section results" id="results"></section>
+
+				<section class="section" id="selectedEvent"></section>
+
+				<section class="section markets" id="markets"></section>
+			</aside>
+
+			<section class="watch">
+				<div class="hero">
+					<div>
+						<h1 id="headline">选择一个足球相关盘口开始监听</h1>
+						<p id="subline">推荐监听比分、胜负、下一球、让球等会在进球时快速重定价的盘口。价格突变会触发大屏提醒；如果 Sports WebSocket 推送比分变化，也会直接触发进球提醒。</p>
+					</div>
+					<div class="hero-actions">
+						<button id="connectBtn" class="btn primary">连接 WebSocket</button>
+						<button id="testAlertBtn" class="btn">测试提醒</button>
+						<button id="clearBtn" class="btn danger">清空监听</button>
+					</div>
+				</div>
+				<div class="watch-grid" id="watchGrid"></div>
+			</section>
+
+			<aside class="activity">
+				<section class="section">
+					<div class="section-title">告警设置</div>
+					<div class="controls">
+						<div class="control-row">
+							<label for="jumpWindowSeconds">突变统计窗口（秒）</label>
+							<input id="jumpWindowSeconds" class="field" type="number" min="0.2" max="10" step="0.1" value="1.5">
+						</div>
+						<div class="control-row">
+							<label for="jumpThreshold">窗口内价格突变阈值（百分点）</label>
+							<input id="jumpThreshold" class="field" type="number" min="1" max="80" step="1" value="8">
+						</div>
+						<div class="control-row">
+							<label for="quietSeconds">同盘口静默秒数</label>
+							<input id="quietSeconds" class="field" type="number" min="3" max="300" step="1" value="20">
+						</div>
+						<div class="control-row">
+							<label for="maxSpread">盘口最大价差</label>
+							<input id="maxSpread" class="field" type="number" min="0" max="1" step="0.01" value="0.08">
+						</div>
+					</div>
+					<div class="helper">Market WS 看盘口变化，Sports WS 只用于当前已选择或已监听赛事的比分提醒。</div>
+				</section>
+
+				<section class="section feed" id="feed"></section>
+			</aside>
+		</main>
 	</div>
 
-	<!-- 配置弹窗 -->
-	<div class="modal" id="settingsModal" aria-hidden="true">
-		<div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-			<div class="modal-title" id="modalTitle">配置选项</div>
-			
-			<!-- 基础配置 -->
-			<div class="config-section">
-				<div class="config-section-title">基础设置</div>
-				<div class="form-row">
-					<div class="form-col">
-						<label class="label-sm">标题文本</label>
-						<input type="text" id="headerTitleInput" placeholder="例如：polymarket实时胜率展示" value="Fed decision in March?">
-					</div>
-					<div class="form-col">
-						<label class="label-sm">请求频率（秒）</label>
-						<input type="number" id="refreshRate" min="0.5" max="60" step="0.1" value="2">
-					</div>
-				</div>
-				<div class="form-row">
-					<div class="form-col">
-						<label class="label-sm">事件结果总数（包含"其他"）</label>
-						<input type="number" id="eventCount" min="1" max="10" value="3">
-					</div>
-					<div class="form-col">
-						<label class="label-sm">概率字号（px）</label>
-						<input type="number" id="valueFontSize" min="20" max="200" value="80">
-					</div>
-					<div class="form-col">
-						<label class="label-sm">事件名称字号（px）</label>
-						<input type="number" id="labelFontSize" min="12" max="100" value="48">
-					</div>
-				</div>
-			</div>
-
-			<!-- 导入导出 -->
-			<div class="config-section">
-				<div class="config-section-title">配置管理</div>
-				<div class="import-export-buttons">
-					<button class="btn btn-export" id="exportConfig">导出配置</button>
-					<button class="btn btn-import" id="importConfig">导入配置</button>
-					<input type="file" id="importFile" accept=".json" />
-				</div>
-			</div>
-
-			<!-- 选项列表 -->
-			<div class="config-section">
-				<div class="config-section-title">事件配置</div>
-				<div class="options-list" id="optionsList">
-					<!-- 选项将动态生成 -->
-				</div>
-			</div>
-
-			<div class="modal-actions">
-				<div>
-					<button class="btn" id="closeModal">取消</button>
-					<button class="btn primary" id="saveSettings">保存并应用</button>
-				</div>
-			</div>
+	<div id="alertOverlay" class="alert-overlay" role="dialog" aria-live="assertive">
+		<div class="alert-box">
+			<div class="alert-kicker" id="alertKicker">突变提醒</div>
+			<div class="alert-main" id="alertMain">GOAL?</div>
+			<div class="alert-detail" id="alertDetail">盘口或比分出现快速变化</div>
+			<button id="alertClose" class="btn alert-close">关闭</button>
 		</div>
 	</div>
 
 	<script>
-		(function () {
+		(() => {
+			const GAMMA = "https://gamma-api.polymarket.com";
+			const MARKET_WS = "wss://ws-subscriptions-clob.polymarket.com/ws/market";
+			const SPORTS_WS = "wss://sports-api.polymarket.com/ws";
+			const LS_STATE = "goal_pulse_state_v1";
+
 			const $ = (id) => document.getElementById(id);
-			const LS_OPTIONS = "pm_options";
-			const LS_REFRESH_RATE = "pm_refresh_rate";
-			const LS_TITLE = "pm_title";
-			const LS_VALUE_FONT_SIZE = "pm_value_font_size";
-			const LS_LABEL_FONT_SIZE = "pm_label_font_size";
-			let REFRESH_MS = 2000; // 默认2秒刷新
-			let TITLE_TEXT = "Fed decision in March?";
-			let VALUE_FONT_SIZE = 80;
-			let LABEL_FONT_SIZE = 48;
+			const audioState = {
+				context: null,
+				timer: null,
+				nodes: []
+			};
 
-			// 颜色主题配置
-			const THEMES = [
-				{ deep: "#061A3A", accent: "#2EA8FF", value: "#DFF2FF", label: "#A6D8FF", shadow: "0 0 30px rgba(46, 168, 255, 0.45), 0 0 60px rgba(46, 168, 255, 0.25)" },
-				{ deep: "#3A0610", accent: "#FF4D6D", value: "#FFE4EA", label: "#FF9AB0", shadow: "0 0 30px rgba(255, 77, 109, 0.45), 0 0 60px rgba(255, 77, 109, 0.25)" },
-				{ deep: "#0A3A1A", accent: "#4DFF6D", value: "#E4FFEA", label: "#9AFFB0", shadow: "0 0 30px rgba(77, 255, 109, 0.45), 0 0 60px rgba(77, 255, 109, 0.25)" },
-				{ deep: "#2A0A3A", accent: "#B84DFF", value: "#F4E4FF", label: "#D99AFF", shadow: "0 0 30px rgba(184, 77, 255, 0.45), 0 0 60px rgba(184, 77, 255, 0.25)" },
-				{ deep: "#3A2A0A", accent: "#FFD84D", value: "#FFF4E4", label: "#FFD99A", shadow: "0 0 30px rgba(255, 216, 77, 0.45), 0 0 60px rgba(255, 216, 77, 0.25)" },
-			];
+			async function fetchGamma(path) {
+				const localUrl = `/api/gamma${path}`;
+				try {
+					const localResponse = await fetch(localUrl, { cache: "no-store" });
+					if (localResponse.ok) return localResponse;
+				} catch {
+					// Static deployments can fall back to direct Gamma requests.
+				}
+				return fetch(`${GAMMA}${path}`, { cache: "no-store" });
+			}
+			const state = {
+				results: [],
+				selectedEvent: null,
+				allMarkets: [],
+				markets: [],
+				watches: [],
+				prices: {},
+				scoreBySlug: {},
+				feed: [],
+				settings: {
+					jumpThreshold: 8,
+					jumpWindowSeconds: 1.5,
+					quietSeconds: 20,
+					maxSpread: 0.08
+				},
+				lastAlertAt: {},
+				priceHistory: {},
+				priceRefreshTimer: null,
+				marketWs: null,
+				sportsWs: null,
+				marketPing: null,
+				reconnectMarketTimer: null,
+				reconnectSportsTimer: null
+			};
 
-			// 默认配置
-			const DEFAULT_OPTIONS = [
-				{ tokenId: "62938043365772447095885755955446362343142416536419862840923032141775380249586", eventName: "25bps", isOther: false },
-				{ tokenId: "102559817034631022221500208641784929295731053857601013029449249654006364919935", eventName: "no change", isOther: false },
-				{ tokenId: "", eventName: "其他", isOther: true }
-			];
-
-			let options = [];
-			let pollTimer = null;
-			let lastPrices = {};
-
-			// 加载配置
-			function loadOptions() {
-				const saved = localStorage.getItem(LS_OPTIONS);
-				if (saved) {
-					try {
-						options = JSON.parse(saved);
-						if (!Array.isArray(options) || options.length === 0) {
-							options = [...DEFAULT_OPTIONS];
-						}
-					} catch (e) {
-						options = [...DEFAULT_OPTIONS];
-					}
-				} else {
-					options = [...DEFAULT_OPTIONS];
-				}
-				
-				// 加载刷新频率
-				const savedRate = localStorage.getItem(LS_REFRESH_RATE);
-				if (savedRate) {
-					const rate = parseFloat(savedRate);
-					if (!isNaN(rate) && rate >= 0.5) {
-						REFRESH_MS = rate * 1000;
-					}
-				}
-				
-				// 加载标题
-				const savedTitle = localStorage.getItem(LS_TITLE);
-				if (savedTitle) {
-					TITLE_TEXT = savedTitle;
-				}
-				
-				// 加载字号
-				const savedValueFontSize = localStorage.getItem(LS_VALUE_FONT_SIZE);
-				if (savedValueFontSize) {
-					const size = parseInt(savedValueFontSize);
-					if (!isNaN(size) && size >= 20) {
-						VALUE_FONT_SIZE = size;
-					}
-				}
-				
-				const savedLabelFontSize = localStorage.getItem(LS_LABEL_FONT_SIZE);
-				if (savedLabelFontSize) {
-					const size = parseInt(savedLabelFontSize);
-					if (!isNaN(size) && size >= 12) {
-						LABEL_FONT_SIZE = size;
-					}
+			function parseMaybeJson(value, fallback = []) {
+				if (Array.isArray(value)) return value;
+				if (value == null || value === "") return fallback;
+				try {
+					const parsed = JSON.parse(value);
+					return Array.isArray(parsed) ? parsed : fallback;
+				} catch {
+					return fallback;
 				}
 			}
 
-			// 保存配置
-			function saveOptions() {
-				localStorage.setItem(LS_OPTIONS, JSON.stringify(options));
+			function pct(value) {
+				const num = Number(value);
+				if (!Number.isFinite(num)) return "--";
+				const percent = Math.max(0, Math.min(1, num)) * 100;
+				if (percent > 0 && percent < 10) return percent.toFixed(1) + "%";
+				return Math.round(percent) + "%";
 			}
 
-			// 保存刷新频率
-			function saveRefreshRate() {
-				localStorage.setItem(LS_REFRESH_RATE, (REFRESH_MS / 1000).toString());
-			}
-			
-			// 保存标题
-			function saveTitle() {
-				localStorage.setItem(LS_TITLE, TITLE_TEXT);
-			}
-			
-			// 保存字号
-			function saveFontSizes() {
-				localStorage.setItem(LS_VALUE_FONT_SIZE, VALUE_FONT_SIZE.toString());
-				localStorage.setItem(LS_LABEL_FONT_SIZE, LABEL_FONT_SIZE.toString());
+			function getMaxVisibleSpread() {
+				const spread = Number(state.settings.maxSpread);
+				return Number.isFinite(spread) ? Math.max(0, Math.min(1, spread)) : 0.08;
 			}
 
-			// 导出配置为JSON
-			function exportConfig() {
-				const config = {
-					options: options,
-					refreshRate: REFRESH_MS / 1000,
-					title: TITLE_TEXT,
-					valueFontSize: VALUE_FONT_SIZE,
-					labelFontSize: LABEL_FONT_SIZE,
-					version: "1.0"
+			function getJumpWindowMs() {
+				const seconds = Number(state.settings.jumpWindowSeconds);
+				const clamped = Number.isFinite(seconds) ? Math.max(0.2, Math.min(10, seconds)) : 1.5;
+				return Math.round(clamped * 1000);
+			}
+
+			function getJumpWindowLabel() {
+				return (getJumpWindowMs() / 1000).toFixed(1).replace(/\.0$/, "");
+			}
+
+			function filterMarkets(markets) {
+				const maxSpread = getMaxVisibleSpread();
+				return (markets || []).filter((market) => {
+					const tokenIds = parseMaybeJson(market.clobTokenIds);
+					const spread = Number(market.spread);
+					const spreadOk = !Number.isFinite(spread) || spread <= maxSpread;
+					return market.active && !market.closed && market.enableOrderBook && tokenIds.length > 0 && spreadOk;
+				});
+			}
+
+			function normalizedOutcomePrices(market) {
+				const outcomes = parseMaybeJson(market.outcomes);
+				const rawPrices = parseMaybeJson(market.outcomePrices).map(Number);
+				const bid = Number(market.bestBid);
+				const ask = Number(market.bestAsk);
+				const spread = Number(market.spread);
+				const hasReliableBinaryBook =
+					outcomes.length === 2 &&
+					Number.isFinite(bid) &&
+					Number.isFinite(ask) &&
+					bid > 0 &&
+					ask > 0 &&
+					bid < 1 &&
+					ask < 1 &&
+					ask >= bid &&
+					(!Number.isFinite(spread) || spread <= getMaxVisibleSpread());
+
+				if (hasReliableBinaryBook) {
+					const midpoint = Math.max(0, Math.min(1, (bid + ask) / 2));
+					return [midpoint, 1 - midpoint];
+				}
+
+				return rawPrices;
+			}
+
+			function priceFromBestBidAsk(bestBid, bestAsk, fallbackPrice = null) {
+				const bid = Number(bestBid);
+				const ask = Number(bestAsk);
+				if (Number.isFinite(bid) && Number.isFinite(ask) && bid >= 0 && ask <= 1 && ask >= bid) {
+					return (bid + ask) / 2;
+				}
+				const fallback = Number(fallbackPrice);
+				return Number.isFinite(fallback) ? fallback : null;
+			}
+
+			function pp(value) {
+				const num = Number(value);
+				if (!Number.isFinite(num)) return "--";
+				const sign = num > 0 ? "+" : "";
+				return sign + (num * 100).toFixed(1) + " pp";
+			}
+
+			function money(value) {
+				const num = Number(value);
+				if (!Number.isFinite(num)) return "--";
+				return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(num);
+			}
+
+			function nowTime() {
+				return new Date().toLocaleTimeString("zh-CN", { hour12: false });
+			}
+
+			function saveState() {
+				const saved = {
+					watches: state.watches,
+					selectedEvent: state.selectedEvent,
+					settings: state.settings
 				};
-				const jsonStr = JSON.stringify(config, null, 2);
-				const blob = new Blob([jsonStr], { type: "application/json" });
-				const url = URL.createObjectURL(blob);
-				const a = document.createElement("a");
-				a.href = url;
-				a.download = `polymarket-config-${new Date().toISOString().slice(0, 10)}.json`;
-				document.body.appendChild(a);
-				a.click();
-				document.body.removeChild(a);
-				URL.revokeObjectURL(url);
+				localStorage.setItem(LS_STATE, JSON.stringify(saved));
 			}
 
-			// 导入配置
-			function importConfig() {
-				const fileInput = $("importFile");
-				fileInput.click();
-			}
-
-			// 处理文件导入
-			function handleFileImport(event) {
-				const file = event.target.files[0];
-				if (!file) return;
-				
-				const reader = new FileReader();
-				reader.onload = function(e) {
-					try {
-						const config = JSON.parse(e.target.result);
-						
-						// 验证配置格式
-						if (!config.options || !Array.isArray(config.options)) {
-							alert("配置文件格式错误：缺少 options 数组");
-							return;
-						}
-						
-						if (config.options.length === 0) {
-							alert("配置文件错误：至少需要一个选项");
-							return;
-						}
-						
-						// 应用配置
-						options = config.options;
-						
-						// 应用刷新频率
-						if (config.refreshRate && typeof config.refreshRate === "number") {
-							const rate = Math.max(0.5, config.refreshRate);
-							REFRESH_MS = rate * 1000;
-							$("refreshRate").value = rate;
-						}
-						
-						// 应用标题
-						if (config.title && typeof config.title === "string") {
-							TITLE_TEXT = config.title;
-							$("headerTitleInput").value = TITLE_TEXT;
-							$("headerTitle").textContent = TITLE_TEXT;
-						}
-						
-						// 应用字号
-						if (config.valueFontSize && typeof config.valueFontSize === "number") {
-							VALUE_FONT_SIZE = Math.max(20, config.valueFontSize);
-							$("valueFontSize").value = VALUE_FONT_SIZE;
-						}
-						
-						if (config.labelFontSize && typeof config.labelFontSize === "number") {
-							LABEL_FONT_SIZE = Math.max(12, config.labelFontSize);
-							$("labelFontSize").value = LABEL_FONT_SIZE;
-						}
-						
-						// 更新事件总数
-						$("eventCount").value = options.length;
-						
-						// 保存并刷新UI
-						saveOptions();
-						saveRefreshRate();
-						saveTitle();
-						saveFontSizes();
-						renderOptionsList();
-						
-						// 自动应用配置
-						createPanels();
-						startPolling();
-						
-						alert("配置导入成功！已自动应用。");
-					} catch (err) {
-						alert("配置文件解析失败：" + err.message);
+			function normalizeSavedWatches(watches) {
+				if (!Array.isArray(watches)) return [];
+				const grouped = new Map();
+				watches.forEach((watch) => {
+					if (Array.isArray(watch.tokenIds)) {
+						grouped.set(watch.marketSlug || watch.id || watch.tokenIds.join(":"), watch);
+						return;
 					}
-				};
-				reader.readAsText(file);
-				// 清空input，允许重复导入同一文件
-				event.target.value = "";
+					if (!watch.tokenId) return;
+					const key = watch.marketSlug || watch.tokenId;
+					const current = grouped.get(key) || {
+						id: key,
+						eventSlug: watch.eventSlug || "",
+						eventTitle: watch.eventTitle || "",
+						marketSlug: watch.marketSlug || "",
+						marketQuestion: watch.marketQuestion || "",
+						tokenIds: [],
+						outcomes: [],
+						initialPrices: [],
+						lastPrices: [],
+						lastTradeSizeByToken: {},
+						lastUpdate: watch.lastUpdate || null
+					};
+					const index = Number.isInteger(watch.outcomeIndex) ? watch.outcomeIndex : current.tokenIds.length;
+					current.tokenIds[index] = watch.tokenId;
+					current.outcomes[index] = watch.outcome || "Outcome";
+					current.initialPrices[index] = Number(watch.initialPrice);
+					current.lastPrices[index] = Number(watch.lastPrice ?? watch.initialPrice);
+					if (watch.lastTradeSize) current.lastTradeSizeByToken[watch.tokenId] = watch.lastTradeSize;
+					grouped.set(key, current);
+				});
+				return Array.from(grouped.values()).map((watch) => ({
+					...watch,
+					id: watch.id || watch.marketSlug || watch.tokenIds.join(":"),
+					tokenIds: (watch.tokenIds || []).filter(Boolean),
+					outcomes: (watch.outcomes || []).filter((_, index) => watch.tokenIds?.[index]),
+					initialPrices: (watch.initialPrices || []).filter((_, index) => watch.tokenIds?.[index]),
+					lastPrices: (watch.lastPrices || []).filter((_, index) => watch.tokenIds?.[index]),
+					lastTradeSizeByToken: watch.lastTradeSizeByToken || {}
+				}));
 			}
 
-			// 格式化百分比（整数）
-			function formatPct(v) {
-				const pct = Math.max(0, Math.min(1, v)) * 100;
-				return Math.round(pct) + "%";
-			}
-
-			// 显示提示
-			function showToast(panelId, msg) {
-				const toast = document.querySelector(`#panel-${panelId} .toast`);
-				if (toast) {
-					toast.textContent = msg;
-					toast.classList.add("show");
-					setTimeout(() => toast.classList.remove("show"), 1600);
+			function loadState() {
+				try {
+					const saved = JSON.parse(localStorage.getItem(LS_STATE) || "{}");
+					if (Array.isArray(saved.watches)) state.watches = normalizeSavedWatches(saved.watches);
+					if (saved.selectedEvent) state.selectedEvent = saved.selectedEvent;
+					if (saved.settings) state.settings = { ...state.settings, ...saved.settings };
+				} catch {
+					// Ignore corrupt local state.
 				}
-			}
-
-			// 创建面板
-			function createPanels() {
-				const main = $("mainContainer");
-				main.innerHTML = "";
-				options.forEach((opt, idx) => {
-					const theme = THEMES[idx % THEMES.length];
-					// 使用配置的颜色，如果没有则使用主题颜色
-					const eventColor = opt.color || theme.accent;
-					// 根据颜色生成渐变背景
-					const colorRgb = hexToRgb(eventColor);
-					const deepColor = `rgba(${colorRgb.r * 0.1}, ${colorRgb.g * 0.1}, ${colorRgb.b * 0.1}, 0.8)`;
-					const midColor = `rgba(${colorRgb.r * 0.15}, ${colorRgb.g * 0.15}, ${colorRgb.b * 0.15}, 0.9)`;
-					const lightColor = `rgba(${colorRgb.r * 0.2}, ${colorRgb.g * 0.2}, ${colorRgb.b * 0.2}, 1)`;
-					
-					const panel = document.createElement("div");
-					panel.className = "panel";
-					panel.id = `panel-${idx}`;
-					panel.style.width = `${100 / options.length}%`;
-					panel.style.background = `radial-gradient(1200px 600px at ${idx % 2 === 0 ? '0%' : '100%'} 50%, ${deepColor} 0%, ${midColor} 60%, ${lightColor} 100%)`;
-					panel.style.borderRight = idx < options.length - 1 ? `1px solid ${eventColor}33` : "none";
-					
-					// 生成文字颜色（基于事件颜色）
-					const textColor = eventColor;
-					const labelColor = adjustBrightness(eventColor, 0.7);
-					const shadow = `0 0 30px ${eventColor}45, 0 0 60px ${eventColor}25`;
-					
-					panel.innerHTML = `
-						<div class="value-wrap">
-							<div class="value" style="color: ${textColor}; text-shadow: ${shadow}; font-size: ${VALUE_FONT_SIZE}px;" id="value-${idx}">0%</div>
-							<div class="label" style="color: ${labelColor}; font-size: ${LABEL_FONT_SIZE}px;" id="label-${idx}">${opt.eventName}</div>
-							<div class="toast" id="toast-${idx}"></div>
-						</div>
-					`;
-					main.appendChild(panel);
-				});
-				
-				// 更新标题
-				$("headerTitle").textContent = TITLE_TEXT;
-			}
-			
-			// 辅助函数：将十六进制颜色转换为RGB
-			function hexToRgb(hex) {
-				const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
-				return result ? {
-					r: parseInt(result[1], 16),
-					g: parseInt(result[2], 16),
-					b: parseInt(result[3], 16)
-				} : { r: 46, g: 168, b: 255 };
-			}
-			
-			// 辅助函数：调整颜色亮度
-			function adjustBrightness(hex, factor) {
-				const rgb = hexToRgb(hex);
-				const r = Math.round(rgb.r * factor);
-				const g = Math.round(rgb.g * factor);
-				const b = Math.round(rgb.b * factor);
-				return `rgb(${r}, ${g}, ${b})`;
-			}
-
-			// 更新UI
-			function updateUI(prices) {
-				let totalWidth = 0;
-				options.forEach((opt, idx) => {
-					const price = prices[idx] || 0;
-					const pct = Math.max(0, Math.min(1, price));
-					const panel = document.querySelector(`#panel-${idx}`);
-					const valueEl = document.querySelector(`#value-${idx}`);
-					if (panel && valueEl) {
-						valueEl.textContent = formatPct(pct);
-						const width = pct * 100;
-						panel.style.width = width.toFixed(2) + "%";
-						totalWidth += width;
-					}
-				});
-				// 更新标题
-				const titleParts = options.map((opt, idx) => {
-					return opt.eventName + " " + formatPct(prices[idx] || 0);
-				});
-				document.title = titleParts.join(" | ");
-			}
-
-			// 获取单个token价格
-			async function fetchPriceOnce(tokenId, signal) {
-				if (!tokenId || tokenId.trim() === "") {
-					return null;
-				}
-				const url = "https://clob.polymarket.com/price?side=SELL&token_id=" + encodeURIComponent(tokenId);
-				const resp = await fetch(url, { method: "GET", headers: { "accept": "application/json" }, signal });
-				if (!resp.ok) throw new Error("HTTP " + resp.status);
-				const data = await resp.json();
-				if (typeof data.price !== "string") throw new Error("响应无 price 字段");
-				const price = Number(data.price);
-				if (!Number.isFinite(price)) throw new Error("price 不是数字");
-				return Math.max(0, Math.min(1, price));
-			}
-
-			// 获取所有价格
-			async function fetchAllPrices(signal) {
-				const prices = {};
-				const promises = [];
-				let otherSum = 0;
-
-				// 先获取所有非"其他"选项的价格
-				options.forEach((opt, idx) => {
-					if (opt.isOther) {
-						prices[idx] = null; // 标记为"其他"，稍后计算
-					} else {
-						const promise = fetchPriceOnce(opt.tokenId, signal)
-							.then(price => {
-								if (price !== null) {
-									prices[idx] = price;
-									otherSum += price;
-								} else {
-									prices[idx] = 0;
-								}
-							})
-							.catch(err => {
-								console.error(`Token ${idx} fetch error:`, err);
-								prices[idx] = lastPrices[idx] || 0;
-							});
-						promises.push(promise);
-					}
-				});
-
-				await Promise.all(promises);
-
-				// 计算"其他"选项的概率
-				options.forEach((opt, idx) => {
-					if (opt.isOther) {
-						prices[idx] = Math.max(0, Math.min(1, 1 - otherSum));
-					}
-				});
-
-				return prices;
-			}
-
-			// 开始轮询
-			function startPolling() {
-				stopPolling();
-				// 立即拉一次
-				const abort = new AbortController();
-				fetchAllPrices(abort.signal).then((prices) => {
-					lastPrices = prices;
-					updateUI(prices);
-				}).catch((err) => {
-					console.error(err);
-					options.forEach((opt, idx) => {
-						showToast(idx, "拉取失败，保留上一数值");
+				state.watches.forEach((watch) => {
+					(watch.tokenIds || []).forEach((tokenId, index) => {
+						const price = Number(watch.lastPrices?.[index] ?? watch.initialPrices?.[index]);
+						if (Number.isFinite(price)) {
+							state.prices[tokenId] = price;
+							state.priceHistory[tokenId] = [{ time: Date.now(), price }];
+						}
 					});
 				});
-				// 周期轮询
-				pollTimer = setInterval(async () => {
-					try {
-						const prices = await fetchAllPrices(undefined);
-						lastPrices = prices;
-						updateUI(prices);
-					} catch (e) {
-						console.error(e);
-						options.forEach((opt, idx) => {
-							showToast(idx, "网络异常");
-						});
-					}
-				}, REFRESH_MS);
+				$("jumpWindowSeconds").value = state.settings.jumpWindowSeconds;
+				$("jumpThreshold").value = state.settings.jumpThreshold;
+				$("quietSeconds").value = state.settings.quietSeconds;
+				$("maxSpread").value = state.settings.maxSpread;
 			}
 
-			function stopPolling() {
-				if (pollTimer) {
-					clearInterval(pollTimer);
-					pollTimer = null;
+			function reconcileWatchMetadata(markets) {
+				state.watches.forEach((watch) => {
+					const market = markets.find((item) => item.slug === watch.marketSlug);
+					if (!market) return;
+					const tokenIds = parseMaybeJson(market.clobTokenIds);
+					const outcomes = parseMaybeJson(market.outcomes);
+					const previousTokenIds = watch.tokenIds || [];
+					const previousInitialPrices = watch.initialPrices || [];
+					const previousLastPrices = watch.lastPrices || [];
+					watch.tokenIds = tokenIds;
+					watch.outcomes = outcomes;
+					watch.marketQuestion = market.question || watch.marketQuestion;
+					watch.initialPrices = tokenIds.map((tokenId, index) => {
+						const existingIndex = previousTokenIds.indexOf(tokenId);
+						return Number(previousInitialPrices[existingIndex] ?? previousInitialPrices[index]);
+					});
+					watch.lastPrices = tokenIds.map((tokenId, index) => {
+						const existingIndex = previousTokenIds.indexOf(tokenId);
+						return Number(state.prices[tokenId] ?? previousLastPrices[existingIndex] ?? previousLastPrices[index]);
+					});
+				});
+			}
+
+			function setWsStatus(kind, status, tone) {
+				const dot = $(kind + "Dot");
+				const label = $(kind + "Status");
+				dot.className = "dot " + tone;
+				label.textContent = status;
+			}
+
+			function addFeed(message) {
+				state.feed.unshift({ time: nowTime(), message });
+				state.feed = state.feed.slice(0, 80);
+				renderFeed();
+			}
+
+			function renderFeed() {
+				$("feed").innerHTML = state.feed.map((item) => `
+					<div class="feed-item">
+						<div class="feed-time">${escapeHtml(item.time)}</div>
+						<div>${escapeHtml(item.message)}</div>
+					</div>
+				`).join("") || `<div class="helper">等待 WebSocket 或搜索动作。</div>`;
+			}
+
+			function escapeHtml(value) {
+				return String(value ?? "")
+					.replaceAll("&", "&amp;")
+					.replaceAll("<", "&lt;")
+					.replaceAll(">", "&gt;")
+					.replaceAll('"', "&quot;")
+					.replaceAll("'", "&#039;");
+			}
+
+			async function searchEvents() {
+				const q = $("searchInput").value.trim();
+				if (!q) return;
+				$("searchBtn").disabled = true;
+				$("results").innerHTML = `<div class="helper">搜索中...</div>`;
+				try {
+					const path = `/public-search?q=${encodeURIComponent(q)}&events_status=active&limit_per_type=12&search_profiles=false&optimized=true`;
+					const response = await fetchGamma(path);
+					if (!response.ok) throw new Error("HTTP " + response.status);
+					const data = await response.json();
+					state.results = (data.events || []).filter((event) => event && event.slug);
+					renderResults();
+					addFeed(`搜索 "${q}"，找到 ${state.results.length} 个事件`);
+				} catch (error) {
+					$("results").innerHTML = `<div class="helper">搜索失败：${escapeHtml(error.message)}</div>`;
+					addFeed("搜索失败：" + error.message);
+				} finally {
+					$("searchBtn").disabled = false;
 				}
 			}
 
-			// 根据事件总数更新选项列表
-			function updateOptionsByCount(count) {
-				const currentCount = options.length;
-				const targetCount = Math.max(1, Math.min(10, parseInt(count) || 2));
-				
-				if (targetCount > currentCount) {
-					// 增加选项
-					for (let i = currentCount; i < targetCount; i++) {
-						options.push({
-							tokenId: "",
-							eventName: `事件${i + 1}`,
-							isOther: false
-						});
-					}
-				} else if (targetCount < currentCount) {
-					// 减少选项
-					options = options.slice(0, targetCount);
-				}
-				
-				// 确保至少有一个"其他"选项
-				const hasOther = options.some(opt => opt.isOther);
-				if (!hasOther && options.length > 0) {
-					// 将最后一个设为"其他"
-					options[options.length - 1].isOther = true;
-					options[options.length - 1].tokenId = "";
-				}
-			}
-
-			// 渲染配置弹窗
-			function renderOptionsList() {
-				const list = $("optionsList");
-				list.innerHTML = "";
-				
-				// 更新事件总数输入框
-				$("eventCount").value = options.length;
-				
-				options.forEach((opt, idx) => {
-					const item = document.createElement("div");
-					item.className = "option-item";
-					const theme = THEMES[idx % THEMES.length];
-					const currentColor = opt.color || theme.accent;
-					const presetColors = [
-						"#2EA8FF", "#FF4D6D", "#4DFF6D", "#B84DFF", "#FFD84D",
-						"#FF6B35", "#00D4FF", "#FFB800", "#9D50FF", "#00FF88"
-					];
-					
-					item.innerHTML = `
-						<div class="option-header">
-							<span class="option-number">选项 ${idx + 1}</span>
+			function renderResults() {
+				$("results").innerHTML = state.results.map((event, index) => `
+					<button class="result-item" data-event-index="${index}">
+						<div class="result-title">${escapeHtml(event.title || event.slug)}</div>
+						<div class="meta">
+							<span>${escapeHtml(event.slug)}</span>
+							<span>成交量 ${money(event.volume)}</span>
+							<span>${event.closed ? "已关闭" : "活跃"}</span>
 						</div>
-						<div class="form-row">
-							<div class="form-col">
-								<label class="label-sm">Token ID</label>
-								<select class="token-select" data-index="${idx}">
-									<option value="other" ${opt.isOther ? "selected" : ""}>其他</option>
-									<option value="custom" ${!opt.isOther ? "selected" : ""}>自定义</option>
-								</select>
-								<input type="text" class="token-custom-input ${!opt.isOther ? "show" : ""}" 
-									data-index="${idx}" placeholder="输入 token_id" 
-									value="${opt.isOther ? "" : opt.tokenId}">
-							</div>
-							<div class="form-col">
-								<label class="label-sm">事件名称</label>
-								<input type="text" class="event-name-input" data-index="${idx}" 
-									placeholder="例如：Team A" value="${opt.eventName}">
-							</div>
+					</button>
+				`).join("") || `<div class="helper">没有找到事件。换球队名、联赛名或英文关键词试试。</div>`;
+
+				document.querySelectorAll("[data-event-index]").forEach((button) => {
+					button.addEventListener("click", () => selectEvent(Number(button.dataset.eventIndex)));
+				});
+			}
+
+			async function selectEvent(index) {
+				const item = state.results[index];
+				if (!item) return;
+				await loadEventDetails(item.slug);
+			}
+
+			async function loadEventDetails(slug) {
+				$("selectedEvent").innerHTML = `<div class="helper">加载事件详情...</div>`;
+				$("markets").innerHTML = "";
+				try {
+					const response = await fetchGamma(`/events/slug/${encodeURIComponent(slug)}?_=${Date.now()}`);
+					if (!response.ok) throw new Error("HTTP " + response.status);
+					const event = await response.json();
+					state.selectedEvent = {
+						id: event.id,
+						slug: event.slug,
+						title: event.title,
+						description: event.description,
+						volume: event.volume,
+						endDate: event.endDate
+					};
+					state.allMarkets = event.markets || [];
+					state.markets = filterMarkets(state.allMarkets);
+					reconcileWatchMetadata(state.markets);
+					saveState();
+					renderSelectedEvent();
+					renderMarkets();
+					addFeed(`已载入事件：${event.title || event.slug}`);
+				} catch (error) {
+					$("selectedEvent").innerHTML = `<div class="helper">事件详情加载失败：${escapeHtml(error.message)}</div>`;
+					addFeed("事件详情加载失败：" + error.message);
+				}
+			}
+
+			function renderSelectedEvent() {
+				const event = state.selectedEvent;
+				if (!event) {
+					$("selectedEvent").innerHTML = `<div class="helper">先搜索并选择一个事件。</div>`;
+					return;
+				}
+				$("selectedEvent").innerHTML = `
+					<div class="event-card">
+						<div class="event-title">${escapeHtml(event.title || event.slug)}</div>
+						<div class="meta">
+							<span>${escapeHtml(event.slug)}</span>
+							<span>成交量 ${money(event.volume)}</span>
 						</div>
-						<div class="form-row">
-							<div class="form-col">
-								<label class="label-sm">事件颜色</label>
-								<div class="color-picker-wrapper">
-									<div class="color-presets">
-										${presetColors.map((color, i) => `
-											<div class="color-preset ${currentColor === color ? 'selected' : ''}" 
-												data-index="${idx}" data-color="${color}" 
-												style="background: ${color}"></div>
-										`).join('')}
-									</div>
-									<div class="color-custom-input">
-										<input type="color" class="color-picker" data-index="${idx}" value="${currentColor}">
-										<input type="text" class="color-text-input" data-index="${idx}" 
-											placeholder="#2EA8FF" value="${currentColor}">
-									</div>
+						<div class="event-description">${escapeHtml(event.description || "")}</div>
+					</div>
+				`;
+				$("headline").textContent = event.title || "已选择事件";
+			}
+
+			function renderMarkets() {
+				const maxSpread = getMaxVisibleSpread();
+				$("markets").innerHTML = `
+					<div class="section-title">2. 选择盘口</div>
+					<div class="helper">当前隐藏价差大于 ${maxSpread.toFixed(2)} 的盘口，避免低流动性盘口制造误报。点一次“监听盘口”会把该盘口所有 outcomes 一起加入中间面板。</div>
+					${state.markets.map((market, marketIndex) => renderMarket(market, marketIndex)).join("") || `<div class="helper">这个事件没有价差合格的可用 CLOB 盘口。</div>`}
+				`;
+				document.querySelectorAll("[data-add-market-watch]").forEach((button) => {
+					button.addEventListener("click", () => {
+						addWatch(state.markets[Number(button.dataset.addMarketWatch)]);
+					});
+				});
+			}
+
+			function renderMarket(market, marketIndex) {
+				const outcomes = parseMaybeJson(market.outcomes);
+				const tokenIds = parseMaybeJson(market.clobTokenIds);
+				const prices = normalizedOutcomePrices(market);
+				return `
+					<div class="market-item">
+						<div class="market-header">
+							<div>
+								<div class="market-title">${escapeHtml(market.question || market.slug)}</div>
+								<div class="meta">
+									<span>${escapeHtml(market.slug || market.id)}</span>
+									<span>价差 ${escapeHtml(market.spread ?? "--")}</span>
 								</div>
 							</div>
+							<button class="add market-add" data-add-market-watch="${marketIndex}" ${tokenIds.length ? "" : "disabled"}>监听盘口</button>
 						</div>
+						<div class="outcomes">
+							${outcomes.map((name, outcomeIndex) => `
+								<div class="outcome">
+									<div class="outcome-name" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
+									<div class="price">${pct(prices[outcomeIndex])}</div>
+								</div>
+							`).join("")}
+						</div>
+					</div>
+				`;
+			}
+
+			function addWatch(market) {
+				const outcomes = parseMaybeJson(market.outcomes);
+				const tokenIds = parseMaybeJson(market.clobTokenIds);
+				const prices = normalizedOutcomePrices(market);
+				if (tokenIds.length === 0) return;
+				if (state.watches.some((watch) => watch.marketSlug === market.slug)) {
+					addFeed("该盘口已在监听列表中");
+					return;
+				}
+				const watch = {
+					id: market.slug || tokenIds.join(":"),
+					eventSlug: state.selectedEvent?.slug || "",
+					eventTitle: state.selectedEvent?.title || "",
+					marketSlug: market.slug || "",
+					marketQuestion: market.question || "",
+					tokenIds,
+					outcomes,
+					initialPrices: tokenIds.map((_, index) => Number(prices[index])),
+					lastPrices: tokenIds.map((_, index) => Number(prices[index])),
+					lastTradeSizeByToken: {},
+					lastUpdate: null
+				};
+				state.watches.push(watch);
+				watch.tokenIds.forEach((tokenId, index) => {
+					const price = Number(watch.lastPrices[index]);
+					if (Number.isFinite(price)) {
+						state.prices[tokenId] = price;
+						state.priceHistory[tokenId] = [{ time: Date.now(), price }];
+					}
+				});
+				saveState();
+				renderWatches();
+				connectMarketWs();
+				addFeed(`开始监听盘口：${watch.marketQuestion}`);
+			}
+
+			function renderWatches() {
+				const grid = $("watchGrid");
+				if (state.watches.length === 0) {
+					grid.className = "watch-grid";
+					grid.innerHTML = `<div class="empty">还没有监听项。左侧搜索赛事，然后在具体盘口上点“监听盘口”。</div>`;
+					return;
+				}
+				const layoutClass = state.watches.length === 1 ? "single" : state.watches.length <= 4 ? "quad" : "";
+				grid.className = ["watch-grid", layoutClass].filter(Boolean).join(" ");
+				grid.innerHTML = state.watches.map((watch, index) => {
+					const panelClass = (watch.tokenIds || []).length === 2 ? "two" : "";
+					const currentPrices = (watch.tokenIds || []).map((tokenId, outcomeIndex) => {
+						const value = state.prices[tokenId] ?? watch.lastPrices?.[outcomeIndex] ?? watch.initialPrices?.[outcomeIndex];
+						const numeric = Number(value);
+						return Number.isFinite(numeric) ? Math.max(0, Math.min(1, numeric)) : null;
+					});
+					const priceTotal = currentPrices.reduce((sum, value) => sum + (value ?? 0), 0);
+					const panelColumns = currentPrices
+						.map((current) => {
+							const share = priceTotal > 0 && current != null ? Math.max(0.001, current) : 1;
+							return `${share}fr`;
+						})
+						.join(" ");
+					return `
+						<article class="watch-card" id="watch-${escapeHtml(watch.id)}">
+							<div class="watch-top">
+								<div>
+									<div class="watch-name">${escapeHtml(watch.eventTitle || watch.eventSlug)}</div>
+									<div class="market-title">${escapeHtml(watch.marketQuestion)}</div>
+								</div>
+								<button class="remove" title="移除" data-remove-watch="${index}">×</button>
+							</div>
+							<div class="outcome-panels ${panelClass}" style="grid-template-columns: ${panelColumns}">
+								${(watch.tokenIds || []).map((tokenId, outcomeIndex) => {
+									const current = currentPrices[outcomeIndex];
+									return `
+										<div class="outcome-panel">
+											<div>
+												<div class="big-price">${pct(current)}</div>
+												<div class="outcome-label">${escapeHtml(watch.outcomes?.[outcomeIndex] || "Outcome")}</div>
+											</div>
+										</div>
+									`;
+								}).join("")}
+							</div>
+						</article>
 					`;
-					list.appendChild(item);
+				}).join("");
+				document.querySelectorAll("[data-remove-watch]").forEach((button) => {
+					button.addEventListener("click", () => removeWatch(Number(button.dataset.removeWatch)));
 				});
-				
-				// 绑定颜色选择事件
-				document.querySelectorAll(".color-preset").forEach(preset => {
-					preset.addEventListener("click", (e) => {
-						const idx = parseInt(e.target.dataset.index);
-						const color = e.target.dataset.color;
-						// 更新选中状态
-						document.querySelectorAll(`.color-preset[data-index="${idx}"]`).forEach(p => {
-							p.classList.remove("selected");
-						});
-						e.target.classList.add("selected");
-						// 更新颜色输入框
-						const colorInput = document.querySelector(`.color-picker[data-index="${idx}"]`);
-						const textInput = document.querySelector(`.color-text-input[data-index="${idx}"]`);
-						if (colorInput) colorInput.value = color;
-						if (textInput) textInput.value = color;
+			}
+
+			function removeWatch(index) {
+				const [removed] = state.watches.splice(index, 1);
+				if (removed) {
+					(removed.tokenIds || []).forEach((tokenId) => {
+						delete state.prices[tokenId];
+						delete state.priceHistory[tokenId];
 					});
+					addFeed("已移除监听盘口：" + removed.marketQuestion);
+				}
+				saveState();
+				renderWatches();
+				connectMarketWs();
+			}
+
+			function connectMarketWs() {
+				clearTimeout(state.reconnectMarketTimer);
+				if (state.marketWs) {
+					state.marketWs.onclose = null;
+					state.marketWs.close();
+					state.marketWs = null;
+				}
+				clearInterval(state.marketPing);
+				const assets = [...new Set(state.watches.flatMap((watch) => watch.tokenIds || []))];
+				if (assets.length === 0) {
+					setWsStatus("market", "Market WS 无订阅", "warn");
+					return;
+				}
+				setWsStatus("market", "Market WS 连接中", "warn");
+				const ws = new WebSocket(MARKET_WS);
+				state.marketWs = ws;
+				ws.onopen = () => {
+					setWsStatus("market", `Market WS 已订阅 ${assets.length} 个`, "ok");
+					ws.send(JSON.stringify({
+						assets_ids: assets,
+						type: "market",
+						initial_dump: true,
+						level: 2,
+						custom_feature_enabled: true
+					}));
+					state.marketPing = setInterval(() => {
+						if (ws.readyState === WebSocket.OPEN) ws.send("PING");
+					}, 10000);
+					addFeed("Market WebSocket 已连接");
+				};
+				ws.onmessage = (event) => handleMarketMessage(event.data);
+				ws.onerror = () => setWsStatus("market", "Market WS 错误", "bad");
+				ws.onclose = () => {
+					clearInterval(state.marketPing);
+					setWsStatus("market", "Market WS 已断开，准备重连", "bad");
+					state.reconnectMarketTimer = setTimeout(connectMarketWs, 3000);
+				};
+			}
+
+			function handleMarketMessage(raw) {
+				if (raw === "PONG") return;
+				let payload;
+				try {
+					payload = JSON.parse(raw);
+				} catch {
+					return;
+				}
+				const messages = Array.isArray(payload) ? payload : [payload];
+				messages.forEach((message) => {
+					if (message.event_type === "book") updateFromBook(message);
+					if (message.event_type === "price_change") updateFromPriceChange(message);
+					if (message.event_type === "last_trade_price") updateFromTrade(message);
+					if (message.event_type === "best_bid_ask") updateFromBestBidAsk(message);
 				});
-				
-				document.querySelectorAll(".color-picker").forEach(picker => {
-					picker.addEventListener("change", (e) => {
-						const idx = parseInt(e.target.dataset.index);
-						const color = e.target.value;
-						const textInput = document.querySelector(`.color-text-input[data-index="${idx}"]`);
-						if (textInput) textInput.value = color;
-						// 清除预设选中状态
-						document.querySelectorAll(`.color-preset[data-index="${idx}"]`).forEach(p => {
-							p.classList.remove("selected");
-						});
+				$("latencyPill").textContent = "最后更新 " + nowTime();
+				renderWatches();
+			}
+
+			function findWatchOutcome(tokenId) {
+				for (const watch of state.watches) {
+					const outcomeIndex = (watch.tokenIds || []).indexOf(tokenId);
+					if (outcomeIndex >= 0) return { watch, outcomeIndex };
+				}
+				return null;
+			}
+
+			function updateFromBook(message) {
+				const match = findWatchOutcome(message.asset_id);
+				if (!match) return;
+				const { watch } = match;
+				watch.lastUpdate = `${nowTime()} · orderbook 活动`;
+				scheduleGammaPriceRefresh("orderbook 活动");
+			}
+
+			function updateFromPriceChange(message) {
+				(message.price_changes || []).forEach((change) => {
+					const match = findWatchOutcome(change.asset_id);
+					if (!match) return;
+					const { watch, outcomeIndex } = match;
+					const price = priceFromBestBidAsk(change.best_bid, change.best_ask, change.price);
+					if (price != null) applyPrice(watch, outcomeIndex, price, "WebSocket 盘口");
+					else watch.lastUpdate = `${nowTime()} · WebSocket 活动`;
+					scheduleGammaPriceRefresh("WebSocket 活动");
+				});
+			}
+
+			function updateFromTrade(message) {
+				const match = findWatchOutcome(message.asset_id);
+				if (!match) return;
+				const { watch, outcomeIndex } = match;
+				watch.lastTradeSizeByToken = watch.lastTradeSizeByToken || {};
+				watch.lastTradeSizeByToken[message.asset_id] = message.size;
+				const price = Number(message.price);
+				if (Number.isFinite(price)) applyPrice(watch, outcomeIndex, price, "最新成交");
+				else watch.lastUpdate = `${nowTime()} · 最新成交`;
+				scheduleGammaPriceRefresh("最新成交");
+			}
+
+			function updateFromBestBidAsk(message) {
+				const match = findWatchOutcome(message.asset_id);
+				if (!match) return;
+				const { watch, outcomeIndex } = match;
+				const price = priceFromBestBidAsk(message.best_bid, message.best_ask);
+				if (price != null) applyPrice(watch, outcomeIndex, price, "WebSocket best bid/ask");
+				else watch.lastUpdate = `${nowTime()} · best bid/ask 活动`;
+				scheduleGammaPriceRefresh("best bid/ask 活动");
+			}
+
+			function applyPrice(watch, outcomeIndex, price, reason, options = {}) {
+				if (!Number.isFinite(price)) return;
+				const tokenId = watch.tokenIds?.[outcomeIndex];
+				if (!tokenId) return;
+				const nextPrice = Math.max(0, Math.min(1, price));
+				const jump = getWindowJump(tokenId, nextPrice);
+				watch.lastPrices = watch.lastPrices || [];
+				watch.initialPrices = watch.initialPrices || [];
+				if (!Number.isFinite(Number(watch.initialPrices[outcomeIndex]))) {
+					watch.initialPrices[outcomeIndex] = nextPrice;
+				}
+				watch.lastPrices[outcomeIndex] = nextPrice;
+				watch.lastUpdate = `${nowTime()} · ${reason}`;
+				state.prices[tokenId] = nextPrice;
+				recordPricePoint(tokenId, nextPrice);
+				const threshold = Number(state.settings.jumpThreshold) / 100;
+				if (!options.silent && jump && Math.abs(jump.change) >= threshold) {
+					triggerWatchAlert(watch, outcomeIndex, jump.change, `${reason} · ${getJumpWindowLabel()}s窗口`);
+				}
+			}
+
+			function getWindowJump(tokenId, nextPrice) {
+				const history = state.priceHistory[tokenId] || [];
+				if (history.length === 0) return null;
+				const now = Date.now();
+				const windowMs = getJumpWindowMs();
+				let best = null;
+				history.forEach((point) => {
+					if (now - point.time > windowMs) return;
+					const change = nextPrice - point.price;
+					if (!best || Math.abs(change) > Math.abs(best.change)) {
+						best = { change, from: point.price };
+					}
+				});
+				return best;
+			}
+
+			function recordPricePoint(tokenId, price) {
+				const now = Date.now();
+				const history = state.priceHistory[tokenId] || [];
+				history.push({ time: now, price });
+				state.priceHistory[tokenId] = history.filter((point) => now - point.time <= getJumpWindowMs());
+			}
+
+			function scheduleGammaPriceRefresh(reason) {
+				if (state.priceRefreshTimer) return;
+				state.priceRefreshTimer = setTimeout(() => {
+					state.priceRefreshTimer = null;
+					hydratePrices(reason);
+				}, 350);
+			}
+
+			function triggerWatchAlert(watch, outcomeIndex, change, reason) {
+				const now = Date.now();
+				const quietMs = Number(state.settings.quietSeconds) * 1000;
+				const tokenId = watch.tokenIds?.[outcomeIndex];
+				if (!tokenId) return;
+				if (now - (state.lastAlertAt[tokenId] || 0) < quietMs) return;
+				state.lastAlertAt[tokenId] = now;
+				const direction = change > 0 ? "上升" : "下跌";
+				const outcome = watch.outcomes?.[outcomeIndex] || "Outcome";
+				showAlert("盘口突变", `${direction} ${pp(change)}`, `${outcome} · ${watch.marketQuestion} · ${reason}`);
+				addFeed(`盘口突变：${outcome} ${direction} ${pp(change)}`);
+				flashWatch(watch);
+			}
+
+			function flashWatch(watch) {
+				const card = document.getElementById("watch-" + watch.id);
+				if (!card) return;
+				card.classList.remove("flash");
+				void card.offsetWidth;
+				card.classList.add("flash");
+			}
+
+			function connectSportsWs() {
+				clearTimeout(state.reconnectSportsTimer);
+				if (state.sportsWs) {
+					state.sportsWs.onclose = null;
+					state.sportsWs.close();
+					state.sportsWs = null;
+				}
+				setWsStatus("sports", "Sports WS 连接中", "warn");
+				const ws = new WebSocket(SPORTS_WS);
+				state.sportsWs = ws;
+				ws.onopen = () => {
+					setWsStatus("sports", "Sports WS 已连接", "ok");
+					addFeed("Sports WebSocket 已连接");
+				};
+				ws.onmessage = (event) => {
+					if (event.data === "ping") {
+						ws.send("pong");
+						return;
+					}
+					handleSportsMessage(event.data);
+				};
+				ws.onerror = () => setWsStatus("sports", "Sports WS 错误", "bad");
+				ws.onclose = () => {
+					setWsStatus("sports", "Sports WS 已断开，准备重连", "bad");
+					state.reconnectSportsTimer = setTimeout(connectSportsWs, 3000);
+				};
+			}
+
+			function handleSportsMessage(raw) {
+				let message;
+				try {
+					message = JSON.parse(raw);
+				} catch {
+					return;
+				}
+				if (!message.slug) return;
+				const previous = state.scoreBySlug[message.slug];
+				state.scoreBySlug[message.slug] = message;
+				const filters = [
+					state.selectedEvent?.slug,
+					...state.watches.map((watch) => watch.eventSlug)
+				].filter(Boolean);
+				const matchesFilter = filters.length === 0 || filters.some((filter) => message.slug.includes(filter) || filter.includes(message.slug));
+				if (matchesFilter && previous && previous.score && message.score && previous.score !== message.score) {
+					showAlert("进球提醒", message.score, `${message.slug} · ${message.period || ""} ${message.elapsed || ""}`);
+					addFeed(`比分变化：${message.slug} ${previous.score} -> ${message.score}`);
+				}
+			}
+
+			function showAlert(kicker, main, detail) {
+				$("alertKicker").textContent = kicker;
+				$("alertMain").textContent = main;
+				$("alertDetail").textContent = detail;
+				$("alertOverlay").classList.add("show");
+				startAlertSound();
+			}
+
+			function startAlertSound() {
+				stopAlertSound();
+				playAlertPattern();
+				audioState.timer = setInterval(playAlertPattern, 950);
+			}
+
+			function stopAlertSound() {
+				if (audioState.timer) {
+					clearInterval(audioState.timer);
+					audioState.timer = null;
+				}
+				audioState.nodes.forEach((node) => {
+					try { node.stop(); } catch {}
+					try { node.disconnect(); } catch {}
+				});
+				audioState.nodes = [];
+			}
+
+			function closeAlert() {
+				$("alertOverlay").classList.remove("show");
+				stopAlertSound();
+			}
+
+			function playAlertPattern() {
+				try {
+					const AudioContext = window.AudioContext || window.webkitAudioContext;
+					const ctx = audioState.context || new AudioContext();
+					audioState.context = ctx;
+					if (ctx.state === "suspended") ctx.resume();
+					const gain = ctx.createGain();
+					gain.gain.setValueAtTime(0.001, ctx.currentTime);
+					gain.gain.exponentialRampToValueAtTime(0.48, ctx.currentTime + 0.02);
+					gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.7);
+					gain.connect(ctx.destination);
+					[740, 980, 1240, 980].forEach((frequency, index) => {
+						const osc = ctx.createOscillator();
+						osc.frequency.value = frequency;
+						osc.type = "square";
+						osc.connect(gain);
+						osc.start(ctx.currentTime + index * 0.1);
+						osc.stop(ctx.currentTime + 0.16 + index * 0.1);
+						audioState.nodes.push(osc);
 					});
-				});
-				
-				document.querySelectorAll(".color-text-input").forEach(input => {
-					input.addEventListener("input", (e) => {
-						const idx = parseInt(e.target.dataset.index);
-						const color = e.target.value;
-						// 验证颜色格式
-						if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
-							const colorInput = document.querySelector(`.color-picker[data-index="${idx}"]`);
-							if (colorInput) colorInput.value = color;
-							// 清除预设选中状态
-							document.querySelectorAll(`.color-preset[data-index="${idx}"]`).forEach(p => {
-								p.classList.remove("selected");
+					setTimeout(() => {
+						try { gain.disconnect(); } catch {}
+						audioState.nodes = audioState.nodes.filter((node) => node.context && node.context.currentTime < 0);
+					}, 900);
+				} catch {
+					// Audio is best-effort.
+				}
+			}
+
+			async function hydratePrices(reason = "Gamma 刷新") {
+				if (state.watches.length === 0) return;
+				const slugs = [...new Set(state.watches.map((watch) => watch.eventSlug || state.selectedEvent?.slug).filter(Boolean))];
+				if (slugs.length === 0) return;
+				try {
+					for (const slug of slugs) {
+						const response = await fetchGamma(`/events/slug/${encodeURIComponent(slug)}?_=${Date.now()}`);
+						if (!response.ok) throw new Error("HTTP " + response.status);
+						const event = await response.json();
+						const markets = event.markets || [];
+						reconcileWatchMetadata(markets);
+						state.watches
+							.filter((watch) => watch.eventSlug === slug || (!watch.eventSlug && slug === state.selectedEvent?.slug))
+							.forEach((watch) => {
+								const market = markets.find((item) => item.slug === watch.marketSlug);
+								if (!market) return;
+								const prices = normalizedOutcomePrices(market);
+								const tokenIds = parseMaybeJson(market.clobTokenIds);
+								tokenIds.forEach((tokenId, outcomeIndex) => {
+									const priceIndex = tokenIds.indexOf(tokenId);
+									const price = Number(prices[priceIndex]);
+									if (Number.isFinite(price)) {
+										applyPrice(watch, outcomeIndex, price, reason, { silent: reason === "Gamma 初始价格" });
+									}
+								});
 							});
-						}
-					});
-				});
-
-				// 绑定事件
-				document.querySelectorAll(".token-select").forEach(select => {
-					select.addEventListener("change", (e) => {
-						const idx = parseInt(e.target.dataset.index);
-						const customInput = document.querySelector(`.token-custom-input[data-index="${idx}"]`);
-						if (e.target.value === "other") {
-							customInput.classList.remove("show");
-							customInput.value = "";
-						} else {
-							customInput.classList.add("show");
-						}
-					});
-				});
-			}
-
-			// 弹窗控制
-			function openModal() {
-				// 设置当前值
-				$("eventCount").value = options.length;
-				$("refreshRate").value = REFRESH_MS / 1000;
-				$("headerTitleInput").value = TITLE_TEXT;
-				$("valueFontSize").value = VALUE_FONT_SIZE;
-				$("labelFontSize").value = LABEL_FONT_SIZE;
-				renderOptionsList();
-				$("settingsModal").classList.add("show");
-				$("settingsModal").setAttribute("aria-hidden", "false");
-			}
-
-			function closeModalFn() {
-				$("settingsModal").classList.remove("show");
-				$("settingsModal").setAttribute("aria-hidden", "true");
-			}
-
-			function saveSettings() {
-				// 更新标题
-				const titleText = $("headerTitleInput").value.trim() || "polymarket实时胜率展示";
-				TITLE_TEXT = titleText;
-				saveTitle();
-				
-				// 更新字号
-				const valueFontSize = parseInt($("valueFontSize").value) || 80;
-				const labelFontSize = parseInt($("labelFontSize").value) || 48;
-				if (valueFontSize < 20 || valueFontSize > 200) {
-					alert("概率字号必须在20-200之间");
-					return;
-				}
-				if (labelFontSize < 12 || labelFontSize > 100) {
-					alert("事件名称字号必须在12-100之间");
-					return;
-				}
-				VALUE_FONT_SIZE = valueFontSize;
-				LABEL_FONT_SIZE = labelFontSize;
-				saveFontSizes();
-				
-				// 更新事件总数
-				const eventCount = parseInt($("eventCount").value) || 2;
-				updateOptionsByCount(eventCount);
-				
-				// 更新刷新频率
-				const refreshRate = parseFloat($("refreshRate").value) || 2;
-				if (refreshRate < 0.5) {
-					alert("请求频率不能小于0.5秒");
-					return;
-				}
-				REFRESH_MS = refreshRate * 1000;
-				saveRefreshRate();
-				
-				// 读取所有选项配置
-				const newOptions = [];
-				document.querySelectorAll(".option-item").forEach((item, idx) => {
-					const select = item.querySelector(".token-select");
-					const customInput = item.querySelector(".token-custom-input");
-					const nameInput = item.querySelector(".event-name-input");
-					const colorInput = item.querySelector(".color-text-input");
-					const isOther = select.value === "other";
-					const tokenId = isOther ? "" : customInput.value.trim();
-					const eventName = nameInput.value.trim() || `事件${idx + 1}`;
-					let eventColor = colorInput ? colorInput.value.trim() : "";
-					
-					// 验证颜色格式
-					if (eventColor && !/^#[0-9A-Fa-f]{6}$/.test(eventColor)) {
-						alert(`选项 ${idx + 1} 的颜色格式不正确，应为 #RRGGBB 格式`);
-						return;
 					}
-					
-					if (!isOther && tokenId.length === 0) {
-						alert(`选项 ${idx + 1} 的 token_id 不能为空`);
-						return;
-					}
-					
-					newOptions.push({
-						tokenId: tokenId,
-						eventName: eventName,
-						isOther: isOther,
-						color: eventColor || undefined
-					});
-				});
-
-				if (newOptions.length === 0) {
-					alert("至少需要配置一个选项");
-					return;
+					renderWatches();
+				} catch (error) {
+					addFeed("Gamma 价格刷新失败：" + error.message);
 				}
-
-				options = newOptions;
-				saveOptions();
-				createPanels();
-				closeModalFn();
-				startPolling();
 			}
 
-			// 事件绑定
-			$("openSettings").addEventListener("click", openModal);
-			$("closeModal").addEventListener("click", closeModalFn);
-			$("settingsModal").addEventListener("click", (e) => {
-				if (e.target === $("settingsModal")) closeModalFn();
-			});
-			$("saveSettings").addEventListener("click", saveSettings);
-			$("exportConfig").addEventListener("click", exportConfig);
-			$("importConfig").addEventListener("click", importConfig);
-			$("importFile").addEventListener("change", handleFileImport);
-			
-			// 事件总数变化时更新选项列表
-			$("eventCount").addEventListener("change", (e) => {
-				const count = parseInt(e.target.value) || 2;
-				updateOptionsByCount(count);
-				renderOptionsList();
-			});
+			function bindEvents() {
+				$("searchBtn").addEventListener("click", searchEvents);
+				$("searchInput").addEventListener("keydown", (event) => {
+					if (event.key === "Enter") searchEvents();
+				});
+				$("connectBtn").addEventListener("click", () => {
+					connectMarketWs();
+					connectSportsWs();
+				});
+				$("testAlertBtn").addEventListener("click", () => showAlert("测试提醒", "GOAL?", "声音和弹层会持续到手动关闭"));
+				$("clearBtn").addEventListener("click", () => {
+					state.watches = [];
+					state.prices = {};
+					state.priceHistory = {};
+					saveState();
+					renderWatches();
+					connectMarketWs();
+				});
+				$("jumpWindowSeconds").addEventListener("change", (event) => {
+					state.settings.jumpWindowSeconds = Math.max(0.2, Math.min(10, Number(event.target.value) || 1.5));
+					event.target.value = state.settings.jumpWindowSeconds;
+					saveState();
+				});
+				$("jumpThreshold").addEventListener("change", (event) => {
+					state.settings.jumpThreshold = Math.max(1, Math.min(80, Number(event.target.value) || 8));
+					event.target.value = state.settings.jumpThreshold;
+					saveState();
+				});
+				$("quietSeconds").addEventListener("change", (event) => {
+					state.settings.quietSeconds = Math.max(3, Math.min(300, Number(event.target.value) || 20));
+					event.target.value = state.settings.quietSeconds;
+					saveState();
+				});
+				$("maxSpread").addEventListener("change", (event) => {
+					state.settings.maxSpread = Math.max(0, Math.min(1, Number(event.target.value) || 0.08));
+					event.target.value = state.settings.maxSpread;
+					if (state.allMarkets.length > 0) {
+						state.markets = filterMarkets(state.allMarkets);
+						renderMarkets();
+					}
+					saveState();
+				});
+				$("alertClose").addEventListener("click", closeAlert);
+			}
 
-			// 初始化
-			loadOptions();
-			$("headerTitle").textContent = TITLE_TEXT;
-			createPanels();
-			startPolling();
+			function init() {
+				loadState();
+				bindEvents();
+				renderSelectedEvent();
+				renderWatches();
+				renderFeed();
+				searchEvents();
+				if (state.selectedEvent?.slug) loadEventDetails(state.selectedEvent.slug);
+				hydratePrices("Gamma 初始价格");
+				connectSportsWs();
+				if (state.watches.length > 0) connectMarketWs();
+			}
+
+			init();
 		})();
 	</script>
 </body>
