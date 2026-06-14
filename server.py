@@ -5,16 +5,12 @@ from urllib.parse import urlsplit
 
 
 GAMMA_ORIGIN = "https://gamma-api.polymarket.com"
-GATEWAY_ORIGIN = "https://gateway.polymarket.us"
 
 
 class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith("/api/gamma/"):
             self.proxy_origin("/api/gamma", GAMMA_ORIGIN)
-            return
-        if self.path.startswith("/api/gateway/"):
-            self.proxy_origin("/api/gateway", GATEWAY_ORIGIN)
             return
         super().do_GET()
 

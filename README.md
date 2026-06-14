@@ -7,8 +7,7 @@
 ## 功能
 
 - 搜索 Polymarket 赛事。
-- 展示 Gamma 事件盘口和 Gateway 体育盘口。
-- 支持 Moneyline、让球、总分、BTTS 等常见足球盘口。
+- 只展示带 CLOB token、可接 Market WebSocket 的盘口。
 - 监听 CLOB Market WebSocket 的实时价格事件。
 - 监听 Sports WebSocket 的比分变化。
 - 按短时间窗口检测价格突变并弹窗提醒。
@@ -19,14 +18,12 @@
 - `Gamma API`
   - 搜索事件。
   - 获取事件详情、CLOB token、初始价格。
-- `Gateway API`
-  - 补充体育盘口，例如让球、总分、BTTS。
 - `Market WebSocket`
   - 监听 CLOB token 的 `price_change`、`best_bid_ask`、`last_trade_price`。
 - `Sports WebSocket`
   - 监听赛事比分和赛况变化。
 
-注意：Gateway 体育盘口没有接入当前 CLOB Market WebSocket。它们使用初始化、手动校准和低频校准更新价格。
+注意：没有 CLOB token 的体育盘口不会显示，例如部分让球、总分、BTTS 盘口。这些盘口只能通过 Gateway 聚合数据轮询，实时性明显弱于 Market WebSocket。
 
 ## 启动
 
@@ -43,7 +40,6 @@ http://127.0.0.1:5173
 `server.py` 是本地只读代理，用来转发：
 
 - `/api/gamma/...` -> `https://gamma-api.polymarket.com/...`
-- `/api/gateway/...` -> `https://gateway.polymarket.us/...`
 
 ## 使用流程
 
@@ -52,8 +48,7 @@ http://127.0.0.1:5173
 3. 在“选择盘口”里点击“监听盘口”。
 4. 页面会在中间区域显示该盘口所有 outcomes。
 5. CLOB 盘口会通过 Market WebSocket 实时更新。
-6. Gateway 体育盘口会通过低频校准刷新。
-7. 价格在设定窗口内跳变超过阈值时触发提醒。
+6. 价格在设定窗口内跳变超过阈值时触发提醒。
 
 ## 告警设置
 
@@ -67,7 +62,7 @@ http://127.0.0.1:5173
 - 这是一个本地看盘和提醒工具，不负责下单。
 - 不需要 Polymarket 账号或 API key。
 - CLOB 盘口优先使用 WebSocket 实时更新。
-- Gateway 体育盘口用于补齐官网体育页里的盘口种类。
+- 为了保证提醒速度，页面只展示可接 Market WebSocket 的 CLOB 盘口。
 - 比分提醒只作为辅助信号，不等同于官方裁判结果。
 
 ## 文件
@@ -79,7 +74,7 @@ http://127.0.0.1:5173
 
 Polymarket Odds Visualizer is a local sports-odds dashboard for Polymarket.
 
-It searches events, displays tradable markets, tracks CLOB price updates, adds Gateway sports markets such as spreads/totals/BTTS, and alerts on fast price moves or score changes.
+It searches events, displays CLOB markets with WebSocket support, tracks live CLOB price updates, and alerts on fast price moves or score changes.
 
 Run:
 
@@ -96,7 +91,6 @@ http://127.0.0.1:5173
 Data sources:
 
 - Gamma API for event discovery and CLOB market metadata.
-- Gateway API for sports-specific markets.
 - Market WebSocket for live CLOB price events.
 - Sports WebSocket for score updates.
 
