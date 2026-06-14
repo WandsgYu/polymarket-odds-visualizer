@@ -5,23 +5,27 @@ from urllib.parse import urlsplit
 
 
 GAMMA_ORIGIN = "https://gamma-api.polymarket.com"
+GATEWAY_ORIGIN = "https://gateway.polymarket.us"
 
 
 class Handler(SimpleHTTPRequestHandler):
     def do_GET(self):
         if self.path.startswith("/api/gamma/"):
-            self.proxy_gamma()
+            self.proxy_origin("/api/gamma", GAMMA_ORIGIN)
+            return
+        if self.path.startswith("/api/gateway/"):
+            self.proxy_origin("/api/gateway", GATEWAY_ORIGIN)
             return
         super().do_GET()
 
-    def proxy_gamma(self):
-        target_path = self.path[len("/api/gamma") :]
+    def proxy_origin(self, prefix, origin):
+        target_path = self.path[len(prefix) :]
         parsed = urlsplit(target_path)
         if ".." in parsed.path:
             self.send_error(400, "Invalid path")
             return
 
-        target_url = f"{GAMMA_ORIGIN}{target_path}"
+        target_url = f"{origin}{target_path}"
         try:
             result = subprocess.run(
                 [

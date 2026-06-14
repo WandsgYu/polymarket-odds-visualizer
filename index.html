@@ -752,6 +752,7 @@
 					</div>
 					<div class="hero-actions">
 						<button id="connectBtn" class="btn primary">连接 WebSocket</button>
+						<button id="refreshPricesBtn" class="btn">校准价格</button>
 						<button id="testAlertBtn" class="btn">测试提醒</button>
 						<button id="clearBtn" class="btn danger">清空监听</button>
 					</div>
@@ -798,11 +799,18 @@
 	</div>
 
 	<script>
-		(() => {
-			const GAMMA = "https://gamma-api.polymarket.com";
-			const MARKET_WS = "wss://ws-subscriptions-clob.polymarket.com/ws/market";
-			const SPORTS_WS = "wss://sports-api.polymarket.com/ws";
-			const LS_STATE = "goal_pulse_state_v1";
+			(() => {
+				const GAMMA = "https://gamma-api.polymarket.com";
+				const GATEWAY = "https://gateway.polymarket.us";
+				const MARKET_WS = "wss://ws-subscriptions-clob.polymarket.com/ws/market";
+				const SPORTS_WS = "wss://sports-api.polymarket.com/ws";
+				const LS_STATE = "goal_pulse_state_v1";
+				const GATEWAY_MARKET_TYPES = new Set([
+					"drawable_outcome",
+					"soccer_team_full_game_spread",
+					"soccer_team_full_game_total",
+					"soccer_game_btts"
+				]);
 
 			const $ = (id) => document.getElementById(id);
 			const audioState = {
@@ -811,16 +819,27 @@
 				nodes: []
 			};
 
-			async function fetchGamma(path) {
-				const localUrl = `/api/gamma${path}`;
-				try {
-					const localResponse = await fetch(localUrl, { cache: "no-store" });
-					if (localResponse.ok) return localResponse;
-				} catch {
-					// Static deployments can fall back to direct Gamma requests.
+				async function fetchGamma(path) {
+					const localUrl = `/api/gamma${path}`;
+					try {
+						const localResponse = await fetch(localUrl, { cache: "no-store" });
+						if (localResponse.ok) return localResponse;
+					} catch {
+						// Static deployments can fall back to direct Gamma requests.
+					}
+					return fetch(`${GAMMA}${path}`, { cache: "no-store" });
 				}
-				return fetch(`${GAMMA}${path}`, { cache: "no-store" });
-			}
+
+				async function fetchGateway(path) {
+					const localUrl = `/api/gateway${path}`;
+					try {
+						const localResponse = await fetch(localUrl, { cache: "no-store" });
+						if (localResponse.ok) return localResponse;
+					} catch {
+						// Static deployments can fall back to direct Gateway requests when CORS allows it.
+					}
+					return fetch(`${GATEWAY}${path}`, { cache: "no-store" });
+				}
 			const state = {
 				results: [],
 				selectedEvent: null,
@@ -838,12 +857,13 @@
 				},
 				lastAlertAt: {},
 				priceHistory: {},
-				priceRefreshTimer: null,
+				priceCalibrationTimer: null,
 				marketWs: null,
 				sportsWs: null,
 				marketPing: null,
 				reconnectMarketTimer: null,
-				reconnectSportsTimer: null
+				reconnectSportsTimer: null,
+				marketNeedsResync: false
 			};
 
 			function parseMaybeJson(value, fallback = []) {
@@ -876,19 +896,81 @@
 				return Math.round(clamped * 1000);
 			}
 
-			function getJumpWindowLabel() {
-				return (getJumpWindowMs() / 1000).toFixed(1).replace(/\.0$/, "");
-			}
+				function getJumpWindowLabel() {
+					return (getJumpWindowMs() / 1000).toFixed(1).replace(/\.0$/, "");
+				}
 
-			function filterMarkets(markets) {
-				const maxSpread = getMaxVisibleSpread();
-				return (markets || []).filter((market) => {
-					const tokenIds = parseMaybeJson(market.clobTokenIds);
-					const spread = Number(market.spread);
-					const spreadOk = !Number.isFinite(spread) || spread <= maxSpread;
-					return market.active && !market.closed && market.enableOrderBook && tokenIds.length > 0 && spreadOk;
-				});
-			}
+				function normalizeSearchKey(value) {
+					return String(value || "")
+						.normalize("NFKD")
+						.replace(/[\u0300-\u036f]/g, "")
+						.toLowerCase()
+						.replace(/[^a-z0-9]+/g, " ")
+						.trim();
+				}
+
+				function numberOrNull(value) {
+					const num = Number(value);
+					return Number.isFinite(num) ? num : null;
+				}
+
+				function gatewaySidePrice(side) {
+					return numberOrNull(side?.quote?.value ?? side?.price);
+				}
+
+				function gatewayOutcomeName(market, side) {
+					const team = side.team?.displayAbbreviation || side.team?.abbreviation || side.team?.name || "";
+					const description = side.description || "Outcome";
+					if (market.sportsMarketType === "soccer_team_full_game_spread" && team) {
+						return `${team} ${description}`;
+					}
+					if (market.sportsMarketType === "soccer_team_full_game_total") {
+						const prefix = /^under$/i.test(description) ? "U" : /^over$/i.test(description) ? "O" : description;
+						return `${prefix} ${market.line}`;
+					}
+					return description;
+				}
+
+				function gatewaySpreadFromPrices(prices) {
+					if (prices.length !== 2 || prices.some((price) => !Number.isFinite(price))) return null;
+					return Math.max(0, prices[0] + prices[1] - 1);
+				}
+
+				function normalizeGatewayMarket(market, options = {}) {
+					if (!market || !GATEWAY_MARKET_TYPES.has(market.sportsMarketType)) return null;
+					if (!options.includeDrawable && market.sportsMarketType === "drawable_outcome") return null;
+					const sides = (market.marketSides || []).filter((side) => side?.tradable && gatewaySidePrice(side) != null);
+					if (sides.length < 2) return null;
+					const prices = sides.map(gatewaySidePrice);
+					const tokenIds = sides.map((side) => `gateway:${market.id}:${side.id}`);
+					return {
+						...market,
+						source: "gateway",
+						enableOrderBook: true,
+						clobTokenIds: tokenIds,
+						outcomes: sides.map((side) => gatewayOutcomeName(market, side)),
+						outcomePrices: prices.map(String),
+						spread: gatewaySpreadFromPrices(prices),
+						question: market.title || market.question || market.slug
+					};
+				}
+
+				function normalizeGatewayMarkets(event, options = {}) {
+					return (event?.markets || [])
+						.map((market) => normalizeGatewayMarket(market, options))
+						.filter(Boolean);
+				}
+
+				function filterMarkets(markets) {
+					const maxSpread = getMaxVisibleSpread();
+					return (markets || []).filter((market) => {
+						const tokenIds = parseMaybeJson(market.clobTokenIds);
+						const spread = Number(market.spread);
+						const spreadOk = !Number.isFinite(spread) || spread <= maxSpread;
+						const visible = market.source === "gateway" ? !market.hidden : market.enableOrderBook;
+						return market.active && !market.closed && visible && tokenIds.length > 0 && spreadOk;
+					});
+				}
 
 			function normalizedOutcomePrices(market) {
 				const outcomes = parseMaybeJson(market.outcomes);
@@ -1071,26 +1153,58 @@
 					.replaceAll("'", "&#039;");
 			}
 
-			async function searchEvents() {
-				const q = $("searchInput").value.trim();
-				if (!q) return;
-				$("searchBtn").disabled = true;
-				$("results").innerHTML = `<div class="helper">搜索中...</div>`;
-				try {
-					const path = `/public-search?q=${encodeURIComponent(q)}&events_status=active&limit_per_type=12&search_profiles=false&optimized=true`;
-					const response = await fetchGamma(path);
-					if (!response.ok) throw new Error("HTTP " + response.status);
-					const data = await response.json();
-					state.results = (data.events || []).filter((event) => event && event.slug);
-					renderResults();
-					addFeed(`搜索 "${q}"，找到 ${state.results.length} 个事件`);
-				} catch (error) {
-					$("results").innerHTML = `<div class="helper">搜索失败：${escapeHtml(error.message)}</div>`;
-					addFeed("搜索失败：" + error.message);
-				} finally {
-					$("searchBtn").disabled = false;
+				async function searchEvents() {
+					const q = $("searchInput").value.trim();
+					if (!q) return;
+					$("searchBtn").disabled = true;
+					$("results").innerHTML = `<div class="helper">搜索中...</div>`;
+					try {
+						const path = `/public-search?q=${encodeURIComponent(q)}&events_status=active&limit_per_type=12&search_profiles=false&optimized=true`;
+						const [gammaResponse, gatewayResponse] = await Promise.allSettled([
+							fetchGamma(path),
+							fetchGateway(`/v1/search?query=${encodeURIComponent(q)}&limit=12`)
+						]);
+						if (gammaResponse.status === "rejected") throw gammaResponse.reason;
+						if (!gammaResponse.value.ok) throw new Error("HTTP " + gammaResponse.value.status);
+						const data = await gammaResponse.value.json();
+						const gammaEvents = (data.events || []).filter((event) => event && event.slug && !event.closed);
+						let gatewayEvents = [];
+						if (gatewayResponse.status === "fulfilled" && gatewayResponse.value.ok) {
+							const gatewayData = await gatewayResponse.value.json();
+							gatewayEvents = (gatewayData.events || []).filter((event) => event && event.slug && !event.closed);
+						}
+						state.results = mergeSearchEvents(gammaEvents, gatewayEvents);
+						renderResults();
+						addFeed(`搜索 "${q}"，找到 ${state.results.length} 个事件`);
+					} catch (error) {
+						$("results").innerHTML = `<div class="helper">搜索失败：${escapeHtml(error.message)}</div>`;
+						addFeed("搜索失败：" + error.message);
+					} finally {
+						$("searchBtn").disabled = false;
+					}
 				}
-			}
+
+				function mergeSearchEvents(gammaEvents, gatewayEvents) {
+					const merged = gammaEvents.map((event) => ({ ...event, source: "gamma" }));
+					const byTitle = new Map(merged.map((event) => [normalizeSearchKey(event.title || event.slug), event]));
+					gatewayEvents.forEach((event) => {
+						const key = normalizeSearchKey(event.title || event.slug);
+						const existing = byTitle.get(key);
+						if (existing) {
+							existing.gatewaySlug = event.slug;
+							existing.gatewayTitle = event.title;
+							return;
+						}
+						const { markets, ...eventSummary } = event;
+						merged.push({
+							...eventSummary,
+							source: "gateway",
+							gatewaySlug: event.slug,
+							volume: event.volume || event.volume24hr
+						});
+					});
+					return merged;
+				}
 
 			function renderResults() {
 				$("results").innerHTML = state.results.map((event, index) => `
@@ -1109,39 +1223,82 @@
 				});
 			}
 
-			async function selectEvent(index) {
-				const item = state.results[index];
-				if (!item) return;
-				await loadEventDetails(item.slug);
-			}
-
-			async function loadEventDetails(slug) {
-				$("selectedEvent").innerHTML = `<div class="helper">加载事件详情...</div>`;
-				$("markets").innerHTML = "";
-				try {
-					const response = await fetchGamma(`/events/slug/${encodeURIComponent(slug)}?_=${Date.now()}`);
-					if (!response.ok) throw new Error("HTTP " + response.status);
-					const event = await response.json();
-					state.selectedEvent = {
-						id: event.id,
-						slug: event.slug,
-						title: event.title,
-						description: event.description,
-						volume: event.volume,
-						endDate: event.endDate
-					};
-					state.allMarkets = event.markets || [];
-					state.markets = filterMarkets(state.allMarkets);
-					reconcileWatchMetadata(state.markets);
-					saveState();
-					renderSelectedEvent();
-					renderMarkets();
-					addFeed(`已载入事件：${event.title || event.slug}`);
-				} catch (error) {
-					$("selectedEvent").innerHTML = `<div class="helper">事件详情加载失败：${escapeHtml(error.message)}</div>`;
-					addFeed("事件详情加载失败：" + error.message);
+				async function selectEvent(index) {
+					const item = state.results[index];
+					if (!item) return;
+					await loadEventDetails(item);
 				}
-			}
+
+				async function loadEventDetails(eventRef) {
+					const ref = typeof eventRef === "string" ? { slug: eventRef } : eventRef;
+					const slug = ref.slug;
+					$("selectedEvent").innerHTML = `<div class="helper">加载事件详情...</div>`;
+					$("markets").innerHTML = "";
+					try {
+						let event = null;
+						let gammaMarkets = [];
+						if (ref.source !== "gateway") {
+							const response = await fetchGamma(`/events/slug/${encodeURIComponent(slug)}?_=${Date.now()}`);
+							if (!response.ok) throw new Error("HTTP " + response.status);
+							event = await response.json();
+							gammaMarkets = event.markets || [];
+						}
+						const gatewayEvent = await loadGatewayEventForRef(ref, event);
+						if (!event && gatewayEvent) event = gatewayEvent;
+						if (!event) throw new Error("事件不存在");
+						const gatewayMarkets = normalizeGatewayMarkets(gatewayEvent, { includeDrawable: gammaMarkets.length === 0 });
+						state.selectedEvent = {
+							id: event.id,
+							slug: event.slug,
+							title: event.title,
+							description: event.description,
+							volume: event.volume,
+							endDate: event.endDate,
+							gatewaySlug: gatewayEvent?.slug || ref.gatewaySlug || null,
+							gatewayTitle: gatewayEvent?.title || ref.gatewayTitle || null
+						};
+						state.allMarkets = mergeMarkets(gammaMarkets, gatewayMarkets);
+						state.markets = filterMarkets(state.allMarkets);
+						reconcileWatchMetadata(state.markets);
+						saveState();
+						renderSelectedEvent();
+						renderMarkets();
+						addFeed(`已载入事件：${event.title || event.slug}`);
+					} catch (error) {
+						$("selectedEvent").innerHTML = `<div class="helper">事件详情加载失败：${escapeHtml(error.message)}</div>`;
+						addFeed("事件详情加载失败：" + error.message);
+					}
+				}
+
+				async function loadGatewayEventForRef(ref, gammaEvent = null) {
+					const query = ref.gatewayTitle || gammaEvent?.title || ref.title || ref.slug;
+					if (!query) return null;
+					try {
+						const response = await fetchGateway(`/v1/search?query=${encodeURIComponent(query)}&limit=12`);
+						if (!response.ok) return null;
+						const data = await response.json();
+						const events = data.events || [];
+						const desiredSlug = ref.gatewaySlug || gammaEvent?.gatewaySlug;
+						if (desiredSlug) {
+							const exact = events.find((event) => event.slug === desiredSlug);
+							if (exact) return exact;
+						}
+						const key = normalizeSearchKey(gammaEvent?.title || ref.title || query);
+						return events.find((event) => normalizeSearchKey(event.title || event.slug) === key) || null;
+					} catch {
+						return null;
+					}
+				}
+
+				function mergeMarkets(primaryMarkets, extraMarkets) {
+					const seen = new Set();
+					return [...primaryMarkets, ...extraMarkets].filter((market) => {
+						const key = market.slug || market.id;
+						if (!key || seen.has(key)) return false;
+						seen.add(key);
+						return true;
+					});
+				}
 
 			function renderSelectedEvent() {
 				const event = state.selectedEvent;
@@ -1176,22 +1333,24 @@
 				});
 			}
 
-			function renderMarket(market, marketIndex) {
-				const outcomes = parseMaybeJson(market.outcomes);
-				const tokenIds = parseMaybeJson(market.clobTokenIds);
-				const prices = normalizedOutcomePrices(market);
-				return `
-					<div class="market-item">
-						<div class="market-header">
-							<div>
-								<div class="market-title">${escapeHtml(market.question || market.slug)}</div>
-								<div class="meta">
-									<span>${escapeHtml(market.slug || market.id)}</span>
-									<span>价差 ${escapeHtml(market.spread ?? "--")}</span>
+				function renderMarket(market, marketIndex) {
+					const outcomes = parseMaybeJson(market.outcomes);
+					const tokenIds = parseMaybeJson(market.clobTokenIds);
+					const prices = normalizedOutcomePrices(market);
+					const sourceLabel = market.source === "gateway" ? `<span>Gateway odds</span>` : "";
+					return `
+						<div class="market-item">
+							<div class="market-header">
+								<div>
+									<div class="market-title">${escapeHtml(market.question || market.slug)}</div>
+									<div class="meta">
+										<span>${escapeHtml(market.slug || market.id)}</span>
+										<span>价差 ${escapeHtml(market.spread ?? "--")}</span>
+										${sourceLabel}
+									</div>
 								</div>
+								<button class="add market-add" data-add-market-watch="${marketIndex}" ${tokenIds.length ? "" : "disabled"}>监听盘口</button>
 							</div>
-							<button class="add market-add" data-add-market-watch="${marketIndex}" ${tokenIds.length ? "" : "disabled"}>监听盘口</button>
-						</div>
 						<div class="outcomes">
 							${outcomes.map((name, outcomeIndex) => `
 								<div class="outcome">
@@ -1213,13 +1372,15 @@
 					addFeed("该盘口已在监听列表中");
 					return;
 				}
-				const watch = {
-					id: market.slug || tokenIds.join(":"),
-					eventSlug: state.selectedEvent?.slug || "",
-					eventTitle: state.selectedEvent?.title || "",
-					marketSlug: market.slug || "",
-					marketQuestion: market.question || "",
-					tokenIds,
+					const watch = {
+						id: market.slug || tokenIds.join(":"),
+						eventSlug: state.selectedEvent?.slug || "",
+						eventTitle: state.selectedEvent?.title || "",
+						gatewayEventSlug: state.selectedEvent?.gatewaySlug || "",
+						priceSource: market.source || "gamma",
+						marketSlug: market.slug || "",
+						marketQuestion: market.question || "",
+						tokenIds,
 					outcomes,
 					initialPrices: tokenIds.map((_, index) => Number(prices[index])),
 					lastPrices: tokenIds.map((_, index) => Number(prices[index])),
@@ -1236,6 +1397,7 @@
 				});
 				saveState();
 				renderWatches();
+				startPriceCalibrationTimer();
 				connectMarketWs();
 				addFeed(`开始监听盘口：${watch.marketQuestion}`);
 			}
@@ -1304,22 +1466,25 @@
 				}
 				saveState();
 				renderWatches();
+				if (state.watches.length === 0) stopPriceCalibrationTimer();
 				connectMarketWs();
 			}
 
-			function connectMarketWs() {
-				clearTimeout(state.reconnectMarketTimer);
-				if (state.marketWs) {
+				function connectMarketWs() {
+					clearTimeout(state.reconnectMarketTimer);
+					if (state.marketWs) {
 					state.marketWs.onclose = null;
 					state.marketWs.close();
 					state.marketWs = null;
-				}
-				clearInterval(state.marketPing);
-				const assets = [...new Set(state.watches.flatMap((watch) => watch.tokenIds || []))];
-				if (assets.length === 0) {
-					setWsStatus("market", "Market WS 无订阅", "warn");
-					return;
-				}
+					}
+					clearInterval(state.marketPing);
+					const assets = [...new Set(state.watches
+						.filter((watch) => watch.priceSource !== "gateway")
+						.flatMap((watch) => watch.tokenIds || []))];
+					if (assets.length === 0) {
+						setWsStatus("market", "Market WS 无 CLOB 订阅", "warn");
+						return;
+					}
 				setWsStatus("market", "Market WS 连接中", "warn");
 				const ws = new WebSocket(MARKET_WS);
 				state.marketWs = ws;
@@ -1336,12 +1501,17 @@
 						if (ws.readyState === WebSocket.OPEN) ws.send("PING");
 					}, 10000);
 					addFeed("Market WebSocket 已连接");
+					if (state.marketNeedsResync) {
+						state.marketNeedsResync = false;
+						hydratePrices("WS 重连补状态");
+					}
 				};
 				ws.onmessage = (event) => handleMarketMessage(event.data);
 				ws.onerror = () => setWsStatus("market", "Market WS 错误", "bad");
 				ws.onclose = () => {
 					clearInterval(state.marketPing);
 					setWsStatus("market", "Market WS 已断开，准备重连", "bad");
+					state.marketNeedsResync = true;
 					state.reconnectMarketTimer = setTimeout(connectMarketWs, 3000);
 				};
 			}
@@ -1378,7 +1548,6 @@
 				if (!match) return;
 				const { watch } = match;
 				watch.lastUpdate = `${nowTime()} · orderbook 活动`;
-				scheduleGammaPriceRefresh("orderbook 活动");
 			}
 
 			function updateFromPriceChange(message) {
@@ -1389,7 +1558,6 @@
 					const price = priceFromBestBidAsk(change.best_bid, change.best_ask, change.price);
 					if (price != null) applyPrice(watch, outcomeIndex, price, "WebSocket 盘口");
 					else watch.lastUpdate = `${nowTime()} · WebSocket 活动`;
-					scheduleGammaPriceRefresh("WebSocket 活动");
 				});
 			}
 
@@ -1402,7 +1570,6 @@
 				const price = Number(message.price);
 				if (Number.isFinite(price)) applyPrice(watch, outcomeIndex, price, "最新成交");
 				else watch.lastUpdate = `${nowTime()} · 最新成交`;
-				scheduleGammaPriceRefresh("最新成交");
 			}
 
 			function updateFromBestBidAsk(message) {
@@ -1412,7 +1579,6 @@
 				const price = priceFromBestBidAsk(message.best_bid, message.best_ask);
 				if (price != null) applyPrice(watch, outcomeIndex, price, "WebSocket best bid/ask");
 				else watch.lastUpdate = `${nowTime()} · best bid/ask 活动`;
-				scheduleGammaPriceRefresh("best bid/ask 活动");
 			}
 
 			function applyPrice(watch, outcomeIndex, price, reason, options = {}) {
@@ -1457,14 +1623,6 @@
 				const history = state.priceHistory[tokenId] || [];
 				history.push({ time: now, price });
 				state.priceHistory[tokenId] = history.filter((point) => now - point.time <= getJumpWindowMs());
-			}
-
-			function scheduleGammaPriceRefresh(reason) {
-				if (state.priceRefreshTimer) return;
-				state.priceRefreshTimer = setTimeout(() => {
-					state.priceRefreshTimer = null;
-					hydratePrices(reason);
-				}, 350);
 			}
 
 			function triggerWatchAlert(watch, outcomeIndex, change, reason) {
@@ -1598,13 +1756,13 @@
 				}
 			}
 
-			async function hydratePrices(reason = "Gamma 刷新") {
-				if (state.watches.length === 0) return;
-				const slugs = [...new Set(state.watches.map((watch) => watch.eventSlug || state.selectedEvent?.slug).filter(Boolean))];
-				if (slugs.length === 0) return;
-				try {
-					for (const slug of slugs) {
-						const response = await fetchGamma(`/events/slug/${encodeURIComponent(slug)}?_=${Date.now()}`);
+				async function hydratePrices(reason = "Gamma 刷新") {
+					if (state.watches.length === 0) return;
+					const gammaWatches = state.watches.filter((watch) => watch.priceSource !== "gateway");
+					const slugs = [...new Set(gammaWatches.map((watch) => watch.eventSlug || state.selectedEvent?.slug).filter(Boolean))];
+					try {
+						for (const slug of slugs) {
+							const response = await fetchGamma(`/events/slug/${encodeURIComponent(slug)}?_=${Date.now()}`);
 						if (!response.ok) throw new Error("HTTP " + response.status);
 						const event = await response.json();
 						const markets = event.markets || [];
@@ -1623,12 +1781,59 @@
 										applyPrice(watch, outcomeIndex, price, reason, { silent: reason === "Gamma 初始价格" });
 									}
 								});
+								});
+						}
+						await hydrateGatewayPrices(reason);
+						renderWatches();
+					} catch (error) {
+						addFeed("Gamma 价格刷新失败：" + error.message);
+					}
+				}
+
+				async function hydrateGatewayPrices(reason) {
+					const gatewayWatches = state.watches.filter((watch) => watch.priceSource === "gateway");
+					if (gatewayWatches.length === 0) return;
+					const refs = [...new Map(gatewayWatches.map((watch) => [
+						watch.gatewayEventSlug || state.selectedEvent?.gatewaySlug || watch.eventSlug,
+						watch
+					])).values()];
+					for (const watchRef of refs) {
+						const gatewayEvent = await loadGatewayEventForRef({
+							gatewaySlug: watchRef.gatewayEventSlug || state.selectedEvent?.gatewaySlug,
+							title: watchRef.eventTitle || state.selectedEvent?.title,
+							slug: watchRef.eventSlug
+						}, state.selectedEvent);
+						const gatewayMarkets = normalizeGatewayMarkets(gatewayEvent, { includeDrawable: true });
+						state.watches
+							.filter((watch) => watch.priceSource === "gateway")
+							.forEach((watch) => {
+								const market = gatewayMarkets.find((item) => item.slug === watch.marketSlug);
+								if (!market) return;
+								const prices = normalizedOutcomePrices(market);
+								const tokenIds = parseMaybeJson(market.clobTokenIds);
+								watch.tokenIds = tokenIds;
+								watch.outcomes = parseMaybeJson(market.outcomes);
+								tokenIds.forEach((tokenId, outcomeIndex) => {
+									const price = Number(prices[outcomeIndex]);
+									if (Number.isFinite(price)) {
+										applyPrice(watch, outcomeIndex, price, reason, { silent: reason === "Gamma 初始价格" });
+									}
+								});
 							});
 					}
-					renderWatches();
-				} catch (error) {
-					addFeed("Gamma 价格刷新失败：" + error.message);
 				}
+
+			function startPriceCalibrationTimer() {
+				if (state.priceCalibrationTimer) return;
+				state.priceCalibrationTimer = setInterval(() => {
+					hydratePrices("Gamma 低频校准");
+				}, 60000);
+			}
+
+			function stopPriceCalibrationTimer() {
+				if (!state.priceCalibrationTimer) return;
+				clearInterval(state.priceCalibrationTimer);
+				state.priceCalibrationTimer = null;
 			}
 
 			function bindEvents() {
@@ -1640,11 +1845,13 @@
 					connectMarketWs();
 					connectSportsWs();
 				});
+				$("refreshPricesBtn").addEventListener("click", () => hydratePrices("Gamma 手动校准"));
 				$("testAlertBtn").addEventListener("click", () => showAlert("测试提醒", "GOAL?", "声音和弹层会持续到手动关闭"));
 				$("clearBtn").addEventListener("click", () => {
 					state.watches = [];
 					state.prices = {};
 					state.priceHistory = {};
+					stopPriceCalibrationTimer();
 					saveState();
 					renderWatches();
 					connectMarketWs();
@@ -1685,6 +1892,7 @@
 				searchEvents();
 				if (state.selectedEvent?.slug) loadEventDetails(state.selectedEvent.slug);
 				hydratePrices("Gamma 初始价格");
+				startPriceCalibrationTimer();
 				connectSportsWs();
 				if (state.watches.length > 0) connectMarketWs();
 			}
