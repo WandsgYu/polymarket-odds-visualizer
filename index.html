@@ -1,0 +1,1137 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>胜率面板</title>
+	<style>
+		:root {
+			--blue-deep: #061A3A;
+			--blue-accent: #2EA8FF;
+			--red-deep: #3A0610;
+			--red-accent: #FF4D6D;
+			--green-deep: #0A3A1A;
+			--green-accent: #4DFF6D;
+			--purple-deep: #2A0A3A;
+			--purple-accent: #B84DFF;
+			--yellow-deep: #3A2A0A;
+			--yellow-accent: #FFD84D;
+			--text-strong: #E9F1FF;
+			--text-dim: #9BB2D1;
+			--bg: #0A0F1C;
+			--card: #0F172A;
+		}
+
+		* { box-sizing: border-box; }
+		html, body {
+			height: 100%;
+			margin: 0;
+			background: var(--bg);
+			color: var(--text-strong);
+			font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, "Noto Sans", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "WenQuanYi Micro Hei", sans-serif;
+		}
+
+		.app {
+			position: relative;
+			height: 100%;
+			width: 100%;
+			overflow: hidden;
+			display: flex;
+			flex-direction: column;
+		}
+
+		/* 顶部栏 */
+		.header {
+			position: sticky;
+			top: 0;
+			z-index: 10;
+			height: 64px;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			background: #0f172a;
+			backdrop-filter: saturate(150%) blur(8px);
+			border-bottom: 1px solid rgba(148,163,184,0.15);
+			padding: 0 88px;
+		}
+		.header-logo {
+			position: absolute;
+			left: 16px;
+			height: 40px;
+			width: auto;
+		}
+		.header .title {
+			font-size: 18px;
+			font-weight: 600;
+			letter-spacing: 0.5px;
+			color: #FFFFFF;
+		}
+
+		/* 设置按钮和GitHub链接 */
+		.header-actions {
+			position: absolute;
+			right: 16px;
+			top: 50%;
+			transform: translateY(-50%);
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+		.settings-btn {
+			height: 36px;
+			padding: 0 14px;
+			border-radius: 8px;
+			border: 1px solid rgba(255,255,255,0.3);
+			background: rgba(255,255,255,0.1);
+			color: #FFFFFF;
+			cursor: pointer;
+			transition: all .2s ease;
+		}
+		.settings-btn:hover { 
+			border-color: rgba(255,255,255,0.5); 
+			background: rgba(255,255,255,0.2);
+			transform: translateZ(0) scale(1.02); 
+		}
+		.github-link {
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			height: 36px;
+			width: 36px;
+			border-radius: 8px;
+			border: 1px solid rgba(255,255,255,0.3);
+			background: rgba(255,255,255,0.1);
+			color: #FFFFFF;
+			text-decoration: none;
+			transition: all .2s ease;
+		}
+		.github-link:hover { 
+			border-color: rgba(255,255,255,0.5); 
+			background: rgba(255,255,255,0.2);
+			transform: translateZ(0) scale(1.02); 
+		}
+		.github-link svg {
+			width: 20px;
+			height: 20px;
+			fill: currentColor;
+		}
+
+		/* 主体分屏 */
+		.main {
+			flex: 1 1 auto;
+			position: relative;
+			display: flex;
+			width: 100%;
+			height: calc(100% - 64px);
+		}
+
+		.panel {
+			position: relative;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			user-select: none;
+			transition: width .6s cubic-bezier(.25,.8,.25,1);
+			overflow: hidden;
+		}
+
+		.value-wrap {
+			text-align: center;
+			padding: 24px 16px;
+		}
+		.value {
+			font-weight: 800;
+			line-height: 1;
+			letter-spacing: 1px;
+			text-shadow: 0 0 12px rgba(255,255,255,0.08);
+		}
+		/* 大屏适配字号（作为默认值，会被内联样式覆盖） */
+		.value { font-size: clamp(37.33px, 8.67vw, 106.67px); }
+		.label { margin-top: 10px; font-size: clamp(42px, 6.6vw, 60px); opacity: .8; }
+		
+		/* 颜色选择器样式 */
+		.color-picker-wrapper {
+			display: flex;
+			flex-direction: column;
+			gap: 8px;
+		}
+		.color-presets {
+			display: grid;
+			grid-template-columns: repeat(5, 1fr);
+			gap: 8px;
+		}
+		.color-preset {
+			width: 100%;
+			height: 32px;
+			border-radius: 6px;
+			border: 2px solid transparent;
+			cursor: pointer;
+			transition: all .2s ease;
+		}
+		.color-preset:hover {
+			transform: scale(1.05);
+			border-color: rgba(255,255,255,0.5);
+		}
+		.color-preset.selected {
+			border-color: #3B82F6;
+			box-shadow: 0 0 0 2px rgba(59,130,246,0.3);
+		}
+		.color-custom-input {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+		}
+		.color-custom-input input[type="color"] {
+			width: 40px;
+			height: 32px;
+			border: 1px solid rgba(148,163,184,0.25);
+			border-radius: 6px;
+			cursor: pointer;
+			padding: 0;
+		}
+		.color-custom-input input[type="text"] {
+			flex: 1;
+		}
+
+		/* 错误提示 */
+		.toast {
+			position: absolute;
+			top: 16px;
+			left: 50%;
+			transform: translateX(-50%);
+			background: rgba(255, 77, 109, 0.1);
+			border: 1px solid rgba(255,77,109,0.35);
+			color: #FFD5DC;
+			padding: 8px 12px;
+			border-radius: 8px;
+			font-size: 12px;
+			backdrop-filter: blur(6px);
+			opacity: 0;
+			pointer-events: none;
+			transition: opacity .25s ease;
+		}
+		.toast.show { opacity: 1; }
+
+		/* 弹窗样式 */
+		.modal {
+			position: fixed;
+			inset: 0;
+			display: none;
+			align-items: center;
+			justify-content: center;
+			background: rgba(0,0,0,0.5);
+			backdrop-filter: blur(2px);
+			z-index: 50;
+		}
+		.modal.show { display: flex; }
+		.modal-card {
+			width: 100%;
+			height: 100%;
+			background: var(--card);
+			border: none;
+			border-radius: 0;
+			box-shadow: none;
+			padding: 24px;
+			overflow-y: auto;
+			display: flex;
+			flex-direction: column;
+		}
+		.modal-title {
+			font-size: 24px;
+			font-weight: 700;
+			margin: 6px 4px 20px 4px;
+			color: var(--text-strong);
+		}
+		.options-list {
+			flex: 1;
+			overflow-y: auto;
+			margin-bottom: 20px;
+		}
+		.option-item {
+			background: #0B1222;
+			border: 1px solid rgba(148,163,184,0.2);
+			border-radius: 12px;
+			padding: 16px;
+			margin-bottom: 12px;
+		}
+		.option-header {
+			display: flex;
+			justify-content: space-between;
+			align-items: center;
+			margin-bottom: 12px;
+		}
+		.option-number {
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--text-dim);
+		}
+		.btn-remove {
+			height: 28px;
+			padding: 0 12px;
+			border-radius: 6px;
+			border: 1px solid rgba(255,77,109,0.3);
+			background: rgba(255,77,109,0.1);
+			color: #FF9AB0;
+			cursor: pointer;
+			font-size: 12px;
+			transition: all .2s ease;
+		}
+		.btn-remove:hover {
+			background: rgba(255,77,109,0.2);
+			border-color: rgba(255,77,109,0.5);
+		}
+		.form-row { display: flex; gap: 12px; margin-bottom: 12px; }
+		.form-col { flex: 1; display: flex; flex-direction: column; }
+		.label-sm { font-size: 12px; color: var(--text-dim); margin: 4px 2px 6px 2px; }
+		input[type="text"], select {
+			background: #0B1222;
+			border: 1px solid rgba(148,163,184,0.25);
+			border-radius: 10px;
+			padding: 12px 12px;
+			color: #CCE1FF;
+			outline: none;
+			transition: border-color .2s ease, box-shadow .2s ease;
+		}
+		input[type="text"]::placeholder { color: #7C8CA3; }
+		input[type="text"]:focus, select:focus {
+			border-color: #3B82F6;
+			box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+		}
+		.token-custom-input {
+			margin-top: 8px;
+			display: none;
+		}
+		.token-custom-input.show {
+			display: block;
+		}
+		.modal-actions {
+			margin-top: 10px;
+			display: flex;
+			gap: 10px;
+			justify-content: space-between;
+			align-items: center;
+		}
+		.btn {
+			height: 38px;
+			padding: 0 16px;
+			border-radius: 10px;
+			border: 1px solid rgba(148,163,184,0.35);
+			background: #0B1222;
+			color: #D8E7FF;
+			cursor: pointer;
+			transition: all .2s ease;
+		}
+		.btn.primary {
+			background: linear-gradient(90deg, #2563EB, #7C3AED);
+			border: none;
+			color: #EAF2FF;
+		}
+		.btn:hover { transform: translateZ(0) scale(1.02); }
+		.btn-add {
+			background: linear-gradient(90deg, #059669, #10B981);
+			border: none;
+			color: #EAF2FF;
+		}
+		.btn-export {
+			background: linear-gradient(90deg, #7C3AED, #A855F7);
+			border: none;
+			color: #EAF2FF;
+		}
+		.btn-import {
+			background: linear-gradient(90deg, #DC2626, #EF4444);
+			border: none;
+			color: #EAF2FF;
+		}
+		input[type="number"] {
+			background: #0B1222;
+			border: 1px solid rgba(148,163,184,0.25);
+			border-radius: 10px;
+			padding: 12px 12px;
+			color: #CCE1FF;
+			outline: none;
+			transition: border-color .2s ease, box-shadow .2s ease;
+		}
+		input[type="number"]:focus {
+			border-color: #3B82F6;
+			box-shadow: 0 0 0 3px rgba(59,130,246,0.15);
+		}
+		input[type="file"] {
+			display: none;
+		}
+		.config-section {
+			background: #0B1222;
+			border: 1px solid rgba(148,163,184,0.2);
+			border-radius: 12px;
+			padding: 16px;
+			margin-bottom: 16px;
+		}
+		.config-section-title {
+			font-size: 14px;
+			font-weight: 600;
+			color: var(--text-strong);
+			margin-bottom: 12px;
+		}
+		.count-selector {
+			display: flex;
+			align-items: center;
+			gap: 12px;
+		}
+		.count-selector label {
+			font-size: 12px;
+			color: var(--text-dim);
+		}
+		.count-selector input {
+			width: 80px;
+		}
+		.import-export-buttons {
+			display: flex;
+			gap: 10px;
+		}
+	</style>
+</head>
+<body>
+		<div class="app">
+		<div class="header">
+			<img src="https://i.mji.rip/2025/11/12/142a4a77b2d0c04dc481e1057a0d4be1.png" alt="Polymarket Logo" class="header-logo">
+			<div class="title" id="headerTitle">Fed decision in March?</div>
+			<div class="header-actions">
+				<a href="https://github.com/WandsgYu/polymarket-odds-visualizer" target="_blank" rel="noopener noreferrer" class="github-link" title="GitHub">
+					<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+						<path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z"/>
+					</svg>
+				</a>
+				<button class="settings-btn" id="openSettings">配置</button>
+			</div>
+		</div>
+		<div class="main" id="mainContainer">
+			<!-- 面板将动态生成 -->
+		</div>
+	</div>
+
+	<!-- 配置弹窗 -->
+	<div class="modal" id="settingsModal" aria-hidden="true">
+		<div class="modal-card" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+			<div class="modal-title" id="modalTitle">配置选项</div>
+			
+			<!-- 基础配置 -->
+			<div class="config-section">
+				<div class="config-section-title">基础设置</div>
+				<div class="form-row">
+					<div class="form-col">
+						<label class="label-sm">标题文本</label>
+						<input type="text" id="headerTitleInput" placeholder="例如：polymarket实时胜率展示" value="Fed decision in March?">
+					</div>
+					<div class="form-col">
+						<label class="label-sm">请求频率（秒）</label>
+						<input type="number" id="refreshRate" min="0.5" max="60" step="0.1" value="2">
+					</div>
+				</div>
+				<div class="form-row">
+					<div class="form-col">
+						<label class="label-sm">事件结果总数（包含"其他"）</label>
+						<input type="number" id="eventCount" min="1" max="10" value="3">
+					</div>
+					<div class="form-col">
+						<label class="label-sm">概率字号（px）</label>
+						<input type="number" id="valueFontSize" min="20" max="200" value="80">
+					</div>
+					<div class="form-col">
+						<label class="label-sm">事件名称字号（px）</label>
+						<input type="number" id="labelFontSize" min="12" max="100" value="48">
+					</div>
+				</div>
+			</div>
+
+			<!-- 导入导出 -->
+			<div class="config-section">
+				<div class="config-section-title">配置管理</div>
+				<div class="import-export-buttons">
+					<button class="btn btn-export" id="exportConfig">导出配置</button>
+					<button class="btn btn-import" id="importConfig">导入配置</button>
+					<input type="file" id="importFile" accept=".json" />
+				</div>
+			</div>
+
+			<!-- 选项列表 -->
+			<div class="config-section">
+				<div class="config-section-title">事件配置</div>
+				<div class="options-list" id="optionsList">
+					<!-- 选项将动态生成 -->
+				</div>
+			</div>
+
+			<div class="modal-actions">
+				<div>
+					<button class="btn" id="closeModal">取消</button>
+					<button class="btn primary" id="saveSettings">保存并应用</button>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		(function () {
+			const $ = (id) => document.getElementById(id);
+			const LS_OPTIONS = "pm_options";
+			const LS_REFRESH_RATE = "pm_refresh_rate";
+			const LS_TITLE = "pm_title";
+			const LS_VALUE_FONT_SIZE = "pm_value_font_size";
+			const LS_LABEL_FONT_SIZE = "pm_label_font_size";
+			let REFRESH_MS = 2000; // 默认2秒刷新
+			let TITLE_TEXT = "Fed decision in March?";
+			let VALUE_FONT_SIZE = 80;
+			let LABEL_FONT_SIZE = 48;
+
+			// 颜色主题配置
+			const THEMES = [
+				{ deep: "#061A3A", accent: "#2EA8FF", value: "#DFF2FF", label: "#A6D8FF", shadow: "0 0 30px rgba(46, 168, 255, 0.45), 0 0 60px rgba(46, 168, 255, 0.25)" },
+				{ deep: "#3A0610", accent: "#FF4D6D", value: "#FFE4EA", label: "#FF9AB0", shadow: "0 0 30px rgba(255, 77, 109, 0.45), 0 0 60px rgba(255, 77, 109, 0.25)" },
+				{ deep: "#0A3A1A", accent: "#4DFF6D", value: "#E4FFEA", label: "#9AFFB0", shadow: "0 0 30px rgba(77, 255, 109, 0.45), 0 0 60px rgba(77, 255, 109, 0.25)" },
+				{ deep: "#2A0A3A", accent: "#B84DFF", value: "#F4E4FF", label: "#D99AFF", shadow: "0 0 30px rgba(184, 77, 255, 0.45), 0 0 60px rgba(184, 77, 255, 0.25)" },
+				{ deep: "#3A2A0A", accent: "#FFD84D", value: "#FFF4E4", label: "#FFD99A", shadow: "0 0 30px rgba(255, 216, 77, 0.45), 0 0 60px rgba(255, 216, 77, 0.25)" },
+			];
+
+			// 默认配置
+			const DEFAULT_OPTIONS = [
+				{ tokenId: "62938043365772447095885755955446362343142416536419862840923032141775380249586", eventName: "25bps", isOther: false },
+				{ tokenId: "102559817034631022221500208641784929295731053857601013029449249654006364919935", eventName: "no change", isOther: false },
+				{ tokenId: "", eventName: "其他", isOther: true }
+			];
+
+			let options = [];
+			let pollTimer = null;
+			let lastPrices = {};
+
+			// 加载配置
+			function loadOptions() {
+				const saved = localStorage.getItem(LS_OPTIONS);
+				if (saved) {
+					try {
+						options = JSON.parse(saved);
+						if (!Array.isArray(options) || options.length === 0) {
+							options = [...DEFAULT_OPTIONS];
+						}
+					} catch (e) {
+						options = [...DEFAULT_OPTIONS];
+					}
+				} else {
+					options = [...DEFAULT_OPTIONS];
+				}
+				
+				// 加载刷新频率
+				const savedRate = localStorage.getItem(LS_REFRESH_RATE);
+				if (savedRate) {
+					const rate = parseFloat(savedRate);
+					if (!isNaN(rate) && rate >= 0.5) {
+						REFRESH_MS = rate * 1000;
+					}
+				}
+				
+				// 加载标题
+				const savedTitle = localStorage.getItem(LS_TITLE);
+				if (savedTitle) {
+					TITLE_TEXT = savedTitle;
+				}
+				
+				// 加载字号
+				const savedValueFontSize = localStorage.getItem(LS_VALUE_FONT_SIZE);
+				if (savedValueFontSize) {
+					const size = parseInt(savedValueFontSize);
+					if (!isNaN(size) && size >= 20) {
+						VALUE_FONT_SIZE = size;
+					}
+				}
+				
+				const savedLabelFontSize = localStorage.getItem(LS_LABEL_FONT_SIZE);
+				if (savedLabelFontSize) {
+					const size = parseInt(savedLabelFontSize);
+					if (!isNaN(size) && size >= 12) {
+						LABEL_FONT_SIZE = size;
+					}
+				}
+			}
+
+			// 保存配置
+			function saveOptions() {
+				localStorage.setItem(LS_OPTIONS, JSON.stringify(options));
+			}
+
+			// 保存刷新频率
+			function saveRefreshRate() {
+				localStorage.setItem(LS_REFRESH_RATE, (REFRESH_MS / 1000).toString());
+			}
+			
+			// 保存标题
+			function saveTitle() {
+				localStorage.setItem(LS_TITLE, TITLE_TEXT);
+			}
+			
+			// 保存字号
+			function saveFontSizes() {
+				localStorage.setItem(LS_VALUE_FONT_SIZE, VALUE_FONT_SIZE.toString());
+				localStorage.setItem(LS_LABEL_FONT_SIZE, LABEL_FONT_SIZE.toString());
+			}
+
+			// 导出配置为JSON
+			function exportConfig() {
+				const config = {
+					options: options,
+					refreshRate: REFRESH_MS / 1000,
+					title: TITLE_TEXT,
+					valueFontSize: VALUE_FONT_SIZE,
+					labelFontSize: LABEL_FONT_SIZE,
+					version: "1.0"
+				};
+				const jsonStr = JSON.stringify(config, null, 2);
+				const blob = new Blob([jsonStr], { type: "application/json" });
+				const url = URL.createObjectURL(blob);
+				const a = document.createElement("a");
+				a.href = url;
+				a.download = `polymarket-config-${new Date().toISOString().slice(0, 10)}.json`;
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				URL.revokeObjectURL(url);
+			}
+
+			// 导入配置
+			function importConfig() {
+				const fileInput = $("importFile");
+				fileInput.click();
+			}
+
+			// 处理文件导入
+			function handleFileImport(event) {
+				const file = event.target.files[0];
+				if (!file) return;
+				
+				const reader = new FileReader();
+				reader.onload = function(e) {
+					try {
+						const config = JSON.parse(e.target.result);
+						
+						// 验证配置格式
+						if (!config.options || !Array.isArray(config.options)) {
+							alert("配置文件格式错误：缺少 options 数组");
+							return;
+						}
+						
+						if (config.options.length === 0) {
+							alert("配置文件错误：至少需要一个选项");
+							return;
+						}
+						
+						// 应用配置
+						options = config.options;
+						
+						// 应用刷新频率
+						if (config.refreshRate && typeof config.refreshRate === "number") {
+							const rate = Math.max(0.5, config.refreshRate);
+							REFRESH_MS = rate * 1000;
+							$("refreshRate").value = rate;
+						}
+						
+						// 应用标题
+						if (config.title && typeof config.title === "string") {
+							TITLE_TEXT = config.title;
+							$("headerTitleInput").value = TITLE_TEXT;
+							$("headerTitle").textContent = TITLE_TEXT;
+						}
+						
+						// 应用字号
+						if (config.valueFontSize && typeof config.valueFontSize === "number") {
+							VALUE_FONT_SIZE = Math.max(20, config.valueFontSize);
+							$("valueFontSize").value = VALUE_FONT_SIZE;
+						}
+						
+						if (config.labelFontSize && typeof config.labelFontSize === "number") {
+							LABEL_FONT_SIZE = Math.max(12, config.labelFontSize);
+							$("labelFontSize").value = LABEL_FONT_SIZE;
+						}
+						
+						// 更新事件总数
+						$("eventCount").value = options.length;
+						
+						// 保存并刷新UI
+						saveOptions();
+						saveRefreshRate();
+						saveTitle();
+						saveFontSizes();
+						renderOptionsList();
+						
+						// 自动应用配置
+						createPanels();
+						startPolling();
+						
+						alert("配置导入成功！已自动应用。");
+					} catch (err) {
+						alert("配置文件解析失败：" + err.message);
+					}
+				};
+				reader.readAsText(file);
+				// 清空input，允许重复导入同一文件
+				event.target.value = "";
+			}
+
+			// 格式化百分比（整数）
+			function formatPct(v) {
+				const pct = Math.max(0, Math.min(1, v)) * 100;
+				return Math.round(pct) + "%";
+			}
+
+			// 显示提示
+			function showToast(panelId, msg) {
+				const toast = document.querySelector(`#panel-${panelId} .toast`);
+				if (toast) {
+					toast.textContent = msg;
+					toast.classList.add("show");
+					setTimeout(() => toast.classList.remove("show"), 1600);
+				}
+			}
+
+			// 创建面板
+			function createPanels() {
+				const main = $("mainContainer");
+				main.innerHTML = "";
+				options.forEach((opt, idx) => {
+					const theme = THEMES[idx % THEMES.length];
+					// 使用配置的颜色，如果没有则使用主题颜色
+					const eventColor = opt.color || theme.accent;
+					// 根据颜色生成渐变背景
+					const colorRgb = hexToRgb(eventColor);
+					const deepColor = `rgba(${colorRgb.r * 0.1}, ${colorRgb.g * 0.1}, ${colorRgb.b * 0.1}, 0.8)`;
+					const midColor = `rgba(${colorRgb.r * 0.15}, ${colorRgb.g * 0.15}, ${colorRgb.b * 0.15}, 0.9)`;
+					const lightColor = `rgba(${colorRgb.r * 0.2}, ${colorRgb.g * 0.2}, ${colorRgb.b * 0.2}, 1)`;
+					
+					const panel = document.createElement("div");
+					panel.className = "panel";
+					panel.id = `panel-${idx}`;
+					panel.style.width = `${100 / options.length}%`;
+					panel.style.background = `radial-gradient(1200px 600px at ${idx % 2 === 0 ? '0%' : '100%'} 50%, ${deepColor} 0%, ${midColor} 60%, ${lightColor} 100%)`;
+					panel.style.borderRight = idx < options.length - 1 ? `1px solid ${eventColor}33` : "none";
+					
+					// 生成文字颜色（基于事件颜色）
+					const textColor = eventColor;
+					const labelColor = adjustBrightness(eventColor, 0.7);
+					const shadow = `0 0 30px ${eventColor}45, 0 0 60px ${eventColor}25`;
+					
+					panel.innerHTML = `
+						<div class="value-wrap">
+							<div class="value" style="color: ${textColor}; text-shadow: ${shadow}; font-size: ${VALUE_FONT_SIZE}px;" id="value-${idx}">0%</div>
+							<div class="label" style="color: ${labelColor}; font-size: ${LABEL_FONT_SIZE}px;" id="label-${idx}">${opt.eventName}</div>
+							<div class="toast" id="toast-${idx}"></div>
+						</div>
+					`;
+					main.appendChild(panel);
+				});
+				
+				// 更新标题
+				$("headerTitle").textContent = TITLE_TEXT;
+			}
+			
+			// 辅助函数：将十六进制颜色转换为RGB
+			function hexToRgb(hex) {
+				const result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+				return result ? {
+					r: parseInt(result[1], 16),
+					g: parseInt(result[2], 16),
+					b: parseInt(result[3], 16)
+				} : { r: 46, g: 168, b: 255 };
+			}
+			
+			// 辅助函数：调整颜色亮度
+			function adjustBrightness(hex, factor) {
+				const rgb = hexToRgb(hex);
+				const r = Math.round(rgb.r * factor);
+				const g = Math.round(rgb.g * factor);
+				const b = Math.round(rgb.b * factor);
+				return `rgb(${r}, ${g}, ${b})`;
+			}
+
+			// 更新UI
+			function updateUI(prices) {
+				let totalWidth = 0;
+				options.forEach((opt, idx) => {
+					const price = prices[idx] || 0;
+					const pct = Math.max(0, Math.min(1, price));
+					const panel = document.querySelector(`#panel-${idx}`);
+					const valueEl = document.querySelector(`#value-${idx}`);
+					if (panel && valueEl) {
+						valueEl.textContent = formatPct(pct);
+						const width = pct * 100;
+						panel.style.width = width.toFixed(2) + "%";
+						totalWidth += width;
+					}
+				});
+				// 更新标题
+				const titleParts = options.map((opt, idx) => {
+					return opt.eventName + " " + formatPct(prices[idx] || 0);
+				});
+				document.title = titleParts.join(" | ");
+			}
+
+			// 获取单个token价格
+			async function fetchPriceOnce(tokenId, signal) {
+				if (!tokenId || tokenId.trim() === "") {
+					return null;
+				}
+				const url = "https://clob.polymarket.com/price?side=SELL&token_id=" + encodeURIComponent(tokenId);
+				const resp = await fetch(url, { method: "GET", headers: { "accept": "application/json" }, signal });
+				if (!resp.ok) throw new Error("HTTP " + resp.status);
+				const data = await resp.json();
+				if (typeof data.price !== "string") throw new Error("响应无 price 字段");
+				const price = Number(data.price);
+				if (!Number.isFinite(price)) throw new Error("price 不是数字");
+				return Math.max(0, Math.min(1, price));
+			}
+
+			// 获取所有价格
+			async function fetchAllPrices(signal) {
+				const prices = {};
+				const promises = [];
+				let otherSum = 0;
+
+				// 先获取所有非"其他"选项的价格
+				options.forEach((opt, idx) => {
+					if (opt.isOther) {
+						prices[idx] = null; // 标记为"其他"，稍后计算
+					} else {
+						const promise = fetchPriceOnce(opt.tokenId, signal)
+							.then(price => {
+								if (price !== null) {
+									prices[idx] = price;
+									otherSum += price;
+								} else {
+									prices[idx] = 0;
+								}
+							})
+							.catch(err => {
+								console.error(`Token ${idx} fetch error:`, err);
+								prices[idx] = lastPrices[idx] || 0;
+							});
+						promises.push(promise);
+					}
+				});
+
+				await Promise.all(promises);
+
+				// 计算"其他"选项的概率
+				options.forEach((opt, idx) => {
+					if (opt.isOther) {
+						prices[idx] = Math.max(0, Math.min(1, 1 - otherSum));
+					}
+				});
+
+				return prices;
+			}
+
+			// 开始轮询
+			function startPolling() {
+				stopPolling();
+				// 立即拉一次
+				const abort = new AbortController();
+				fetchAllPrices(abort.signal).then((prices) => {
+					lastPrices = prices;
+					updateUI(prices);
+				}).catch((err) => {
+					console.error(err);
+					options.forEach((opt, idx) => {
+						showToast(idx, "拉取失败，保留上一数值");
+					});
+				});
+				// 周期轮询
+				pollTimer = setInterval(async () => {
+					try {
+						const prices = await fetchAllPrices(undefined);
+						lastPrices = prices;
+						updateUI(prices);
+					} catch (e) {
+						console.error(e);
+						options.forEach((opt, idx) => {
+							showToast(idx, "网络异常");
+						});
+					}
+				}, REFRESH_MS);
+			}
+
+			function stopPolling() {
+				if (pollTimer) {
+					clearInterval(pollTimer);
+					pollTimer = null;
+				}
+			}
+
+			// 根据事件总数更新选项列表
+			function updateOptionsByCount(count) {
+				const currentCount = options.length;
+				const targetCount = Math.max(1, Math.min(10, parseInt(count) || 2));
+				
+				if (targetCount > currentCount) {
+					// 增加选项
+					for (let i = currentCount; i < targetCount; i++) {
+						options.push({
+							tokenId: "",
+							eventName: `事件${i + 1}`,
+							isOther: false
+						});
+					}
+				} else if (targetCount < currentCount) {
+					// 减少选项
+					options = options.slice(0, targetCount);
+				}
+				
+				// 确保至少有一个"其他"选项
+				const hasOther = options.some(opt => opt.isOther);
+				if (!hasOther && options.length > 0) {
+					// 将最后一个设为"其他"
+					options[options.length - 1].isOther = true;
+					options[options.length - 1].tokenId = "";
+				}
+			}
+
+			// 渲染配置弹窗
+			function renderOptionsList() {
+				const list = $("optionsList");
+				list.innerHTML = "";
+				
+				// 更新事件总数输入框
+				$("eventCount").value = options.length;
+				
+				options.forEach((opt, idx) => {
+					const item = document.createElement("div");
+					item.className = "option-item";
+					const theme = THEMES[idx % THEMES.length];
+					const currentColor = opt.color || theme.accent;
+					const presetColors = [
+						"#2EA8FF", "#FF4D6D", "#4DFF6D", "#B84DFF", "#FFD84D",
+						"#FF6B35", "#00D4FF", "#FFB800", "#9D50FF", "#00FF88"
+					];
+					
+					item.innerHTML = `
+						<div class="option-header">
+							<span class="option-number">选项 ${idx + 1}</span>
+						</div>
+						<div class="form-row">
+							<div class="form-col">
+								<label class="label-sm">Token ID</label>
+								<select class="token-select" data-index="${idx}">
+									<option value="other" ${opt.isOther ? "selected" : ""}>其他</option>
+									<option value="custom" ${!opt.isOther ? "selected" : ""}>自定义</option>
+								</select>
+								<input type="text" class="token-custom-input ${!opt.isOther ? "show" : ""}" 
+									data-index="${idx}" placeholder="输入 token_id" 
+									value="${opt.isOther ? "" : opt.tokenId}">
+							</div>
+							<div class="form-col">
+								<label class="label-sm">事件名称</label>
+								<input type="text" class="event-name-input" data-index="${idx}" 
+									placeholder="例如：Team A" value="${opt.eventName}">
+							</div>
+						</div>
+						<div class="form-row">
+							<div class="form-col">
+								<label class="label-sm">事件颜色</label>
+								<div class="color-picker-wrapper">
+									<div class="color-presets">
+										${presetColors.map((color, i) => `
+											<div class="color-preset ${currentColor === color ? 'selected' : ''}" 
+												data-index="${idx}" data-color="${color}" 
+												style="background: ${color}"></div>
+										`).join('')}
+									</div>
+									<div class="color-custom-input">
+										<input type="color" class="color-picker" data-index="${idx}" value="${currentColor}">
+										<input type="text" class="color-text-input" data-index="${idx}" 
+											placeholder="#2EA8FF" value="${currentColor}">
+									</div>
+								</div>
+							</div>
+						</div>
+					`;
+					list.appendChild(item);
+				});
+				
+				// 绑定颜色选择事件
+				document.querySelectorAll(".color-preset").forEach(preset => {
+					preset.addEventListener("click", (e) => {
+						const idx = parseInt(e.target.dataset.index);
+						const color = e.target.dataset.color;
+						// 更新选中状态
+						document.querySelectorAll(`.color-preset[data-index="${idx}"]`).forEach(p => {
+							p.classList.remove("selected");
+						});
+						e.target.classList.add("selected");
+						// 更新颜色输入框
+						const colorInput = document.querySelector(`.color-picker[data-index="${idx}"]`);
+						const textInput = document.querySelector(`.color-text-input[data-index="${idx}"]`);
+						if (colorInput) colorInput.value = color;
+						if (textInput) textInput.value = color;
+					});
+				});
+				
+				document.querySelectorAll(".color-picker").forEach(picker => {
+					picker.addEventListener("change", (e) => {
+						const idx = parseInt(e.target.dataset.index);
+						const color = e.target.value;
+						const textInput = document.querySelector(`.color-text-input[data-index="${idx}"]`);
+						if (textInput) textInput.value = color;
+						// 清除预设选中状态
+						document.querySelectorAll(`.color-preset[data-index="${idx}"]`).forEach(p => {
+							p.classList.remove("selected");
+						});
+					});
+				});
+				
+				document.querySelectorAll(".color-text-input").forEach(input => {
+					input.addEventListener("input", (e) => {
+						const idx = parseInt(e.target.dataset.index);
+						const color = e.target.value;
+						// 验证颜色格式
+						if (/^#[0-9A-Fa-f]{6}$/.test(color)) {
+							const colorInput = document.querySelector(`.color-picker[data-index="${idx}"]`);
+							if (colorInput) colorInput.value = color;
+							// 清除预设选中状态
+							document.querySelectorAll(`.color-preset[data-index="${idx}"]`).forEach(p => {
+								p.classList.remove("selected");
+							});
+						}
+					});
+				});
+
+				// 绑定事件
+				document.querySelectorAll(".token-select").forEach(select => {
+					select.addEventListener("change", (e) => {
+						const idx = parseInt(e.target.dataset.index);
+						const customInput = document.querySelector(`.token-custom-input[data-index="${idx}"]`);
+						if (e.target.value === "other") {
+							customInput.classList.remove("show");
+							customInput.value = "";
+						} else {
+							customInput.classList.add("show");
+						}
+					});
+				});
+			}
+
+			// 弹窗控制
+			function openModal() {
+				// 设置当前值
+				$("eventCount").value = options.length;
+				$("refreshRate").value = REFRESH_MS / 1000;
+				$("headerTitleInput").value = TITLE_TEXT;
+				$("valueFontSize").value = VALUE_FONT_SIZE;
+				$("labelFontSize").value = LABEL_FONT_SIZE;
+				renderOptionsList();
+				$("settingsModal").classList.add("show");
+				$("settingsModal").setAttribute("aria-hidden", "false");
+			}
+
+			function closeModalFn() {
+				$("settingsModal").classList.remove("show");
+				$("settingsModal").setAttribute("aria-hidden", "true");
+			}
+
+			function saveSettings() {
+				// 更新标题
+				const titleText = $("headerTitleInput").value.trim() || "polymarket实时胜率展示";
+				TITLE_TEXT = titleText;
+				saveTitle();
+				
+				// 更新字号
+				const valueFontSize = parseInt($("valueFontSize").value) || 80;
+				const labelFontSize = parseInt($("labelFontSize").value) || 48;
+				if (valueFontSize < 20 || valueFontSize > 200) {
+					alert("概率字号必须在20-200之间");
+					return;
+				}
+				if (labelFontSize < 12 || labelFontSize > 100) {
+					alert("事件名称字号必须在12-100之间");
+					return;
+				}
+				VALUE_FONT_SIZE = valueFontSize;
+				LABEL_FONT_SIZE = labelFontSize;
+				saveFontSizes();
+				
+				// 更新事件总数
+				const eventCount = parseInt($("eventCount").value) || 2;
+				updateOptionsByCount(eventCount);
+				
+				// 更新刷新频率
+				const refreshRate = parseFloat($("refreshRate").value) || 2;
+				if (refreshRate < 0.5) {
+					alert("请求频率不能小于0.5秒");
+					return;
+				}
+				REFRESH_MS = refreshRate * 1000;
+				saveRefreshRate();
+				
+				// 读取所有选项配置
+				const newOptions = [];
+				document.querySelectorAll(".option-item").forEach((item, idx) => {
+					const select = item.querySelector(".token-select");
+					const customInput = item.querySelector(".token-custom-input");
+					const nameInput = item.querySelector(".event-name-input");
+					const colorInput = item.querySelector(".color-text-input");
+					const isOther = select.value === "other";
+					const tokenId = isOther ? "" : customInput.value.trim();
+					const eventName = nameInput.value.trim() || `事件${idx + 1}`;
+					let eventColor = colorInput ? colorInput.value.trim() : "";
+					
+					// 验证颜色格式
+					if (eventColor && !/^#[0-9A-Fa-f]{6}$/.test(eventColor)) {
+						alert(`选项 ${idx + 1} 的颜色格式不正确，应为 #RRGGBB 格式`);
+						return;
+					}
+					
+					if (!isOther && tokenId.length === 0) {
+						alert(`选项 ${idx + 1} 的 token_id 不能为空`);
+						return;
+					}
+					
+					newOptions.push({
+						tokenId: tokenId,
+						eventName: eventName,
+						isOther: isOther,
+						color: eventColor || undefined
+					});
+				});
+
+				if (newOptions.length === 0) {
+					alert("至少需要配置一个选项");
+					return;
+				}
+
+				options = newOptions;
+				saveOptions();
+				createPanels();
+				closeModalFn();
+				startPolling();
+			}
+
+			// 事件绑定
+			$("openSettings").addEventListener("click", openModal);
+			$("closeModal").addEventListener("click", closeModalFn);
+			$("settingsModal").addEventListener("click", (e) => {
+				if (e.target === $("settingsModal")) closeModalFn();
+			});
+			$("saveSettings").addEventListener("click", saveSettings);
+			$("exportConfig").addEventListener("click", exportConfig);
+			$("importConfig").addEventListener("click", importConfig);
+			$("importFile").addEventListener("change", handleFileImport);
+			
+			// 事件总数变化时更新选项列表
+			$("eventCount").addEventListener("change", (e) => {
+				const count = parseInt(e.target.value) || 2;
+				updateOptionsByCount(count);
+				renderOptionsList();
+			});
+
+			// 初始化
+			loadOptions();
+			$("headerTitle").textContent = TITLE_TEXT;
+			createPanels();
+			startPolling();
+		})();
+	</script>
+</body>
+</html>
