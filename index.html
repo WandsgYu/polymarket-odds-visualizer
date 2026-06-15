@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="en">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -106,8 +106,57 @@
 			display: flex;
 			align-items: center;
 			justify-content: flex-end;
-			gap: 10px;
+			gap: 12px;
 			flex-wrap: wrap;
+		}
+
+		.language-control {
+			display: inline-flex;
+			align-items: center;
+			gap: 10px;
+			height: 44px;
+			padding: 0 10px 0 12px;
+			border-radius: 8px;
+			border: 1px solid rgba(56, 189, 248, 0.36);
+			background:
+				linear-gradient(135deg, rgba(56, 189, 248, 0.16), rgba(34, 197, 94, 0.1)),
+				rgba(255, 255, 255, 0.06);
+			box-shadow: 0 12px 32px rgba(56, 189, 248, 0.12);
+		}
+
+		.language-icon {
+			display: grid;
+			place-items: center;
+			width: 26px;
+			height: 26px;
+			border-radius: 7px;
+			color: #bfdbfe;
+			background: rgba(56, 189, 248, 0.16);
+			border: 1px solid rgba(56, 189, 248, 0.24);
+			flex: 0 0 auto;
+		}
+
+		.language-copy {
+			display: grid;
+			gap: 1px;
+			min-width: 76px;
+		}
+
+		.language-label {
+			color: var(--muted);
+			font-size: 10px;
+			font-weight: 800;
+			line-height: 1;
+			text-transform: uppercase;
+			white-space: nowrap;
+		}
+
+		.language-current {
+			color: var(--text);
+			font-size: 13px;
+			font-weight: 820;
+			line-height: 1.1;
+			white-space: nowrap;
 		}
 
 		.pill {
@@ -124,6 +173,21 @@
 			white-space: nowrap;
 		}
 
+		.lang-select {
+			width: auto;
+			min-width: 112px;
+			height: 30px;
+			padding: 0 9px;
+			border-radius: 7px;
+			font-size: 12px;
+			background: rgba(8, 11, 16, 0.58);
+			border-color: rgba(255, 255, 255, 0.16);
+		}
+
+		.select.lang-select {
+			width: auto;
+		}
+
 		.dot {
 			width: 8px;
 			height: 8px;
@@ -138,7 +202,7 @@
 
 		.workspace {
 			display: grid;
-			grid-template-columns: 380px minmax(0, 1fr) 340px;
+				grid-template-columns: 380px minmax(0, 1fr) 420px;
 			gap: 18px;
 			padding: 18px;
 			min-height: 0;
@@ -233,6 +297,12 @@
 			background: rgba(239, 68, 68, 0.12);
 			border-color: rgba(239, 68, 68, 0.3);
 			color: #fecaca;
+		}
+
+		.btn.small {
+			height: 34px;
+			padding: 0 10px;
+			font-size: 12px;
 		}
 
 		.btn:disabled {
@@ -362,9 +432,43 @@
 			white-space: nowrap;
 		}
 
+		.combo-card {
+			margin-bottom: 12px;
+			padding: 12px;
+			border-radius: 8px;
+			border: 1px solid rgba(56, 189, 248, 0.22);
+			background: rgba(56, 189, 248, 0.08);
+		}
+
+		.combo-preview {
+			display: grid;
+			grid-template-columns: var(--combo-columns, 1fr 1fr 1fr);
+			height: 18px;
+			overflow: hidden;
+			border-radius: 999px;
+			border: 1px solid rgba(255, 255, 255, 0.1);
+			margin-top: 10px;
+		}
+
+		.combo-preview span:nth-child(1), .outcome-panel.team-a {
+			background: rgba(59, 130, 246, 0.34);
+			color: #93c5fd;
+		}
+
+		.combo-preview span:nth-child(2), .outcome-panel.draw {
+			background: rgba(148, 163, 184, 0.28);
+			color: #cbd5e1;
+		}
+
+		.combo-preview span:nth-child(3), .outcome-panel.team-b {
+			background: rgba(248, 113, 113, 0.28);
+			color: #fca5a5;
+		}
+
 		.watch {
 			display: grid;
 			grid-template-rows: auto minmax(0, 1fr);
+			container-type: inline-size;
 		}
 
 		.hero {
@@ -391,11 +495,41 @@
 			max-width: 760px;
 		}
 
-		.hero-actions {
-			display: flex;
-			gap: 10px;
-			flex-wrap: wrap;
-			justify-content: flex-end;
+		.clock-stack {
+			display: grid;
+			gap: 8px;
+			justify-items: end;
+			min-width: 260px;
+			font-variant-numeric: tabular-nums;
+			padding: 2px 0;
+		}
+
+		.clock-row {
+			display: grid;
+			gap: 5px;
+			color: var(--muted);
+			font-size: 12px;
+			line-height: 1.2;
+			text-align: right;
+		}
+
+		.clock-value {
+			color: var(--text);
+			font-size: 34px;
+			line-height: 0.95;
+			font-weight: 900;
+			letter-spacing: 0;
+			text-shadow: 0 0 26px rgba(56, 189, 248, 0.22);
+		}
+
+		.operation-actions {
+			display: grid;
+			grid-template-columns: 1fr;
+			gap: 8px;
+		}
+
+		.operation-actions .btn {
+			width: 100%;
 		}
 
 		.watch-grid {
@@ -483,6 +617,31 @@
 			border: 1px solid rgba(255, 255, 255, 0.1);
 		}
 
+		.watch-actions {
+			display: flex;
+			align-items: center;
+			gap: 8px;
+			flex-shrink: 0;
+		}
+
+		.mini-toggle {
+			height: 30px;
+			padding: 0 9px;
+			border-radius: 7px;
+			background: rgba(34, 197, 94, 0.13);
+			color: #bbf7d0;
+			border: 1px solid rgba(34, 197, 94, 0.3);
+			font-size: 11px;
+			font-weight: 760;
+			white-space: nowrap;
+		}
+
+		.mini-toggle.off {
+			background: rgba(148, 163, 184, 0.12);
+			color: #cbd5e1;
+			border-color: rgba(148, 163, 184, 0.24);
+		}
+
 		.big-price {
 			align-self: center;
 			font-size: clamp(54px, 8vw, 132px);
@@ -515,6 +674,17 @@
 			border-right: 1px solid rgba(255, 255, 255, 0.08);
 		}
 
+		.outcome-panel[data-zero="true"] {
+			padding-left: 0;
+			padding-right: 0;
+			border-right: 0;
+		}
+
+		.outcome-panel[data-zero="true"] > div {
+			opacity: 0;
+			pointer-events: none;
+		}
+
 		.outcome-panel:last-child {
 			border-right: 0;
 		}
@@ -535,6 +705,21 @@
 		.outcome-panel:nth-child(even) {
 			color: #fb7185;
 			background: rgba(127, 29, 29, 0.32);
+		}
+
+		.outcome-panel.team-a {
+			background: rgba(59, 130, 246, 0.34);
+			color: #93c5fd;
+		}
+
+		.outcome-panel.draw {
+			background: rgba(148, 163, 184, 0.28);
+			color: #cbd5e1;
+		}
+
+		.outcome-panel.team-b {
+			background: rgba(248, 113, 113, 0.28);
+			color: #fca5a5;
 		}
 
 		.outcome-panel .big-price {
@@ -572,7 +757,7 @@
 
 		.controls {
 			display: grid;
-			grid-template-columns: 1fr 1fr;
+			grid-template-columns: 1fr;
 			gap: 10px;
 		}
 
@@ -590,6 +775,19 @@
 		.feed {
 			padding: 16px;
 			flex: 1 1 auto;
+		}
+
+		.log-actions {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 8px;
+		}
+
+		.log-status {
+			margin-top: 10px;
+			color: var(--muted);
+			font-size: 12px;
+			line-height: 1.45;
 		}
 
 		.feed-item {
@@ -671,6 +869,22 @@
 			}
 		}
 
+		@container (max-width: 640px) {
+			.hero {
+				grid-template-columns: 1fr;
+			}
+			.clock-stack {
+				justify-items: start;
+				min-width: 0;
+			}
+			.clock-row {
+				text-align: left;
+			}
+			.clock-value {
+				font-size: 32px;
+			}
+		}
+
 		@media (max-width: 760px) {
 			.topbar {
 				align-items: flex-start;
@@ -682,6 +896,11 @@
 			.status-strip {
 				justify-content: flex-start;
 			}
+			.language-control {
+				width: 100%;
+				display: grid;
+				grid-template-columns: auto 1fr auto;
+			}
 			.workspace {
 				grid-template-columns: 1fr;
 				padding: 12px;
@@ -689,8 +908,18 @@
 			.hero {
 				grid-template-columns: 1fr;
 			}
-			.hero-actions {
-				justify-content: flex-start;
+			.clock-stack {
+				justify-items: start;
+				min-width: 0;
+			}
+			.clock-row {
+				text-align: left;
+			}
+			.clock-value {
+				font-size: 30px;
+			}
+			.operation-actions {
+				grid-template-columns: 1fr;
 			}
 			.controls {
 				grid-template-columns: 1fr;
@@ -716,25 +945,39 @@
 				<div class="logo">GP</div>
 				<div>
 					<div class="brand-title">Polymarket Goal Pulse</div>
-					<div class="brand-subtitle">搜索赛事，订阅盘口，用 WebSocket 抓突变和进球</div>
+						<div class="brand-subtitle" data-i18n="brandSubtitle">Search events, monitor markets, and catch fast moves</div>
 				</div>
 			</div>
 			<div class="status-strip">
-				<div class="pill"><span id="marketDot" class="dot warn"></span><span id="marketStatus">Market WS 未连接</span></div>
-				<div class="pill"><span id="sportsDot" class="dot warn"></span><span id="sportsStatus">Sports WS 未连接</span></div>
-				<div class="pill" id="latencyPill">最后更新 --</div>
+				<div class="language-control">
+					<span class="language-icon" aria-hidden="true">
+						<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+							<circle cx="12" cy="12" r="10"></circle>
+							<path d="M2 12h20"></path>
+							<path d="M12 2a15.3 15.3 0 0 1 0 20"></path>
+							<path d="M12 2a15.3 15.3 0 0 0 0 20"></path>
+						</svg>
+					</span>
+					<span class="language-copy">
+						<span class="language-label" data-i18n="languageLabel">Language</span>
+						<span class="language-current" id="currentLanguageName">English</span>
+					</span>
+					<select id="langSelect" class="select lang-select" aria-label="Language"></select>
+				</div>
+					<div class="pill"><span id="marketDot" class="dot warn"></span><span id="marketStatus">Market WS not connected</span></div>
+					<div class="pill"><span id="sportsDot" class="dot warn"></span><span id="sportsStatus">Sports WS not connected</span></div>
 			</div>
 		</header>
 
 		<main class="workspace">
 			<aside class="sidebar">
 				<section class="section">
-					<div class="section-title">1. 搜索事件</div>
+						<div class="section-title" data-i18n="searchTitle">1. Search Events</div>
 					<div class="search-row">
-						<input id="searchInput" class="field" value="soccer" placeholder="输入球队、联赛、事件关键词">
-						<button id="searchBtn" class="btn primary">搜索</button>
-					</div>
-					<div class="helper">使用 Gamma 公共搜索接口，不需要打开 Polymarket 页面，也不需要手动进 DevTools 抓 token。</div>
+							<input id="searchInput" class="field" value="soccer" data-i18n-placeholder="searchPlaceholder" placeholder="Team, league, or event keyword">
+							<button id="searchBtn" class="btn primary" data-i18n="searchButton">Search</button>
+						</div>
+						<div class="helper" data-i18n="searchHelp">Search for an event, select it from the results, then choose a market to monitor.</div>
 				</section>
 
 				<section class="section results" id="results"></section>
@@ -747,54 +990,78 @@
 			<section class="watch">
 				<div class="hero">
 					<div>
-						<h1 id="headline">选择一个足球相关盘口开始监听</h1>
-						<p id="subline">推荐监听比分、胜负、下一球、让球等会在进球时快速重定价的盘口。价格突变会触发大屏提醒；如果 Sports WebSocket 推送比分变化，也会直接触发进球提醒。</p>
+							<h1 id="headline" data-i18n="headline">Choose a market to start monitoring</h1>
+							<p id="subline" data-i18n="subline">Keep this page open to track live market and score updates. You will be alerted when a meaningful change happens.</p>
 					</div>
-					<div class="hero-actions">
-						<button id="connectBtn" class="btn primary">连接 WebSocket</button>
-						<button id="refreshPricesBtn" class="btn">校准价格</button>
-						<button id="testAlertBtn" class="btn">测试提醒</button>
-						<button id="clearBtn" class="btn danger">清空监听</button>
+					<div class="clock-stack" aria-live="polite">
+						<div class="clock-row">
+							<span id="clockLabel">Beijing Time</span>
+							<span class="clock-value" id="beijingClock">--:--:--</span>
+						</div>
 					</div>
 				</div>
 				<div class="watch-grid" id="watchGrid"></div>
 			</section>
 
-			<aside class="activity">
-				<section class="section">
-					<div class="section-title">告警设置</div>
-					<div class="controls">
+				<aside class="activity">
+					<section class="section">
+						<div class="section-title" data-i18n="actionsTitle">Monitor Controls</div>
+						<div class="operation-actions">
+							<button id="connectBtn" class="btn primary" data-i18n="connectButton">Start Live Tracking</button>
+							<button id="testAlertBtn" class="btn" data-i18n="testButton">Test Alert</button>
+						</div>
+					</section>
+					<section class="section">
+						<div class="section-title" data-i18n="settingsTitle">Alert Settings</div>
+						<div class="controls">
 						<div class="control-row">
-							<label for="jumpWindowSeconds">突变统计窗口（秒）</label>
+								<label for="timeZoneSelect" data-i18n="timeZoneLabel">Clock time zone</label>
+							<select id="timeZoneSelect" class="select"></select>
+						</div>
+						<div class="control-row">
+								<label for="jumpWindowSeconds" data-i18n="jumpWindowLabel">Move window (seconds)</label>
 							<input id="jumpWindowSeconds" class="field" type="number" min="0.2" max="10" step="0.1" value="1.5">
 						</div>
 						<div class="control-row">
-							<label for="jumpThreshold">窗口内价格突变阈值（百分点）</label>
+								<label for="jumpThreshold" data-i18n="jumpThresholdLabel">Price move threshold (percentage points)</label>
 							<input id="jumpThreshold" class="field" type="number" min="1" max="80" step="1" value="8">
 						</div>
 						<div class="control-row">
-							<label for="quietSeconds">同盘口静默秒数</label>
+								<label for="quietSeconds" data-i18n="quietSecondsLabel">Quiet period per market (seconds)</label>
 							<input id="quietSeconds" class="field" type="number" min="3" max="300" step="1" value="20">
 						</div>
 						<div class="control-row">
-							<label for="maxSpread">盘口最大价差</label>
+								<label for="maxSpread" data-i18n="maxSpreadLabel">Maximum market spread</label>
 							<input id="maxSpread" class="field" type="number" min="0" max="1" step="0.01" value="0.08">
 						</div>
-					</div>
-					<div class="helper">Market WS 看盘口变化，Sports WS 只用于当前已选择或已监听赛事的比分提醒。</div>
-				</section>
+						</div>
+					</section>
 
-				<section class="section feed" id="feed"></section>
-			</aside>
+					<section class="section">
+						<div class="section-title" data-i18n="logTitle">Data Log</div>
+						<div class="control-row">
+							<label for="logIntervalSeconds" data-i18n="logIntervalLabel">Sample interval (seconds)</label>
+							<input id="logIntervalSeconds" class="field" type="number" min="1" max="60" step="1" value="2">
+						</div>
+						<div class="log-actions">
+							<button id="toggleLogBtn" class="btn small primary" data-i18n="pauseLogButton">Pause Log</button>
+							<button id="downloadLogBtn" class="btn small" data-i18n="downloadLogButton">Download CSV</button>
+							<button id="clearLogBtn" class="btn small danger" data-i18n="clearLogButton">Clear Log</button>
+						</div>
+						<div id="logStatus" class="log-status">0 rows</div>
+					</section>
+
+					<section class="section feed" id="feed"></section>
+				</aside>
 		</main>
 	</div>
 
 	<div id="alertOverlay" class="alert-overlay" role="dialog" aria-live="assertive">
 		<div class="alert-box">
-			<div class="alert-kicker" id="alertKicker">突变提醒</div>
-			<div class="alert-main" id="alertMain">GOAL?</div>
-			<div class="alert-detail" id="alertDetail">盘口或比分出现快速变化</div>
-			<button id="alertClose" class="btn alert-close">关闭</button>
+				<div class="alert-kicker" id="alertKicker">Move Alert</div>
+				<div class="alert-main" id="alertMain">GOAL?</div>
+				<div class="alert-detail" id="alertDetail">Market or score changed quickly</div>
+				<button id="alertClose" class="btn alert-close" data-i18n="closeButton">Close</button>
 		</div>
 	</div>
 
@@ -804,8 +1071,429 @@
 				const MARKET_WS = "wss://ws-subscriptions-clob.polymarket.com/ws/market";
 				const SPORTS_WS = "wss://sports-api.polymarket.com/ws";
 				const LS_STATE = "goal_pulse_state_v1";
+				const LS_LANG = "goal_pulse_lang";
+			const MAX_BROWSER_LOG_ROWS = 12000;
 
 			const $ = (id) => document.getElementById(id);
+			const LANGUAGE_OPTIONS = [
+				{ value: "en", nativeName: "English", htmlLang: "en" },
+				{ value: "zh", nativeName: "中文", htmlLang: "zh-CN" },
+				{ value: "ja", nativeName: "日本語", htmlLang: "ja" },
+				{ value: "ko", nativeName: "한국어", htmlLang: "ko" },
+				{ value: "es", nativeName: "Español", htmlLang: "es" }
+			];
+			const i18n = {
+				en: {
+					brandSubtitle: "Search events, monitor markets, and catch fast moves",
+					languageLabel: "Language",
+					searchTitle: "1. Search Events",
+					searchPlaceholder: "Team, league, or event keyword",
+					searchButton: "Search",
+					searchHelp: "Search for an event, select it from the results, then choose a market to monitor.",
+					headline: "Choose a market to start monitoring",
+					selectedHeadline: "Selected event",
+					subline: "Keep this page open to track live market and score updates. You will be alerted when a meaningful change happens.",
+					actionsTitle: "Monitor Controls",
+					connectButton: "Start Live Tracking",
+					testButton: "Test Alert",
+					settingsTitle: "Alert Settings",
+					timeZoneLabel: "Clock time zone",
+					jumpWindowLabel: "Move window (seconds)",
+					jumpThresholdLabel: "Price move threshold (percentage points)",
+					quietSecondsLabel: "Quiet period per market (seconds)",
+					maxSpreadLabel: "Maximum market spread",
+					logTitle: "Data Log",
+					logIntervalLabel: "Sample interval (seconds)",
+					pauseLogButton: "Pause Log",
+					resumeLogButton: "Resume Log",
+					downloadLogButton: "Download CSV",
+					clearLogButton: "Clear Log",
+					closeButton: "Close",
+					resultsLoading: "Searching...",
+					resultsEmpty: "No events found. Try a team, league, or English keyword.",
+					searchFailed: "Search failed",
+					searchFeed: (q, count) => `Searched "${q}" and found ${count} events`,
+					volume: "Volume",
+					active: "Active",
+					closed: "Closed",
+					eventLoading: "Loading event details...",
+					eventFailed: "Event details failed to load",
+					eventLoaded: "Loaded event",
+					selectEventFirst: "Search for and select an event first.",
+					marketsTitle: "2. Choose Market",
+					marketsHelp: (spread) => `Use the maximum spread setting to keep the market list focused. Current limit: ${spread}. Click Monitor Market to add all outcomes from that market to the board.`,
+					marketsEmpty: "This event has no available CLOB markets within the current spread limit.",
+					spread: "Spread",
+					monitorMarket: "Monitor Market",
+					monitorMatch: "Add 1X2 Board",
+					matchStripFound: "Detected 1X2 markets for this match",
+					matchStripUnavailable: "No complete 1X2 strip detected for this event.",
+					alreadyWatching: "This market is already in the watchlist",
+					comboAlreadyWatching: "This 1X2 board is already in the watchlist",
+					watchStarted: "Started monitoring market",
+					comboWatchStarted: "Added 1X2 board",
+					watchEmpty: "No watch items yet. Search for an event on the left, then click Monitor Market.",
+					removeTitle: "Remove",
+					watchRemoved: "Removed market",
+					alertsOn: "Alerts on",
+					alertsOff: "No alerts",
+					alertsEnabledFeed: "Alerts enabled",
+					alertsDisabledFeed: "Alerts disabled",
+					marketNoSubscriptions: "Market WS no subscriptions",
+					marketConnecting: "Market WS connecting",
+					marketSubscribed: (count) => `Market WS subscribed to ${count}`,
+					marketConnected: "Market WebSocket connected",
+					marketError: "Market WS error",
+					marketDisconnected: "Market WS disconnected, reconnecting",
+					sportsConnecting: "Sports WS connecting",
+					sportsConnected: "Sports WS connected",
+					sportsConnectedFeed: "Sports WebSocket connected",
+					sportsError: "Sports WS error",
+					sportsDisconnected: "Sports WS disconnected, reconnecting",
+					orderbookActivity: "orderbook activity",
+					wsMarket: "WebSocket market",
+					wsActivity: "WebSocket activity",
+					lastTrade: "latest trade",
+					bestBidAskActivity: "best bid/ask activity",
+					window: "window",
+					up: "up",
+					down: "down",
+					moveAlert: "Market move",
+					moveFeed: "Market move",
+					scoreAlert: "Score alert",
+					scoreChanged: "Score changed",
+					testAlert: "Test Alert",
+					testAlertDetail: "Sound and overlay will continue until closed manually",
+					gammaRefresh: "Gamma refresh",
+					gammaReconnect: "WS reconnect refresh",
+					gammaInitial: "Gamma initial prices",
+					gammaManual: "Gamma manual refresh",
+					gammaCalibration: "Gamma periodic calibration",
+					gammaFailed: "Gamma price refresh failed",
+					logRunning: (rows, seconds) => `Logging every ${seconds}s · ${rows} rows in browser`,
+					logPaused: (rows) => `Logging paused · ${rows} rows in browser`,
+					logSaved: (rows) => `Saved ${rows} log rows`,
+					logCleared: "Data log cleared",
+					logDownloadFallback: "Downloaded browser log",
+					feedEmpty: "Waiting for WebSocket or search activity."
+				},
+				zh: {
+					brandSubtitle: "搜索赛事，订阅盘口，捕捉快速变化",
+					languageLabel: "语言设置",
+					searchTitle: "1. 搜索事件",
+					searchPlaceholder: "输入球队、联赛、事件关键词",
+					searchButton: "搜索",
+					searchHelp: "先搜索赛事并在结果中选择，再到盘口列表里添加监听。",
+					headline: "选择一个盘口开始监听",
+					selectedHeadline: "已选择事件",
+					subline: "保持本页打开，系统会持续跟踪盘口和比分；出现明显变化时会提醒你。",
+					actionsTitle: "监控操作",
+					connectButton: "开始实时监听",
+					testButton: "测试提醒",
+					settingsTitle: "告警设置",
+					timeZoneLabel: "时区设置",
+					jumpWindowLabel: "突变统计窗口（秒）",
+					jumpThresholdLabel: "窗口内价格突变阈值（百分点）",
+					quietSecondsLabel: "同盘口静默秒数",
+					maxSpreadLabel: "盘口最大价差",
+					logTitle: "数据日志",
+					logIntervalLabel: "采样间隔（秒）",
+					pauseLogButton: "暂停日志",
+					resumeLogButton: "继续日志",
+					downloadLogButton: "下载 CSV",
+					clearLogButton: "清空日志",
+					closeButton: "关闭",
+					resultsLoading: "搜索中...",
+					resultsEmpty: "没有找到事件。换球队名、联赛名或英文关键词试试。",
+					searchFailed: "搜索失败",
+					searchFeed: (q, count) => `搜索 "${q}"，找到 ${count} 个事件`,
+					volume: "成交量",
+					active: "活跃",
+					closed: "已关闭",
+					eventLoading: "加载事件详情...",
+					eventFailed: "事件详情加载失败",
+					eventLoaded: "已载入事件",
+					selectEventFirst: "先搜索并选择一个事件。",
+					marketsTitle: "2. 选择盘口",
+					marketsHelp: (spread) => `可在告警设置里调整最大价差筛选。当前上限：${spread}。点击“监听盘口”会把该盘口所有 outcomes 加入中间面板。`,
+					marketsEmpty: "这个事件没有符合当前价差设置的可用 CLOB 盘口。",
+					spread: "价差",
+					monitorMarket: "监听盘口",
+					monitorMatch: "添加胜平负看板",
+					matchStripFound: "已识别到这个比赛的胜平负三项盘口",
+					matchStripUnavailable: "这个事件暂未识别到完整胜平负三项盘口。",
+					alreadyWatching: "该盘口已在监听列表中",
+					comboAlreadyWatching: "该胜平负看板已在监听列表中",
+					watchStarted: "开始监听盘口",
+					comboWatchStarted: "已添加胜平负看板",
+					watchEmpty: "还没有监听项。左侧搜索赛事，然后在具体盘口上点“监听盘口”。",
+					removeTitle: "移除",
+					watchRemoved: "已移除监听盘口",
+					alertsOn: "报警开",
+					alertsOff: "不报警",
+					alertsEnabledFeed: "已开启报警",
+					alertsDisabledFeed: "已关闭报警",
+					marketNoSubscriptions: "Market WS 无订阅",
+					marketConnecting: "Market WS 连接中",
+					marketSubscribed: (count) => `Market WS 已订阅 ${count} 个`,
+					marketConnected: "Market WebSocket 已连接",
+					marketError: "Market WS 错误",
+					marketDisconnected: "Market WS 已断开，准备重连",
+					sportsConnecting: "Sports WS 连接中",
+					sportsConnected: "Sports WS 已连接",
+					sportsConnectedFeed: "Sports WebSocket 已连接",
+					sportsError: "Sports WS 错误",
+					sportsDisconnected: "Sports WS 已断开，准备重连",
+					orderbookActivity: "orderbook 活动",
+					wsMarket: "WebSocket 盘口",
+					wsActivity: "WebSocket 活动",
+					lastTrade: "最新成交",
+					bestBidAskActivity: "best bid/ask 活动",
+					window: "窗口",
+					up: "上升",
+					down: "下跌",
+					moveAlert: "盘口突变",
+					moveFeed: "盘口突变",
+					scoreAlert: "进球提醒",
+					scoreChanged: "比分变化",
+					testAlert: "测试提醒",
+					testAlertDetail: "声音和弹层会持续到手动关闭",
+					gammaRefresh: "Gamma 刷新",
+					gammaReconnect: "WS 重连补状态",
+					gammaInitial: "Gamma 初始价格",
+					gammaManual: "Gamma 手动校准",
+					gammaCalibration: "Gamma 低频校准",
+					gammaFailed: "Gamma 价格刷新失败",
+					logRunning: (rows, seconds) => `每 ${seconds} 秒记录 · 浏览器内 ${rows} 行`,
+					logPaused: (rows) => `日志已暂停 · 浏览器内 ${rows} 行`,
+					logSaved: (rows) => `已写入 ${rows} 行日志`,
+					logCleared: "数据日志已清空",
+					logDownloadFallback: "已下载浏览器内日志",
+					feedEmpty: "等待 WebSocket 或搜索动作。"
+				}
+			};
+			i18n.ja = {
+				...i18n.en,
+				brandSubtitle: "試合を検索し、マーケットを監視し、急な変化を検知",
+				languageLabel: "言語",
+				searchTitle: "1. イベント検索",
+				searchPlaceholder: "チーム、リーグ、イベントキーワード",
+				searchButton: "検索",
+				searchHelp: "イベントを検索して選択し、対象マーケットを監視に追加します。",
+				headline: "監視するマーケットを選択",
+				selectedHeadline: "選択中のイベント",
+				subline: "このページを開いたままにすると、マーケットとスコアの変化を継続的に追跡し、大きな変化を通知します。",
+				actionsTitle: "監視操作",
+				connectButton: "リアルタイム監視を開始",
+				testButton: "通知テスト",
+				settingsTitle: "アラート設定",
+				timeZoneLabel: "タイムゾーン",
+				jumpWindowLabel: "変動判定ウィンドウ（秒）",
+				jumpThresholdLabel: "価格変動しきい値（ポイント）",
+				quietSecondsLabel: "同一マーケットの静音秒数",
+				maxSpreadLabel: "最大スプレッド",
+				logTitle: "データログ",
+				logIntervalLabel: "記録間隔（秒）",
+				pauseLogButton: "ログ停止",
+				resumeLogButton: "ログ再開",
+				downloadLogButton: "CSV ダウンロード",
+				clearLogButton: "ログ削除",
+				closeButton: "閉じる",
+				resultsLoading: "検索中...",
+				resultsEmpty: "イベントが見つかりません。別のキーワードを試してください。",
+				searchFailed: "検索に失敗しました",
+				eventLoading: "イベント詳細を読み込み中...",
+				eventFailed: "イベント詳細の読み込みに失敗しました",
+				eventLoaded: "イベントを読み込みました",
+				marketsTitle: "2. マーケット選択",
+				spread: "スプレッド",
+				monitorMarket: "マーケットを監視",
+				monitorMatch: "1X2 ボードを追加",
+				matchStripFound: "この試合の 1X2 マーケットを検出",
+				matchStripUnavailable: "このイベントでは完全な 1X2 マーケットを検出できません。",
+				watchEmpty: "まだ監視項目がありません。左側でイベントを検索し、マーケットを追加してください。",
+				removeTitle: "削除",
+				watchRemoved: "マーケットを削除しました",
+				alertsOn: "通知オン",
+				alertsOff: "通知なし",
+				up: "上昇",
+				down: "下落",
+				moveAlert: "マーケット変動",
+				scoreAlert: "スコア通知",
+				scoreChanged: "スコア変化",
+				testAlert: "通知テスト",
+				testAlertDetail: "音とポップアップは手動で閉じるまで続きます",
+				feedEmpty: "WebSocket または検索操作を待機中。"
+			};
+			i18n.ko = {
+				...i18n.en,
+				brandSubtitle: "경기를 검색하고, 마켓을 모니터링하고, 빠른 변화를 포착",
+				languageLabel: "언어",
+				searchTitle: "1. 이벤트 검색",
+				searchPlaceholder: "팀, 리그 또는 이벤트 키워드",
+				searchButton: "검색",
+				searchHelp: "이벤트를 검색해 선택한 뒤 모니터링할 마켓을 추가하세요.",
+				headline: "모니터링할 마켓 선택",
+				selectedHeadline: "선택한 이벤트",
+				subline: "이 페이지를 열어 두면 마켓과 점수 변화를 계속 추적하고, 의미 있는 변화가 있을 때 알림을 보냅니다.",
+				actionsTitle: "모니터링 작업",
+				connectButton: "실시간 모니터링 시작",
+				testButton: "알림 테스트",
+				settingsTitle: "알림 설정",
+				timeZoneLabel: "시간대 설정",
+				jumpWindowLabel: "변동 감지 구간(초)",
+				jumpThresholdLabel: "가격 변동 임계값(포인트)",
+				quietSecondsLabel: "동일 마켓 알림 제한(초)",
+				maxSpreadLabel: "최대 스프레드",
+				logTitle: "데이터 로그",
+				logIntervalLabel: "기록 간격(초)",
+				pauseLogButton: "로그 일시정지",
+				resumeLogButton: "로그 재개",
+				downloadLogButton: "CSV 다운로드",
+				clearLogButton: "로그 삭제",
+				closeButton: "닫기",
+				resultsLoading: "검색 중...",
+				resultsEmpty: "이벤트를 찾을 수 없습니다. 다른 키워드를 시도하세요.",
+				searchFailed: "검색 실패",
+				eventLoading: "이벤트 세부정보 로딩 중...",
+				eventFailed: "이벤트 세부정보 로딩 실패",
+				eventLoaded: "이벤트 로드됨",
+				marketsTitle: "2. 마켓 선택",
+				spread: "스프레드",
+				monitorMarket: "마켓 모니터링",
+				monitorMatch: "1X2 보드 추가",
+				matchStripFound: "이 경기의 1X2 마켓을 감지했습니다",
+				matchStripUnavailable: "이 이벤트에서는 완전한 1X2 마켓을 찾지 못했습니다.",
+				watchEmpty: "아직 모니터링 항목이 없습니다. 왼쪽에서 이벤트를 검색한 뒤 마켓을 추가하세요.",
+				removeTitle: "삭제",
+				watchRemoved: "마켓 삭제됨",
+				alertsOn: "알림 켜짐",
+				alertsOff: "알림 없음",
+				up: "상승",
+				down: "하락",
+				moveAlert: "마켓 변동",
+				scoreAlert: "점수 알림",
+				scoreChanged: "점수 변경",
+				testAlert: "알림 테스트",
+				testAlertDetail: "소리와 팝업은 직접 닫을 때까지 계속됩니다",
+				feedEmpty: "WebSocket 또는 검색 작업을 기다리는 중."
+			};
+			i18n.es = {
+				...i18n.en,
+				brandSubtitle: "Busca eventos, monitorea mercados y detecta cambios rápidos",
+				languageLabel: "Idioma",
+				searchTitle: "1. Buscar eventos",
+				searchPlaceholder: "Equipo, liga o palabra clave",
+				searchButton: "Buscar",
+				searchHelp: "Busca un evento, selecciónalo y luego añade un mercado para monitorear.",
+				headline: "Elige un mercado para monitorear",
+				selectedHeadline: "Evento seleccionado",
+				subline: "Mantén esta página abierta para seguir mercados y marcadores en vivo. Recibirás una alerta cuando haya un cambio importante.",
+				actionsTitle: "Controles",
+				connectButton: "Iniciar monitoreo en vivo",
+				testButton: "Probar alerta",
+				settingsTitle: "Alertas",
+				timeZoneLabel: "Zona horaria",
+				jumpWindowLabel: "Ventana de movimiento (segundos)",
+				jumpThresholdLabel: "Umbral de movimiento (puntos)",
+				quietSecondsLabel: "Silencio por mercado (segundos)",
+				maxSpreadLabel: "Spread máximo",
+				logTitle: "Registro de datos",
+				logIntervalLabel: "Intervalo de muestra (segundos)",
+				pauseLogButton: "Pausar registro",
+				resumeLogButton: "Reanudar registro",
+				downloadLogButton: "Descargar CSV",
+				clearLogButton: "Borrar registro",
+				closeButton: "Cerrar",
+				resultsLoading: "Buscando...",
+				resultsEmpty: "No se encontraron eventos. Prueba otra palabra clave.",
+				searchFailed: "Error de búsqueda",
+				eventLoading: "Cargando detalles del evento...",
+				eventFailed: "No se pudieron cargar los detalles",
+				eventLoaded: "Evento cargado",
+				marketsTitle: "2. Elegir mercado",
+				spread: "Spread",
+				monitorMarket: "Monitorear mercado",
+				monitorMatch: "Añadir panel 1X2",
+				matchStripFound: "Mercados 1X2 detectados para este partido",
+				matchStripUnavailable: "No se detectó un panel 1X2 completo para este evento.",
+				watchEmpty: "Aún no hay elementos monitoreados. Busca un evento a la izquierda y añade un mercado.",
+				removeTitle: "Eliminar",
+				watchRemoved: "Mercado eliminado",
+				alertsOn: "Alertas activas",
+				alertsOff: "Sin alertas",
+				up: "sube",
+				down: "baja",
+				moveAlert: "Movimiento de mercado",
+				scoreAlert: "Alerta de marcador",
+				scoreChanged: "Marcador cambiado",
+				testAlert: "Probar alerta",
+				testAlertDetail: "El sonido y el aviso continuarán hasta cerrarlos manualmente",
+				feedEmpty: "Esperando WebSocket o búsqueda."
+			};
+			let currentLang = localStorage.getItem(LS_LANG) || "en";
+			const t = (key, ...args) => {
+				const value = (i18n[currentLang] || i18n.en)[key] ?? i18n.en[key] ?? key;
+				return typeof value === "function" ? value(...args) : value;
+			};
+			const CLOCK_TIME_ZONES = [
+				{ value: "Asia/Shanghai", label: { en: "Beijing Time", zh: "北京时间", ja: "北京時間", ko: "베이징 시간", es: "Hora de Pekín" } },
+				{ value: "America/New_York", label: { en: "US Eastern Time", zh: "美东时间", ja: "米国東部時間", ko: "미국 동부 시간", es: "Hora del Este de EE. UU." } },
+				{ value: "America/Los_Angeles", label: { en: "US Pacific Time", zh: "美西时间", ja: "米国太平洋時間", ko: "미국 태평양 시간", es: "Hora del Pacífico de EE. UU." } },
+				{ value: "Europe/London", label: { en: "London Time", zh: "伦敦时间", ja: "ロンドン時間", ko: "런던 시간", es: "Hora de Londres" } },
+				{ value: "UTC", label: { en: "UTC", zh: "UTC", ja: "UTC", ko: "UTC", es: "UTC" } }
+			];
+
+			function normalizeLanguage(value) {
+				return LANGUAGE_OPTIONS.some((option) => option.value === value) ? value : "en";
+			}
+
+			function renderLanguageOptions() {
+				const select = $("langSelect");
+				if (!select) return;
+				select.innerHTML = LANGUAGE_OPTIONS
+					.map((option) => `<option value="${option.value}">${option.nativeName}</option>`)
+					.join("");
+				select.value = currentLang;
+				const current = LANGUAGE_OPTIONS.find((option) => option.value === currentLang) || LANGUAGE_OPTIONS[0];
+				const currentNode = $("currentLanguageName");
+				if (currentNode) currentNode.textContent = current.nativeName;
+			}
+
+			function getClockTimeZone() {
+				const value = state?.settings?.timeZone || "Asia/Shanghai";
+				return CLOCK_TIME_ZONES.some((zone) => zone.value === value) ? value : "Asia/Shanghai";
+			}
+
+			function getClockTimeZoneLabel(timeZone = getClockTimeZone()) {
+				const zone = CLOCK_TIME_ZONES.find((item) => item.value === timeZone) || CLOCK_TIME_ZONES[0];
+				return zone.label[currentLang] || zone.label.en;
+			}
+
+			function renderTimeZoneOptions() {
+				const select = $("timeZoneSelect");
+				if (!select) return;
+				const selected = getClockTimeZone();
+				select.innerHTML = CLOCK_TIME_ZONES
+					.map((zone) => `<option value="${zone.value}">${zone.label[currentLang] || zone.label.en}</option>`)
+					.join("");
+				select.value = selected;
+			}
+
+			function applyLanguage() {
+				currentLang = normalizeLanguage(currentLang);
+				const current = LANGUAGE_OPTIONS.find((option) => option.value === currentLang) || LANGUAGE_OPTIONS[0];
+				document.documentElement.lang = current.htmlLang;
+				renderLanguageOptions();
+				document.querySelectorAll("[data-i18n]").forEach((node) => {
+					node.textContent = t(node.dataset.i18n);
+				});
+				document.querySelectorAll("[data-i18n-placeholder]").forEach((node) => {
+					node.placeholder = t(node.dataset.i18nPlaceholder);
+				});
+				renderTimeZoneOptions();
+				updateClocks();
+			}
 			const audioState = {
 				context: null,
 				timer: null,
@@ -832,12 +1520,17 @@
 				prices: {},
 				scoreBySlug: {},
 				feed: [],
-				settings: {
-					jumpThreshold: 8,
-					jumpWindowSeconds: 1.5,
-					quietSeconds: 20,
-					maxSpread: 0.08
-				},
+					settings: {
+						jumpThreshold: 8,
+						jumpWindowSeconds: 1.5,
+						quietSeconds: 20,
+						maxSpread: 0.08,
+						timeZone: "Asia/Shanghai",
+						logIntervalSeconds: 2,
+						logEnabled: true
+					},
+					dataLog: [],
+					dataLogTimer: null,
 				lastAlertAt: {},
 				priceHistory: {},
 				priceCalibrationTimer: null,
@@ -864,8 +1557,34 @@
 				const num = Number(value);
 				if (!Number.isFinite(num)) return "--";
 				const percent = Math.max(0, Math.min(1, num)) * 100;
-				if (percent > 0 && percent < 10) return percent.toFixed(1) + "%";
-				return Math.round(percent) + "%";
+				if (percent > 0 && percent < 10) return percent.toFixed(1);
+				return String(Math.round(percent));
+			}
+
+			function getDisplayPercentages(currentPrices) {
+				const values = currentPrices.map((value) => {
+					const num = Number(value);
+					return Number.isFinite(num) ? Math.max(0, Math.min(1, num)) : 0;
+				});
+				const total = values.reduce((sum, value) => sum + value, 0);
+				if (total <= 0) return values.map(() => 0);
+
+				const exact = values.map((value) => (value / total) * 100);
+				const floors = exact.map(Math.floor);
+				let remaining = 100 - floors.reduce((sum, value) => sum + value, 0);
+				const order = exact
+					.map((value, index) => ({ index, remainder: value - floors[index], value }))
+					.sort((a, b) => b.remainder - a.remainder || b.value - a.value || a.index - b.index);
+				for (let i = 0; i < remaining; i += 1) {
+					floors[order[i % order.length].index] += 1;
+				}
+				return floors;
+			}
+
+			function formatDisplayPercent(value) {
+				const num = Number(value);
+				if (!Number.isFinite(num)) return "--";
+				return String(Math.max(0, Math.round(num)));
 			}
 
 			function getMaxVisibleSpread() {
@@ -915,8 +1634,69 @@
 					return [midpoint, 1 - midpoint];
 				}
 
-				return rawPrices;
-			}
+					return rawPrices;
+				}
+
+				function getYesIndex(market) {
+					return parseMaybeJson(market.outcomes).findIndex((outcome) => String(outcome).toLowerCase() === "yes");
+				}
+
+				function getMarketYesLeg(market) {
+					const tokenIds = parseMaybeJson(market.clobTokenIds);
+					const prices = normalizedOutcomePrices(market);
+					const yesIndex = getYesIndex(market);
+					if (yesIndex < 0 || !tokenIds[yesIndex]) return null;
+					return {
+						marketSlug: market.slug || "",
+						marketQuestion: market.question || market.slug || "",
+						tokenId: tokenIds[yesIndex],
+						price: Number(prices[yesIndex])
+					};
+				}
+
+				function detectMatchStrip() {
+					const event = state.selectedEvent;
+					if (!event || !event.title || !event.title.includes(" vs. ")) return null;
+					const [teamA, teamB] = event.title.split(" vs. ").map((part) => part.trim()).filter(Boolean);
+					if (!teamA || !teamB) return null;
+					const candidates = filterMarkets(state.allMarkets);
+					const winPattern = /^Will (.+) win on \d{4}-\d{2}-\d{2}\?$/i;
+					const drawPattern = /^Will (.+) vs\. (.+) end in a draw\?$/i;
+					const teamAWin = candidates.find((market) => winPattern.test(market.question || "") && (market.question || "").includes(teamA));
+					const teamBWin = candidates.find((market) => winPattern.test(market.question || "") && (market.question || "").includes(teamB));
+					const draw = candidates.find((market) => {
+						const question = market.question || "";
+						return drawPattern.test(question) && question.includes(teamA) && question.includes(teamB);
+					});
+					if (!teamAWin || !teamBWin || !draw) return null;
+					const legs = [
+						{ label: teamA, role: "team-a", ...getMarketYesLeg(teamAWin) },
+						{ label: "Draw", role: "draw", ...getMarketYesLeg(draw) },
+						{ label: teamB, role: "team-b", ...getMarketYesLeg(teamBWin) }
+					];
+					if (legs.some((leg) => !leg.tokenId)) return null;
+					return {
+						id: `match-strip:${event.slug}`,
+						eventSlug: event.slug,
+						eventTitle: event.title,
+						marketSlug: `match-strip:${event.slug}`,
+						marketQuestion: event.title,
+						type: "match-strip",
+						tokenIds: legs.map((leg) => leg.tokenId),
+						outcomes: legs.map((leg) => leg.label),
+						roles: legs.map((leg) => leg.role),
+						sourceMarkets: legs.map((leg) => ({
+							marketSlug: leg.marketSlug,
+							marketQuestion: leg.marketQuestion,
+							tokenId: leg.tokenId
+						})),
+						initialPrices: legs.map((leg) => Number(leg.price)),
+						lastPrices: legs.map((leg) => Number(leg.price)),
+						lastTradeSizeByToken: {},
+						alertsEnabled: true,
+						lastUpdate: null
+					};
+				}
 
 			function priceFromBestBidAsk(bestBid, bestAsk, fallbackPrice = null) {
 				const bid = Number(bestBid);
@@ -943,6 +1723,25 @@
 
 			function nowTime() {
 				return new Date().toLocaleTimeString("zh-CN", { hour12: false });
+			}
+
+			function formatClockTime(date, timeZone) {
+				return new Intl.DateTimeFormat("en-GB", {
+					timeZone,
+					hour: "2-digit",
+					minute: "2-digit",
+					second: "2-digit",
+					hour12: false
+				}).format(date);
+			}
+
+			function updateClocks() {
+				const now = new Date();
+				const timeZone = getClockTimeZone();
+				const clockLabel = $("clockLabel");
+				const beijingClock = $("beijingClock");
+				if (clockLabel) clockLabel.textContent = getClockTimeZoneLabel(timeZone);
+				if (beijingClock) beijingClock.textContent = formatClockTime(now, timeZone);
 			}
 
 			function saveState() {
@@ -985,16 +1784,20 @@
 					if (watch.lastTradeSize) current.lastTradeSizeByToken[watch.tokenId] = watch.lastTradeSize;
 					grouped.set(key, current);
 				});
-				return Array.from(grouped.values()).map((watch) => ({
-					...watch,
-					id: watch.id || watch.marketSlug || watch.tokenIds.join(":"),
-					tokenIds: (watch.tokenIds || []).filter(Boolean),
-					outcomes: (watch.outcomes || []).filter((_, index) => watch.tokenIds?.[index]),
-					initialPrices: (watch.initialPrices || []).filter((_, index) => watch.tokenIds?.[index]),
-					lastPrices: (watch.lastPrices || []).filter((_, index) => watch.tokenIds?.[index]),
-					lastTradeSizeByToken: watch.lastTradeSizeByToken || {}
-				}));
-			}
+					return Array.from(grouped.values()).map((watch) => ({
+						...watch,
+						id: watch.id || watch.marketSlug || watch.tokenIds.join(":"),
+						type: watch.type || "market",
+						alertsEnabled: watch.alertsEnabled !== false,
+						tokenIds: (watch.tokenIds || []).filter(Boolean),
+						outcomes: (watch.outcomes || []).filter((_, index) => watch.tokenIds?.[index]),
+						roles: Array.isArray(watch.roles) ? watch.roles.filter((_, index) => watch.tokenIds?.[index]) : [],
+						sourceMarkets: Array.isArray(watch.sourceMarkets) ? watch.sourceMarkets : [],
+						initialPrices: (watch.initialPrices || []).filter((_, index) => watch.tokenIds?.[index]),
+						lastPrices: (watch.lastPrices || []).filter((_, index) => watch.tokenIds?.[index]),
+						lastTradeSizeByToken: watch.lastTradeSizeByToken || {}
+					}));
+				}
 
 			function loadState() {
 				try {
@@ -1015,15 +1818,50 @@
 					});
 				});
 				$("jumpWindowSeconds").value = state.settings.jumpWindowSeconds;
-				$("jumpThreshold").value = state.settings.jumpThreshold;
-				$("quietSeconds").value = state.settings.quietSeconds;
-				$("maxSpread").value = state.settings.maxSpread;
-			}
+					$("jumpThreshold").value = state.settings.jumpThreshold;
+					$("quietSeconds").value = state.settings.quietSeconds;
+					$("maxSpread").value = state.settings.maxSpread;
+					state.settings.timeZone = getClockTimeZone();
+					$("timeZoneSelect").value = state.settings.timeZone;
+					$("logIntervalSeconds").value = state.settings.logIntervalSeconds;
+					updateClocks();
+					updateLogStatus();
+				}
 
-			function reconcileWatchMetadata(markets) {
-				state.watches.forEach((watch) => {
-					const market = markets.find((item) => item.slug === watch.marketSlug);
-					if (!market) return;
+				function reconcileWatchMetadata(markets) {
+					state.watches.forEach((watch) => {
+						if (watch.type === "match-strip") {
+							const previousTokenIds = watch.tokenIds || [];
+							const previousInitialPrices = watch.initialPrices || [];
+							const previousLastPrices = watch.lastPrices || [];
+							const sourceMarkets = watch.sourceMarkets || [];
+							const legs = sourceMarkets.map((source, index) => {
+								const market = markets.find((item) => item.slug === source.marketSlug);
+								if (!market) return null;
+								const yesLeg = getMarketYesLeg(market);
+								return {
+									...source,
+									marketQuestion: market.question || source.marketQuestion,
+									tokenId: yesLeg?.tokenId || source.tokenId,
+									price: yesLeg?.price,
+									index
+								};
+							});
+							if (legs.some((leg) => !leg || !leg.tokenId)) return;
+							watch.sourceMarkets = legs.map(({ price, index, ...source }) => source);
+							watch.tokenIds = legs.map((leg) => leg.tokenId);
+							watch.initialPrices = legs.map((leg, index) => {
+								const existingIndex = previousTokenIds.indexOf(leg.tokenId);
+								return Number(previousInitialPrices[existingIndex] ?? previousInitialPrices[index] ?? leg.price);
+							});
+							watch.lastPrices = legs.map((leg, index) => {
+								const existingIndex = previousTokenIds.indexOf(leg.tokenId);
+								return Number(state.prices[leg.tokenId] ?? previousLastPrices[existingIndex] ?? previousLastPrices[index] ?? leg.price);
+							});
+							return;
+						}
+						const market = markets.find((item) => item.slug === watch.marketSlug);
+						if (!market) return;
 					const tokenIds = parseMaybeJson(market.clobTokenIds);
 					const outcomes = parseMaybeJson(market.outcomes);
 					const previousTokenIds = watch.tokenIds || [];
@@ -1062,7 +1900,7 @@
 						<div class="feed-time">${escapeHtml(item.time)}</div>
 						<div>${escapeHtml(item.message)}</div>
 					</div>
-				`).join("") || `<div class="helper">等待 WebSocket 或搜索动作。</div>`;
+					`).join("") || `<div class="helper">${escapeHtml(t("feedEmpty"))}</div>`;
 			}
 
 			function escapeHtml(value) {
@@ -1078,7 +1916,7 @@
 					const q = $("searchInput").value.trim();
 					if (!q) return;
 					$("searchBtn").disabled = true;
-					$("results").innerHTML = `<div class="helper">搜索中...</div>`;
+					$("results").innerHTML = `<div class="helper">${escapeHtml(t("resultsLoading"))}</div>`;
 					try {
 						const path = `/public-search?q=${encodeURIComponent(q)}&events_status=active&limit_per_type=12&search_profiles=false&optimized=true`;
 						const response = await fetchGamma(path);
@@ -1086,10 +1924,10 @@
 						const data = await response.json();
 						state.results = (data.events || []).filter((event) => event && event.slug && !event.closed);
 						renderResults();
-						addFeed(`搜索 "${q}"，找到 ${state.results.length} 个事件`);
+						addFeed(t("searchFeed", q, state.results.length));
 					} catch (error) {
-						$("results").innerHTML = `<div class="helper">搜索失败：${escapeHtml(error.message)}</div>`;
-						addFeed("搜索失败：" + error.message);
+						$("results").innerHTML = `<div class="helper">${escapeHtml(t("searchFailed"))}：${escapeHtml(error.message)}</div>`;
+						addFeed(t("searchFailed") + "：" + error.message);
 					} finally {
 						$("searchBtn").disabled = false;
 					}
@@ -1101,11 +1939,11 @@
 						<div class="result-title">${escapeHtml(event.title || event.slug)}</div>
 						<div class="meta">
 							<span>${escapeHtml(event.slug)}</span>
-							<span>成交量 ${money(event.volume)}</span>
-							<span>${event.closed ? "已关闭" : "活跃"}</span>
+								<span>${escapeHtml(t("volume"))} ${money(event.volume)}</span>
+								<span>${event.closed ? escapeHtml(t("closed")) : escapeHtml(t("active"))}</span>
 						</div>
 					</button>
-				`).join("") || `<div class="helper">没有找到事件。换球队名、联赛名或英文关键词试试。</div>`;
+					`).join("") || `<div class="helper">${escapeHtml(t("resultsEmpty"))}</div>`;
 
 				document.querySelectorAll("[data-event-index]").forEach((button) => {
 					button.addEventListener("click", () => selectEvent(Number(button.dataset.eventIndex)));
@@ -1119,7 +1957,7 @@
 				}
 
 				async function loadEventDetails(slug) {
-					$("selectedEvent").innerHTML = `<div class="helper">加载事件详情...</div>`;
+						$("selectedEvent").innerHTML = `<div class="helper">${escapeHtml(t("eventLoading"))}</div>`;
 					$("markets").innerHTML = "";
 					try {
 						const response = await fetchGamma(`/events/slug/${encodeURIComponent(slug)}?_=${Date.now()}`);
@@ -1139,17 +1977,17 @@
 						saveState();
 						renderSelectedEvent();
 						renderMarkets();
-						addFeed(`已载入事件：${event.title || event.slug}`);
-					} catch (error) {
-						$("selectedEvent").innerHTML = `<div class="helper">事件详情加载失败：${escapeHtml(error.message)}</div>`;
-						addFeed("事件详情加载失败：" + error.message);
+							addFeed(`${t("eventLoaded")}：${event.title || event.slug}`);
+						} catch (error) {
+							$("selectedEvent").innerHTML = `<div class="helper">${escapeHtml(t("eventFailed"))}：${escapeHtml(error.message)}</div>`;
+							addFeed(t("eventFailed") + "：" + error.message);
 					}
 				}
 
 			function renderSelectedEvent() {
 				const event = state.selectedEvent;
 				if (!event) {
-					$("selectedEvent").innerHTML = `<div class="helper">先搜索并选择一个事件。</div>`;
+						$("selectedEvent").innerHTML = `<div class="helper">${escapeHtml(t("selectEventFirst"))}</div>`;
 					return;
 				}
 				$("selectedEvent").innerHTML = `
@@ -1157,27 +1995,52 @@
 						<div class="event-title">${escapeHtml(event.title || event.slug)}</div>
 						<div class="meta">
 							<span>${escapeHtml(event.slug)}</span>
-							<span>成交量 ${money(event.volume)}</span>
+								<span>${escapeHtml(t("volume"))} ${money(event.volume)}</span>
 						</div>
 						<div class="event-description">${escapeHtml(event.description || "")}</div>
 					</div>
 				`;
-				$("headline").textContent = event.title || "已选择事件";
+					$("headline").textContent = event.title || t("selectedHeadline");
 			}
 
-			function renderMarkets() {
-				const maxSpread = getMaxVisibleSpread();
-				$("markets").innerHTML = `
-					<div class="section-title">2. 选择盘口</div>
-					<div class="helper">当前隐藏价差大于 ${maxSpread.toFixed(2)} 的盘口，避免低流动性盘口制造误报。点一次“监听盘口”会把该盘口所有 outcomes 一起加入中间面板。</div>
-					${state.markets.map((market, marketIndex) => renderMarket(market, marketIndex)).join("") || `<div class="helper">这个事件没有价差合格的可用 CLOB 盘口。</div>`}
-				`;
-				document.querySelectorAll("[data-add-market-watch]").forEach((button) => {
-					button.addEventListener("click", () => {
-						addWatch(state.markets[Number(button.dataset.addMarketWatch)]);
+				function renderMarkets() {
+					const maxSpread = getMaxVisibleSpread();
+					const matchStrip = detectMatchStrip();
+					$("markets").innerHTML = `
+							<div class="section-title">${escapeHtml(t("marketsTitle"))}</div>
+							<div class="helper">${escapeHtml(t("marketsHelp", maxSpread.toFixed(2)))}</div>
+							${matchStrip ? renderMatchStripCandidate(matchStrip) : `<div class="helper">${escapeHtml(t("matchStripUnavailable"))}</div>`}
+							${state.markets.map((market, marketIndex) => renderMarket(market, marketIndex)).join("") || `<div class="helper">${escapeHtml(t("marketsEmpty"))}</div>`}
+					`;
+					document.querySelectorAll("[data-add-match-strip]").forEach((button) => {
+						button.addEventListener("click", () => addMatchStripWatch());
 					});
-				});
-			}
+					document.querySelectorAll("[data-add-market-watch]").forEach((button) => {
+						button.addEventListener("click", () => {
+							addWatch(state.markets[Number(button.dataset.addMarketWatch)]);
+						});
+					});
+				}
+
+				function renderMatchStripCandidate(watch) {
+					const panelModel = getWatchPanelModel(watch.initialPrices);
+					return `
+						<div class="combo-card">
+							<div class="market-header">
+								<div>
+									<div class="market-title">${escapeHtml(t("matchStripFound"))}</div>
+									<div class="meta">
+										${watch.outcomes.map((outcome, index) => `<span>${escapeHtml(outcome)} ${formatDisplayPercent(panelModel.percentages[index])}</span>`).join("")}
+									</div>
+								</div>
+								<button class="add market-add" data-add-match-strip>${escapeHtml(t("monitorMatch"))}</button>
+							</div>
+							<div class="combo-preview" style="--combo-columns: ${escapeHtml(panelModel.columns)}">
+								<span></span><span></span><span></span>
+							</div>
+						</div>
+					`;
+				}
 
 				function renderMarket(market, marketIndex) {
 					const outcomes = parseMaybeJson(market.outcomes);
@@ -1190,10 +2053,10 @@
 									<div class="market-title">${escapeHtml(market.question || market.slug)}</div>
 									<div class="meta">
 										<span>${escapeHtml(market.slug || market.id)}</span>
-										<span>价差 ${escapeHtml(market.spread ?? "--")}</span>
+											<span>${escapeHtml(t("spread"))} ${escapeHtml(market.spread ?? "--")}</span>
 									</div>
 								</div>
-								<button class="add market-add" data-add-market-watch="${marketIndex}" ${tokenIds.length ? "" : "disabled"}>监听盘口</button>
+									<button class="add market-add" data-add-market-watch="${marketIndex}" ${tokenIds.length ? "" : "disabled"}>${escapeHtml(t("monitorMarket"))}</button>
 							</div>
 						<div class="outcomes">
 							${outcomes.map((name, outcomeIndex) => `
@@ -1213,7 +2076,7 @@
 				const prices = normalizedOutcomePrices(market);
 				if (tokenIds.length === 0) return;
 				if (state.watches.some((watch) => watch.marketSlug === market.slug)) {
-					addFeed("该盘口已在监听列表中");
+						addFeed(t("alreadyWatching"));
 					return;
 				}
 					const watch = {
@@ -1225,11 +2088,12 @@
 						tokenIds,
 					outcomes,
 					initialPrices: tokenIds.map((_, index) => Number(prices[index])),
-					lastPrices: tokenIds.map((_, index) => Number(prices[index])),
-					lastTradeSizeByToken: {},
-					lastUpdate: null
-				};
-				state.watches.push(watch);
+						lastPrices: tokenIds.map((_, index) => Number(prices[index])),
+						lastTradeSizeByToken: {},
+						alertsEnabled: true,
+						lastUpdate: null
+					};
+					state.watches.push(watch);
 				watch.tokenIds.forEach((tokenId, index) => {
 					const price = Number(watch.lastPrices[index]);
 					if (Number.isFinite(price)) {
@@ -1238,53 +2102,71 @@
 					}
 				});
 				saveState();
-				renderWatches();
-				startPriceCalibrationTimer();
-				connectMarketWs();
-				addFeed(`开始监听盘口：${watch.marketQuestion}`);
-			}
+					renderWatches();
+					startPriceCalibrationTimer();
+					startDataLogTimer();
+					connectMarketWs();
+						addFeed(`${t("watchStarted")}：${watch.marketQuestion}`);
+				}
+
+				function addMatchStripWatch() {
+					const watch = detectMatchStrip();
+					if (!watch) return;
+					if (state.watches.some((item) => item.id === watch.id || item.marketSlug === watch.marketSlug)) {
+						addFeed(t("comboAlreadyWatching"));
+						return;
+					}
+					state.watches.push(watch);
+					watch.tokenIds.forEach((tokenId, index) => {
+						const price = Number(watch.lastPrices[index]);
+						if (Number.isFinite(price)) {
+							state.prices[tokenId] = price;
+							state.priceHistory[tokenId] = [{ time: Date.now(), price }];
+						}
+					});
+					saveState();
+					renderWatches();
+					startPriceCalibrationTimer();
+					startDataLogTimer();
+					connectMarketWs();
+					addFeed(`${t("comboWatchStarted")}：${watch.eventTitle || watch.eventSlug}`);
+				}
 
 			function renderWatches() {
 				const grid = $("watchGrid");
 				if (state.watches.length === 0) {
 					grid.className = "watch-grid";
-					grid.innerHTML = `<div class="empty">还没有监听项。左侧搜索赛事，然后在具体盘口上点“监听盘口”。</div>`;
+						grid.innerHTML = `<div class="empty">${escapeHtml(t("watchEmpty"))}</div>`;
 					return;
 				}
 				const layoutClass = state.watches.length === 1 ? "single" : state.watches.length <= 4 ? "quad" : "";
 				grid.className = ["watch-grid", layoutClass].filter(Boolean).join(" ");
-				grid.innerHTML = state.watches.map((watch, index) => {
-					const panelClass = (watch.tokenIds || []).length === 2 ? "two" : "";
-					const currentPrices = (watch.tokenIds || []).map((tokenId, outcomeIndex) => {
-						const value = state.prices[tokenId] ?? watch.lastPrices?.[outcomeIndex] ?? watch.initialPrices?.[outcomeIndex];
-						const numeric = Number(value);
-						return Number.isFinite(numeric) ? Math.max(0, Math.min(1, numeric)) : null;
-					});
-					const priceTotal = currentPrices.reduce((sum, value) => sum + (value ?? 0), 0);
-					const panelColumns = currentPrices
-						.map((current) => {
-							const share = priceTotal > 0 && current != null ? Math.max(0.001, current) : 1;
-							return `${share}fr`;
-						})
-						.join(" ");
+					grid.innerHTML = state.watches.map((watch, index) => {
+						const panelClass = (watch.tokenIds || []).length === 2 ? "two" : "";
+						const currentPrices = getWatchPrices(watch);
+						const panelModel = getWatchPanelModel(currentPrices);
 					return `
-						<article class="watch-card" id="watch-${escapeHtml(watch.id)}">
+						<article class="watch-card" id="watch-${escapeHtml(watch.id)}" data-watch-id="${escapeHtml(watch.id)}">
 							<div class="watch-top">
 								<div>
 									<div class="watch-name">${escapeHtml(watch.eventTitle || watch.eventSlug)}</div>
 									<div class="market-title">${escapeHtml(watch.marketQuestion)}</div>
 								</div>
-								<button class="remove" title="移除" data-remove-watch="${index}">×</button>
+								<div class="watch-actions">
+									<button class="mini-toggle ${watch.alertsEnabled === false ? "off" : ""}" data-toggle-watch-alerts="${index}">${escapeHtml(watch.alertsEnabled === false ? t("alertsOff") : t("alertsOn"))}</button>
+									<button class="remove" title="${escapeHtml(t("removeTitle"))}" data-remove-watch="${index}">×</button>
+								</div>
 							</div>
-							<div class="outcome-panels ${panelClass}" style="grid-template-columns: ${panelColumns}">
+								<div class="outcome-panels ${panelClass}" data-outcome-panels style="grid-template-columns: ${panelModel.columns}">
 								${(watch.tokenIds || []).map((tokenId, outcomeIndex) => {
-									const current = currentPrices[outcomeIndex];
+									const displayPercent = panelModel.percentages[outcomeIndex];
+									const roleClass = watch.roles?.[outcomeIndex] || "";
 									return `
-										<div class="outcome-panel">
-											<div>
-												<div class="big-price">${pct(current)}</div>
-												<div class="outcome-label">${escapeHtml(watch.outcomes?.[outcomeIndex] || "Outcome")}</div>
-											</div>
+											<div class="outcome-panel ${escapeHtml(roleClass)}" data-outcome-index="${outcomeIndex}" data-zero="${displayPercent <= 0 ? "true" : "false"}">
+												<div>
+													<div class="big-price" data-big-price>${formatDisplayPercent(displayPercent)}</div>
+													<div class="outcome-label">${escapeHtml(watch.outcomes?.[outcomeIndex] || "Outcome")}</div>
+												</div>
 										</div>
 									`;
 								}).join("")}
@@ -1292,25 +2174,83 @@
 						</article>
 					`;
 				}).join("");
-				document.querySelectorAll("[data-remove-watch]").forEach((button) => {
-					button.addEventListener("click", () => removeWatch(Number(button.dataset.removeWatch)));
-				});
-			}
+						document.querySelectorAll("[data-remove-watch]").forEach((button) => {
+							button.addEventListener("click", () => removeWatch(Number(button.dataset.removeWatch)));
+						});
+						document.querySelectorAll("[data-toggle-watch-alerts]").forEach((button) => {
+							button.addEventListener("click", () => toggleWatchAlerts(Number(button.dataset.toggleWatchAlerts)));
+						});
+					}
 
-			function removeWatch(index) {
-				const [removed] = state.watches.splice(index, 1);
-				if (removed) {
-					(removed.tokenIds || []).forEach((tokenId) => {
-						delete state.prices[tokenId];
+				function getWatchPrices(watch) {
+					return (watch.tokenIds || []).map((tokenId, outcomeIndex) => {
+						const value = state.prices[tokenId] ?? watch.lastPrices?.[outcomeIndex] ?? watch.initialPrices?.[outcomeIndex];
+						const numeric = Number(value);
+						return Number.isFinite(numeric) ? Math.max(0, Math.min(1, numeric)) : null;
+					});
+				}
+
+				function getWatchPanelModel(currentPrices) {
+					if (!currentPrices.length) return { percentages: [], columns: "" };
+					if (currentPrices.length === 1) {
+						const current = Number(currentPrices[0]);
+						const percent = Number.isFinite(current) ? Math.round(Math.max(0, Math.min(1, current)) * 100) : 0;
+						return { percentages: [percent], columns: "1fr" };
+					}
+					const percentages = getDisplayPercentages(currentPrices);
+					const hasVisible = percentages.some((value) => value > 0);
+					const columns = percentages
+						.map((value) => {
+							const share = hasVisible ? value : 1;
+							return `${share}fr`;
+						})
+						.join(" ");
+					return { percentages, columns };
+				}
+
+				function updateWatchCard(watch) {
+					const card = document.querySelector(`[data-watch-id="${CSS.escape(watch.id)}"]`);
+					if (!card) return;
+					const currentPrices = getWatchPrices(watch);
+					const panelModel = getWatchPanelModel(currentPrices);
+					const panels = card.querySelector("[data-outcome-panels]");
+					if (panels) panels.style.gridTemplateColumns = panelModel.columns;
+					currentPrices.forEach((current, outcomeIndex) => {
+						const displayPercent = panelModel.percentages[outcomeIndex];
+						const panel = card.querySelector(`[data-outcome-index="${outcomeIndex}"]`);
+						if (panel) panel.dataset.zero = displayPercent <= 0 ? "true" : "false";
+						const priceNode = panel?.querySelector("[data-big-price]");
+						if (priceNode) priceNode.textContent = formatDisplayPercent(displayPercent);
+					});
+				}
+
+				function updateWatchCards(watches = state.watches) {
+					watches.forEach(updateWatchCard);
+				}
+
+				function removeWatch(index) {
+					const [removed] = state.watches.splice(index, 1);
+					if (removed) {
+						(removed.tokenIds || []).forEach((tokenId) => {
+							delete state.prices[tokenId];
 						delete state.priceHistory[tokenId];
 					});
-					addFeed("已移除监听盘口：" + removed.marketQuestion);
+						addFeed(t("watchRemoved") + "：" + removed.marketQuestion);
 				}
 				saveState();
 				renderWatches();
-				if (state.watches.length === 0) stopPriceCalibrationTimer();
-				connectMarketWs();
-			}
+					if (state.watches.length === 0) stopPriceCalibrationTimer();
+					connectMarketWs();
+				}
+
+				function toggleWatchAlerts(index) {
+					const watch = state.watches[index];
+					if (!watch) return;
+					watch.alertsEnabled = watch.alertsEnabled === false;
+					saveState();
+					renderWatches();
+					addFeed(`${watch.alertsEnabled ? t("alertsEnabledFeed") : t("alertsDisabledFeed")}：${watch.marketQuestion || watch.eventTitle}`);
+				}
 
 				function connectMarketWs() {
 					clearTimeout(state.reconnectMarketTimer);
@@ -1322,14 +2262,14 @@
 					clearInterval(state.marketPing);
 					const assets = [...new Set(state.watches.flatMap((watch) => watch.tokenIds || []))];
 					if (assets.length === 0) {
-						setWsStatus("market", "Market WS 无订阅", "warn");
+							setWsStatus("market", t("marketNoSubscriptions"), "warn");
 						return;
 					}
-				setWsStatus("market", "Market WS 连接中", "warn");
+					setWsStatus("market", t("marketConnecting"), "warn");
 				const ws = new WebSocket(MARKET_WS);
 				state.marketWs = ws;
 				ws.onopen = () => {
-					setWsStatus("market", `Market WS 已订阅 ${assets.length} 个`, "ok");
+						setWsStatus("market", t("marketSubscribed", assets.length), "ok");
 					ws.send(JSON.stringify({
 						assets_ids: assets,
 						type: "market",
@@ -1340,17 +2280,17 @@
 					state.marketPing = setInterval(() => {
 						if (ws.readyState === WebSocket.OPEN) ws.send("PING");
 					}, 10000);
-					addFeed("Market WebSocket 已连接");
+						addFeed(t("marketConnected"));
 					if (state.marketNeedsResync) {
 						state.marketNeedsResync = false;
-						hydratePrices("WS 重连补状态");
+							hydratePrices(t("gammaReconnect"));
 					}
 				};
 				ws.onmessage = (event) => handleMarketMessage(event.data);
-				ws.onerror = () => setWsStatus("market", "Market WS 错误", "bad");
+					ws.onerror = () => setWsStatus("market", t("marketError"), "bad");
 				ws.onclose = () => {
 					clearInterval(state.marketPing);
-					setWsStatus("market", "Market WS 已断开，准备重连", "bad");
+						setWsStatus("market", t("marketDisconnected"), "bad");
 					state.marketNeedsResync = true;
 					state.reconnectMarketTimer = setTimeout(connectMarketWs, 3000);
 				};
@@ -1364,69 +2304,71 @@
 				} catch {
 					return;
 				}
-				const messages = Array.isArray(payload) ? payload : [payload];
-				messages.forEach((message) => {
-					if (message.event_type === "book") updateFromBook(message);
-					if (message.event_type === "price_change") updateFromPriceChange(message);
-					if (message.event_type === "last_trade_price") updateFromTrade(message);
-					if (message.event_type === "best_bid_ask") updateFromBestBidAsk(message);
-				});
-				$("latencyPill").textContent = "最后更新 " + nowTime();
-				renderWatches();
-			}
-
-			function findWatchOutcome(tokenId) {
-				for (const watch of state.watches) {
-					const outcomeIndex = (watch.tokenIds || []).indexOf(tokenId);
-					if (outcomeIndex >= 0) return { watch, outcomeIndex };
+					const messages = Array.isArray(payload) ? payload : [payload];
+					const changedWatches = new Set();
+					messages.forEach((message) => {
+						if (message.event_type === "book") updateFromBook(message, changedWatches);
+						if (message.event_type === "price_change") updateFromPriceChange(message, changedWatches);
+						if (message.event_type === "last_trade_price") updateFromTrade(message, changedWatches);
+						if (message.event_type === "best_bid_ask") updateFromBestBidAsk(message, changedWatches);
+					});
+					updateWatchCards(changedWatches);
 				}
-				return null;
-			}
 
-			function updateFromBook(message) {
-				const match = findWatchOutcome(message.asset_id);
-				if (!match) return;
-				const { watch } = match;
-				watch.lastUpdate = `${nowTime()} · orderbook 活动`;
-			}
+				function findWatchOutcomes(tokenId) {
+					const matches = [];
+					for (const watch of state.watches) {
+						const outcomeIndex = (watch.tokenIds || []).indexOf(tokenId);
+						if (outcomeIndex >= 0) matches.push({ watch, outcomeIndex });
+					}
+					return matches;
+				}
 
-			function updateFromPriceChange(message) {
-				(message.price_changes || []).forEach((change) => {
-					const match = findWatchOutcome(change.asset_id);
-					if (!match) return;
-					const { watch, outcomeIndex } = match;
-					const price = priceFromBestBidAsk(change.best_bid, change.best_ask, change.price);
-					if (price != null) applyPrice(watch, outcomeIndex, price, "WebSocket 盘口");
-					else watch.lastUpdate = `${nowTime()} · WebSocket 活动`;
-				});
-			}
+					function updateFromBook(message, changedWatches) {
+						findWatchOutcomes(message.asset_id).forEach(({ watch }) => {
+							watch.lastUpdate = `${nowTime()} · ${t("orderbookActivity")}`;
+							changedWatches?.add(watch);
+						});
+					}
 
-			function updateFromTrade(message) {
-				const match = findWatchOutcome(message.asset_id);
-				if (!match) return;
-				const { watch, outcomeIndex } = match;
-				watch.lastTradeSizeByToken = watch.lastTradeSizeByToken || {};
-				watch.lastTradeSizeByToken[message.asset_id] = message.size;
-				const price = Number(message.price);
-				if (Number.isFinite(price)) applyPrice(watch, outcomeIndex, price, "最新成交");
-				else watch.lastUpdate = `${nowTime()} · 最新成交`;
-			}
+				function updateFromPriceChange(message, changedWatches) {
+					(message.price_changes || []).forEach((change) => {
+						const price = priceFromBestBidAsk(change.best_bid, change.best_ask, change.price);
+						findWatchOutcomes(change.asset_id).forEach(({ watch, outcomeIndex }) => {
+							if (price != null) applyPrice(watch, outcomeIndex, price, t("wsMarket"));
+							else watch.lastUpdate = `${nowTime()} · ${t("wsActivity")}`;
+							changedWatches?.add(watch);
+						});
+					});
+				}
 
-			function updateFromBestBidAsk(message) {
-				const match = findWatchOutcome(message.asset_id);
-				if (!match) return;
-				const { watch, outcomeIndex } = match;
-				const price = priceFromBestBidAsk(message.best_bid, message.best_ask);
-				if (price != null) applyPrice(watch, outcomeIndex, price, "WebSocket best bid/ask");
-				else watch.lastUpdate = `${nowTime()} · best bid/ask 活动`;
-			}
+				function updateFromTrade(message, changedWatches) {
+					const price = Number(message.price);
+					findWatchOutcomes(message.asset_id).forEach(({ watch, outcomeIndex }) => {
+						watch.lastTradeSizeByToken = watch.lastTradeSizeByToken || {};
+						watch.lastTradeSizeByToken[message.asset_id] = message.size;
+						if (Number.isFinite(price)) applyPrice(watch, outcomeIndex, price, t("lastTrade"));
+						else watch.lastUpdate = `${nowTime()} · ${t("lastTrade")}`;
+						changedWatches?.add(watch);
+					});
+				}
+
+				function updateFromBestBidAsk(message, changedWatches) {
+					const price = priceFromBestBidAsk(message.best_bid, message.best_ask);
+					findWatchOutcomes(message.asset_id).forEach(({ watch, outcomeIndex }) => {
+						if (price != null) applyPrice(watch, outcomeIndex, price, "WebSocket best bid/ask");
+						else watch.lastUpdate = `${nowTime()} · ${t("bestBidAskActivity")}`;
+						changedWatches?.add(watch);
+					});
+				}
 
 			function applyPrice(watch, outcomeIndex, price, reason, options = {}) {
 				if (!Number.isFinite(price)) return;
 				const tokenId = watch.tokenIds?.[outcomeIndex];
 				if (!tokenId) return;
 				const nextPrice = Math.max(0, Math.min(1, price));
-				const jump = getWindowJump(tokenId, nextPrice);
+				const trackJump = options.trackJump !== false;
+				const jump = trackJump ? getWindowJump(tokenId, nextPrice) : null;
 				watch.lastPrices = watch.lastPrices || [];
 				watch.initialPrices = watch.initialPrices || [];
 				if (!Number.isFinite(Number(watch.initialPrices[outcomeIndex]))) {
@@ -1435,10 +2377,10 @@
 				watch.lastPrices[outcomeIndex] = nextPrice;
 				watch.lastUpdate = `${nowTime()} · ${reason}`;
 				state.prices[tokenId] = nextPrice;
-				recordPricePoint(tokenId, nextPrice);
+				if (trackJump) recordPricePoint(tokenId, nextPrice);
 				const threshold = Number(state.settings.jumpThreshold) / 100;
 				if (!options.silent && jump && Math.abs(jump.change) >= threshold) {
-					triggerWatchAlert(watch, outcomeIndex, jump.change, `${reason} · ${getJumpWindowLabel()}s窗口`);
+						triggerWatchAlert(watch, outcomeIndex, jump.change, `${reason} · ${getJumpWindowLabel()}s ${t("window")}`);
 				}
 			}
 
@@ -1465,17 +2407,18 @@
 				state.priceHistory[tokenId] = history.filter((point) => now - point.time <= getJumpWindowMs());
 			}
 
-			function triggerWatchAlert(watch, outcomeIndex, change, reason) {
-				const now = Date.now();
+				function triggerWatchAlert(watch, outcomeIndex, change, reason) {
+					if (watch.alertsEnabled === false) return;
+					const now = Date.now();
 				const quietMs = Number(state.settings.quietSeconds) * 1000;
 				const tokenId = watch.tokenIds?.[outcomeIndex];
 				if (!tokenId) return;
 				if (now - (state.lastAlertAt[tokenId] || 0) < quietMs) return;
 				state.lastAlertAt[tokenId] = now;
-				const direction = change > 0 ? "上升" : "下跌";
+				const direction = change > 0 ? t("up") : t("down");
 				const outcome = watch.outcomes?.[outcomeIndex] || "Outcome";
-				showAlert("盘口突变", `${direction} ${pp(change)}`, `${outcome} · ${watch.marketQuestion} · ${reason}`);
-				addFeed(`盘口突变：${outcome} ${direction} ${pp(change)}`);
+				showAlert(t("moveAlert"), `${direction} ${pp(change)}`, `${outcome} · ${watch.marketQuestion} · ${reason}`);
+				addFeed(`${t("moveFeed")}：${outcome} ${direction} ${pp(change)}`);
 				flashWatch(watch);
 			}
 
@@ -1494,12 +2437,12 @@
 					state.sportsWs.close();
 					state.sportsWs = null;
 				}
-				setWsStatus("sports", "Sports WS 连接中", "warn");
+					setWsStatus("sports", t("sportsConnecting"), "warn");
 				const ws = new WebSocket(SPORTS_WS);
 				state.sportsWs = ws;
 				ws.onopen = () => {
-					setWsStatus("sports", "Sports WS 已连接", "ok");
-					addFeed("Sports WebSocket 已连接");
+						setWsStatus("sports", t("sportsConnected"), "ok");
+						addFeed(t("sportsConnectedFeed"));
 				};
 				ws.onmessage = (event) => {
 					if (event.data === "ping") {
@@ -1508,14 +2451,14 @@
 					}
 					handleSportsMessage(event.data);
 				};
-				ws.onerror = () => setWsStatus("sports", "Sports WS 错误", "bad");
+					ws.onerror = () => setWsStatus("sports", t("sportsError"), "bad");
 				ws.onclose = () => {
-					setWsStatus("sports", "Sports WS 已断开，准备重连", "bad");
+						setWsStatus("sports", t("sportsDisconnected"), "bad");
 					state.reconnectSportsTimer = setTimeout(connectSportsWs, 3000);
 				};
 			}
 
-			function handleSportsMessage(raw) {
+				function handleSportsMessage(raw) {
 				let message;
 				try {
 					message = JSON.parse(raw);
@@ -1529,12 +2472,21 @@
 					state.selectedEvent?.slug,
 					...state.watches.map((watch) => watch.eventSlug)
 				].filter(Boolean);
-				const matchesFilter = filters.length === 0 || filters.some((filter) => message.slug.includes(filter) || filter.includes(message.slug));
-				if (matchesFilter && previous && previous.score && message.score && previous.score !== message.score) {
-					showAlert("进球提醒", message.score, `${message.slug} · ${message.period || ""} ${message.elapsed || ""}`);
-					addFeed(`比分变化：${message.slug} ${previous.score} -> ${message.score}`);
+					const matchesFilter = filters.length === 0 || filters.some((filter) => message.slug.includes(filter) || filter.includes(message.slug));
+					if (matchesFilter && eventAlertsEnabledForSlug(message.slug) && previous && previous.score && message.score && previous.score !== message.score) {
+							showAlert(t("scoreAlert"), message.score, `${message.slug} · ${message.period || ""} ${message.elapsed || ""}`);
+							addFeed(`${t("scoreChanged")}：${message.slug} ${previous.score} -> ${message.score}`);
+					}
 				}
-			}
+
+				function eventAlertsEnabledForSlug(slug) {
+					const matchedWatches = state.watches.filter((watch) => {
+						const eventSlug = watch.eventSlug || "";
+						return eventSlug && (slug.includes(eventSlug) || eventSlug.includes(slug));
+					});
+					if (matchedWatches.length === 0) return true;
+					return matchedWatches.some((watch) => watch.alertsEnabled !== false);
+				}
 
 			function showAlert(kicker, main, detail) {
 				$("alertKicker").textContent = kicker;
@@ -1596,7 +2548,7 @@
 				}
 			}
 
-				async function hydratePrices(reason = "Gamma 刷新") {
+					async function hydratePrices(reason = t("gammaRefresh")) {
 					if (state.watches.length === 0) return;
 					const slugs = [...new Set(state.watches.map((watch) => watch.eventSlug || state.selectedEvent?.slug).filter(Boolean))];
 					try {
@@ -1606,61 +2558,221 @@
 						const event = await response.json();
 						const markets = event.markets || [];
 						reconcileWatchMetadata(markets);
-						state.watches
-							.filter((watch) => watch.eventSlug === slug || (!watch.eventSlug && slug === state.selectedEvent?.slug))
-							.forEach((watch) => {
-								const market = markets.find((item) => item.slug === watch.marketSlug);
-								if (!market) return;
+							state.watches
+								.filter((watch) => watch.eventSlug === slug || (!watch.eventSlug && slug === state.selectedEvent?.slug))
+								.forEach((watch) => {
+									if (watch.type === "match-strip") {
+										(watch.sourceMarkets || []).forEach((source, outcomeIndex) => {
+											const market = markets.find((item) => item.slug === source.marketSlug);
+											if (!market) return;
+											const yesLeg = getMarketYesLeg(market);
+											const price = Number(yesLeg?.price);
+											if (Number.isFinite(price)) {
+												applyPrice(watch, outcomeIndex, price, reason, { silent: true, trackJump: false });
+											}
+										});
+										return;
+									}
+									const market = markets.find((item) => item.slug === watch.marketSlug);
+									if (!market) return;
 								const prices = normalizedOutcomePrices(market);
 								const tokenIds = parseMaybeJson(market.clobTokenIds);
 								tokenIds.forEach((tokenId, outcomeIndex) => {
 									const priceIndex = tokenIds.indexOf(tokenId);
 									const price = Number(prices[priceIndex]);
 									if (Number.isFinite(price)) {
-										applyPrice(watch, outcomeIndex, price, reason, { silent: reason === "Gamma 初始价格" });
+											applyPrice(watch, outcomeIndex, price, reason, { silent: true, trackJump: false });
 									}
 								});
 								});
 						}
-						renderWatches();
+							updateWatchCards();
 					} catch (error) {
-						addFeed("Gamma 价格刷新失败：" + error.message);
+							addFeed(t("gammaFailed") + "：" + error.message);
 					}
 				}
 
 			function startPriceCalibrationTimer() {
 				if (state.priceCalibrationTimer) return;
 				state.priceCalibrationTimer = setInterval(() => {
-					hydratePrices("Gamma 低频校准");
+						hydratePrices(t("gammaCalibration"));
 				}, 60000);
 			}
 
-			function stopPriceCalibrationTimer() {
-				if (!state.priceCalibrationTimer) return;
-				clearInterval(state.priceCalibrationTimer);
-				state.priceCalibrationTimer = null;
-			}
+				function stopPriceCalibrationTimer() {
+					if (!state.priceCalibrationTimer) return;
+					clearInterval(state.priceCalibrationTimer);
+					state.priceCalibrationTimer = null;
+				}
 
-			function bindEvents() {
+				function getLogIntervalSeconds() {
+					const seconds = Number(state.settings.logIntervalSeconds);
+					return Number.isFinite(seconds) ? Math.max(1, Math.min(60, Math.round(seconds))) : 2;
+				}
+
+				function startDataLogTimer() {
+					stopDataLogTimer();
+					if (!state.settings.logEnabled) {
+						updateLogStatus();
+						return;
+					}
+					state.dataLogTimer = setInterval(recordLogSnapshot, getLogIntervalSeconds() * 1000);
+					recordLogSnapshot();
+					updateLogStatus();
+				}
+
+				function stopDataLogTimer() {
+					if (!state.dataLogTimer) return;
+					clearInterval(state.dataLogTimer);
+					state.dataLogTimer = null;
+				}
+
+				function recordLogSnapshot() {
+					if (!state.settings.logEnabled || state.watches.length === 0) {
+						updateLogStatus();
+						return;
+					}
+					const now = new Date();
+					const sampledAt = now.toISOString().replace(/\.\d{3}Z$/, "Z");
+					const sampledAtEpochMs = now.getTime();
+					const rows = [];
+					state.watches.forEach((watch) => {
+						(watch.tokenIds || []).forEach((tokenId, outcomeIndex) => {
+							const value = state.prices[tokenId] ?? watch.lastPrices?.[outcomeIndex] ?? watch.initialPrices?.[outcomeIndex];
+							const price = Number(value);
+							const sourceMarket = watch.sourceMarkets?.[outcomeIndex] || {};
+							rows.push({
+								sampled_at: sampledAt,
+								sampled_at_epoch_ms: sampledAtEpochMs,
+								event_slug: watch.eventSlug || "",
+								event_title: watch.eventTitle || "",
+								watch_id: watch.id || "",
+								watch_type: watch.type || "market",
+								market_slug: sourceMarket.marketSlug || watch.marketSlug || "",
+								market_question: sourceMarket.marketQuestion || watch.marketQuestion || "",
+								outcome: watch.outcomes?.[outcomeIndex] || "Outcome",
+								token_id: tokenId,
+								price: Number.isFinite(price) ? price.toFixed(6) : "",
+								percent: Number.isFinite(price) ? (price * 100).toFixed(3) : "",
+								alerts_enabled: watch.alertsEnabled === false ? "false" : "true"
+							});
+						});
+					});
+					if (rows.length === 0) {
+						updateLogStatus();
+						return;
+					}
+					state.dataLog.push(...rows);
+					if (state.dataLog.length > MAX_BROWSER_LOG_ROWS) {
+						state.dataLog = state.dataLog.slice(-MAX_BROWSER_LOG_ROWS);
+					}
+					postLogRows(rows);
+					updateLogStatus();
+				}
+
+				async function postLogRows(rows) {
+					try {
+						const response = await fetch("/api/log", {
+							method: "POST",
+							headers: { "Content-Type": "application/json" },
+							body: JSON.stringify({ rows })
+						});
+						if (!response.ok) throw new Error("HTTP " + response.status);
+						state.lastLogServerOk = true;
+					} catch {
+						state.lastLogServerOk = false;
+					}
+				}
+
+				function updateLogStatus() {
+					const button = $("toggleLogBtn");
+					if (button) button.textContent = state.settings.logEnabled ? t("pauseLogButton") : t("resumeLogButton");
+					const status = $("logStatus");
+					if (!status) return;
+					status.textContent = state.settings.logEnabled
+						? t("logRunning", state.dataLog.length, getLogIntervalSeconds())
+						: t("logPaused", state.dataLog.length);
+				}
+
+				function rowsToCsv(rows) {
+					const fields = [
+						"sampled_at",
+						"sampled_at_epoch_ms",
+						"event_slug",
+						"event_title",
+						"watch_id",
+						"watch_type",
+						"market_slug",
+						"market_question",
+						"outcome",
+						"token_id",
+						"price",
+						"percent",
+						"alerts_enabled"
+					];
+					const escapeCsv = (value) => `"${String(value ?? "").replaceAll('"', '""')}"`;
+					return [
+						fields.join(","),
+						...rows.map((row) => fields.map((field) => escapeCsv(row[field])).join(","))
+					].join("\n");
+				}
+
+				function downloadBlob(text, filename, type) {
+					const blob = new Blob([text], { type });
+					const url = URL.createObjectURL(blob);
+					const link = document.createElement("a");
+					link.href = url;
+					link.download = filename;
+					document.body.appendChild(link);
+					link.click();
+					link.remove();
+					URL.revokeObjectURL(url);
+				}
+
+				async function downloadLogCsv() {
+					try {
+						const response = await fetch("/api/log.csv", { cache: "no-store" });
+						if (!response.ok) throw new Error("HTTP " + response.status);
+						const text = await response.text();
+						downloadBlob(text, `polymarket-odds-log-${Date.now()}.csv`, "text/csv;charset=utf-8");
+					} catch {
+						downloadBlob(rowsToCsv(state.dataLog), `polymarket-odds-log-browser-${Date.now()}.csv`, "text/csv;charset=utf-8");
+						addFeed(t("logDownloadFallback"));
+					}
+				}
+
+				async function clearDataLog() {
+					state.dataLog = [];
+					try {
+						await fetch("/api/log", { method: "DELETE" });
+					} catch {
+						// Direct file usage keeps only the in-memory browser log.
+					}
+					updateLogStatus();
+					addFeed(t("logCleared"));
+				}
+
+				function bindEvents() {
 				$("searchBtn").addEventListener("click", searchEvents);
-				$("searchInput").addEventListener("keydown", (event) => {
-					if (event.key === "Enter") searchEvents();
-				});
+					$("searchInput").addEventListener("keydown", (event) => {
+						if (event.key === "Enter") searchEvents();
+					});
+					$("langSelect").addEventListener("change", (event) => {
+						currentLang = normalizeLanguage(event.target.value);
+						localStorage.setItem(LS_LANG, currentLang);
+						applyLanguage();
+						renderResults();
+						renderSelectedEvent();
+						if (state.selectedEvent) renderMarkets();
+						renderWatches();
+						renderFeed();
+						updateLogStatus();
+					});
 				$("connectBtn").addEventListener("click", () => {
 					connectMarketWs();
 					connectSportsWs();
 				});
-				$("refreshPricesBtn").addEventListener("click", () => hydratePrices("Gamma 手动校准"));
-				$("testAlertBtn").addEventListener("click", () => showAlert("测试提醒", "GOAL?", "声音和弹层会持续到手动关闭"));
-				$("clearBtn").addEventListener("click", () => {
-					state.watches = [];
-					state.prices = {};
-					state.priceHistory = {};
-					stopPriceCalibrationTimer();
-					saveState();
-					renderWatches();
-					connectMarketWs();
-				});
+					$("testAlertBtn").addEventListener("click", () => showAlert(t("testAlert"), "GOAL?", t("testAlertDetail")));
 				$("jumpWindowSeconds").addEventListener("change", (event) => {
 					state.settings.jumpWindowSeconds = Math.max(0.2, Math.min(10, Number(event.target.value) || 1.5));
 					event.target.value = state.settings.jumpWindowSeconds;
@@ -1676,29 +2788,54 @@
 					event.target.value = state.settings.quietSeconds;
 					saveState();
 				});
-				$("maxSpread").addEventListener("change", (event) => {
-					state.settings.maxSpread = Math.max(0, Math.min(1, Number(event.target.value) || 0.08));
-					event.target.value = state.settings.maxSpread;
+					$("timeZoneSelect").addEventListener("change", (event) => {
+						state.settings.timeZone = CLOCK_TIME_ZONES.some((zone) => zone.value === event.target.value)
+							? event.target.value
+							: "Asia/Shanghai";
+						event.target.value = state.settings.timeZone;
+						updateClocks();
+						saveState();
+					});
+					$("maxSpread").addEventListener("change", (event) => {
+						state.settings.maxSpread = Math.max(0, Math.min(1, Number(event.target.value) || 0.08));
+						event.target.value = state.settings.maxSpread;
 					if (state.allMarkets.length > 0) {
 						state.markets = filterMarkets(state.allMarkets);
 						renderMarkets();
-					}
-					saveState();
-				});
-				$("alertClose").addEventListener("click", closeAlert);
-			}
+						}
+						saveState();
+					});
+					$("logIntervalSeconds").addEventListener("change", (event) => {
+						state.settings.logIntervalSeconds = Math.max(1, Math.min(60, Math.round(Number(event.target.value) || 2)));
+						event.target.value = state.settings.logIntervalSeconds;
+						saveState();
+						startDataLogTimer();
+					});
+					$("toggleLogBtn").addEventListener("click", () => {
+						state.settings.logEnabled = !state.settings.logEnabled;
+						saveState();
+						startDataLogTimer();
+					});
+					$("downloadLogBtn").addEventListener("click", downloadLogCsv);
+					$("clearLogBtn").addEventListener("click", clearDataLog);
+					$("alertClose").addEventListener("click", closeAlert);
+				}
 
-			function init() {
-				loadState();
-				bindEvents();
+				function init() {
+					applyLanguage();
+					loadState();
+					bindEvents();
+					updateClocks();
+					setInterval(updateClocks, 1000);
 				renderSelectedEvent();
 				renderWatches();
 				renderFeed();
 				searchEvents();
 				if (state.selectedEvent?.slug) loadEventDetails(state.selectedEvent.slug);
-				hydratePrices("Gamma 初始价格");
-				startPriceCalibrationTimer();
-				connectSportsWs();
+					hydratePrices(t("gammaInitial"));
+					startPriceCalibrationTimer();
+					startDataLogTimer();
+					connectSportsWs();
 				if (state.watches.length > 0) connectMarketWs();
 			}
 
