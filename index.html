@@ -958,7 +958,7 @@
 					</div>
 					<div class="clock-stack" aria-live="polite">
 						<div class="clock-row">
-							<span data-i18n="beijingTime">Beijing Time</span>
+							<span id="clockLabel">Beijing Time</span>
 							<span class="clock-value" id="beijingClock">--:--:--</span>
 						</div>
 					</div>
@@ -977,6 +977,10 @@
 					<section class="section">
 						<div class="section-title" data-i18n="settingsTitle">Alert Settings</div>
 						<div class="controls">
+						<div class="control-row">
+								<label for="timeZoneSelect" data-i18n="timeZoneLabel">Clock time zone</label>
+							<select id="timeZoneSelect" class="select"></select>
+						</div>
 						<div class="control-row">
 								<label for="jumpWindowSeconds" data-i18n="jumpWindowLabel">Move window (seconds)</label>
 							<input id="jumpWindowSeconds" class="field" type="number" min="0.2" max="10" step="0.1" value="1.5">
@@ -1045,11 +1049,11 @@
 					headline: "Choose a market to start monitoring",
 					selectedHeadline: "Selected event",
 					subline: "Keep this page open to track live market and score updates. You will be alerted when a meaningful change happens.",
-					beijingTime: "Beijing Time",
 					actionsTitle: "Monitor Controls",
 					connectButton: "Start Live Tracking",
 					testButton: "Test Alert",
 					settingsTitle: "Alert Settings",
+					timeZoneLabel: "Clock time zone",
 					jumpWindowLabel: "Move window (seconds)",
 					jumpThresholdLabel: "Price move threshold (percentage points)",
 					quietSecondsLabel: "Quiet period per market (seconds)",
@@ -1139,11 +1143,11 @@
 					headline: "选择一个盘口开始监听",
 					selectedHeadline: "已选择事件",
 					subline: "保持本页打开，系统会持续跟踪盘口和比分；出现明显变化时会提醒你。",
-					beijingTime: "北京时间",
 					actionsTitle: "监控操作",
 					connectButton: "开始实时监听",
 					testButton: "测试提醒",
 					settingsTitle: "告警设置",
+					timeZoneLabel: "时区设置",
 					jumpWindowLabel: "突变统计窗口（秒）",
 					jumpThresholdLabel: "窗口内价格突变阈值（百分点）",
 					quietSecondsLabel: "同盘口静默秒数",
@@ -1229,6 +1233,33 @@
 				const value = (i18n[currentLang] || i18n.en)[key] ?? i18n.en[key] ?? key;
 				return typeof value === "function" ? value(...args) : value;
 			};
+			const CLOCK_TIME_ZONES = [
+				{ value: "Asia/Shanghai", label: { en: "Beijing Time", zh: "北京时间" } },
+				{ value: "America/New_York", label: { en: "US Eastern Time", zh: "美东时间" } },
+				{ value: "America/Los_Angeles", label: { en: "US Pacific Time", zh: "美西时间" } },
+				{ value: "Europe/London", label: { en: "London Time", zh: "伦敦时间" } },
+				{ value: "UTC", label: { en: "UTC", zh: "UTC" } }
+			];
+
+			function getClockTimeZone() {
+				const value = state?.settings?.timeZone || "Asia/Shanghai";
+				return CLOCK_TIME_ZONES.some((zone) => zone.value === value) ? value : "Asia/Shanghai";
+			}
+
+			function getClockTimeZoneLabel(timeZone = getClockTimeZone()) {
+				const zone = CLOCK_TIME_ZONES.find((item) => item.value === timeZone) || CLOCK_TIME_ZONES[0];
+				return zone.label[currentLang] || zone.label.en;
+			}
+
+			function renderTimeZoneOptions() {
+				const select = $("timeZoneSelect");
+				if (!select) return;
+				const selected = getClockTimeZone();
+				select.innerHTML = CLOCK_TIME_ZONES
+					.map((zone) => `<option value="${zone.value}">${zone.label[currentLang] || zone.label.en}</option>`)
+					.join("");
+				select.value = selected;
+			}
 
 			function applyLanguage() {
 				currentLang = currentLang === "zh" ? "zh" : "en";
@@ -1240,6 +1271,8 @@
 				document.querySelectorAll("[data-i18n-placeholder]").forEach((node) => {
 					node.placeholder = t(node.dataset.i18nPlaceholder);
 				});
+				renderTimeZoneOptions();
+				updateClocks();
 			}
 			const audioState = {
 				context: null,
@@ -1272,6 +1305,7 @@
 						jumpWindowSeconds: 1.5,
 						quietSeconds: 20,
 						maxSpread: 0.08,
+						timeZone: "Asia/Shanghai",
 						logIntervalSeconds: 2,
 						logEnabled: true
 					},
@@ -1483,8 +1517,11 @@
 
 			function updateClocks() {
 				const now = new Date();
+				const timeZone = getClockTimeZone();
+				const clockLabel = $("clockLabel");
 				const beijingClock = $("beijingClock");
-				if (beijingClock) beijingClock.textContent = formatClockTime(now, "Asia/Shanghai");
+				if (clockLabel) clockLabel.textContent = getClockTimeZoneLabel(timeZone);
+				if (beijingClock) beijingClock.textContent = formatClockTime(now, timeZone);
 			}
 
 			function saveState() {
@@ -1564,7 +1601,10 @@
 					$("jumpThreshold").value = state.settings.jumpThreshold;
 					$("quietSeconds").value = state.settings.quietSeconds;
 					$("maxSpread").value = state.settings.maxSpread;
+					state.settings.timeZone = getClockTimeZone();
+					$("timeZoneSelect").value = state.settings.timeZone;
 					$("logIntervalSeconds").value = state.settings.logIntervalSeconds;
+					updateClocks();
 					updateLogStatus();
 				}
 
@@ -2528,6 +2568,14 @@
 					event.target.value = state.settings.quietSeconds;
 					saveState();
 				});
+					$("timeZoneSelect").addEventListener("change", (event) => {
+						state.settings.timeZone = CLOCK_TIME_ZONES.some((zone) => zone.value === event.target.value)
+							? event.target.value
+							: "Asia/Shanghai";
+						event.target.value = state.settings.timeZone;
+						updateClocks();
+						saveState();
+					});
 					$("maxSpread").addEventListener("change", (event) => {
 						state.settings.maxSpread = Math.max(0, Math.min(1, Number(event.target.value) || 0.08));
 						event.target.value = state.settings.maxSpread;
