@@ -1,31 +1,159 @@
-# Polymarket Odds Visualizer
+# Polymarket Odds Radar
 
-一个面向体育比赛的 Polymarket 实时盘口看板。
+[GitHub](https://github.com/WandsgYu/polymarket-odds-radar) · [在线体验](https://wandsgyu.github.io/polymarket-odds-radar/)
 
-它可以搜索赛事、展示可交易盘口、监听价格跳变和比分变化，适合盯足球比赛中的胜负、让球、总分、双方进球等盘口。
+实时监控 Polymarket 市场异动，在赔率剧烈变化时立即发出提醒。
 
-## 功能
+一个专注于概率变化监控（Probability Monitoring）的 Polymarket 本地工具。
 
-- 搜索 Polymarket 赛事。
-- 只展示带 CLOB token、可接 Market WebSocket 的盘口。
-- 监听 CLOB Market WebSocket 的实时价格事件。
-- 监听 Sports WebSocket 的比分变化。
-- 按短时间窗口检测价格突变并弹窗提醒。
-- 支持手动价格校准和低频自动校准。
+与传统行情面板不同，Odds Radar 不关心你正在看什么市场，而是帮你发现：
 
-## 数据来源
+> 哪些市场刚刚发生了变化。
 
-- `Gamma API`
-  - 搜索事件。
-  - 获取事件详情、CLOB token、初始价格。
-- `Market WebSocket`
-  - 监听 CLOB token 的 `price_change`、`best_bid_ask`、`last_trade_price`。
-- `Sports WebSocket`
-  - 监听赛事比分和赛况变化。
+---
 
-注意：没有 CLOB token 的体育盘口不会显示，例如部分让球、总分、BTTS 盘口。这些盘口只能通过 Gateway 聚合数据轮询，实时性明显弱于 Market WebSocket。
+## 为什么做这个项目
 
-## 启动
+Polymarket 最有价值的信息往往不是当前价格，而是变化本身。
+
+例如：
+
+- 某个事件突然上涨 10%。
+- 某个球队进球后赔率瞬间变化。
+- 某个新闻出现后市场开始重新定价。
+- 某个长期横盘的市场突然出现异动。
+
+如果你同时关注多个市场，靠手动刷新页面很容易错过这些信号。
+
+因此我构建了 Odds Radar。
+
+它负责持续监听市场。当出现明显异动时：
+
+- 页面高亮提醒。
+- 声音报警。
+- 事件记录。
+
+让你第一时间注意到变化。
+
+---
+
+## 核心功能
+
+### 实时赔率监控
+
+- 通过 Polymarket Market WebSocket 获取实时价格数据。
+- 自动更新市场价格。
+- 支持同时监控多个市场。
+- 通过 Gamma API 搜索事件和读取市场元数据。
+
+### 异动检测
+
+支持自定义：
+
+- 检测时间窗口。
+- 触发阈值。
+- 冷却时间。
+
+例如：
+
+```text
+3 秒内上涨 8%
+立即报警
+```
+
+### 声音报警
+
+当市场发生剧烈变化时：
+
+```text
+🔔 自动播放报警音
+```
+
+即使你正在看比赛、刷网页或者处理其他事情，也不会错过关键变化。
+
+### 赛事比分联动
+
+支持：
+
+- 比分变化监控。
+- 比赛状态变化监控。
+- 市场赔率联动观察。
+
+适合：
+
+- 电竞。
+- 足球。
+- 篮球。
+- 其他体育预测市场。
+
+### 市场过滤
+
+支持：
+
+- Spread 过滤。
+- 低质量市场过滤。
+- 结合成交量信息观察市场质量。
+
+减少噪音。
+
+### 数据记录
+
+自动采样价格变化：
+
+- 浏览器本地记录。
+- CSV 导出。
+- 后续分析。
+
+---
+
+## 使用场景
+
+### 观看体育赛事
+
+打开比赛直播。
+
+让 Odds Radar 负责监控市场。
+
+当赔率发生明显变化时自动提醒。
+
+### 监控突发新闻
+
+例如：
+
+- 美国大选。
+- 战争冲突。
+- 美联储决议。
+- OpenAI 相关新闻。
+
+当市场开始重新定价时第一时间发现。
+
+### 多市场同时盯盘
+
+无需反复切换网页。
+
+让系统自动发现异常变化。
+
+---
+
+## 技术架构
+
+```text
+Gamma API
+     ↓
+事件搜索
+     ↓
+Market WebSocket
+     ↓
+实时价格流
+     ↓
+异动检测引擎
+     ↓
+页面告警 + 声音告警
+```
+
+---
+
+## 本地运行
 
 ```bash
 python3 server.py
@@ -37,61 +165,97 @@ python3 server.py
 http://127.0.0.1:5173
 ```
 
-`server.py` 是本地只读代理，用来转发：
+当前版本不需要安装依赖。项目主要由两个文件组成：
 
-- `/api/gamma/...` -> `https://gamma-api.polymarket.com/...`
+- `index.html`：前端界面、WebSocket 连接、异动检测和提醒逻辑。
+- `server.py`：本地静态文件服务和 Gamma API 只读代理。
 
-## 使用流程
+---
 
-1. 搜索球队、联赛或赛事关键词。
-2. 选择一个赛事。
-3. 在“选择盘口”里点击“监听盘口”。
-4. 页面会在中间区域显示该盘口所有 outcomes。
-5. CLOB 盘口会通过 Market WebSocket 实时更新。
-6. 价格在设定窗口内跳变超过阈值时触发提醒。
+## 配置项
 
-## 告警设置
+| 配置 | 默认值 | 作用 |
+| --- | ---: | --- |
+| 突变统计窗口 | `1.5` 秒 | 用多短的时间窗口判断概率变化。 |
+| 价格突变阈值 | `8` 个百分点 | 超过多少概率变化才触发提醒。 |
+| 单市场静默期 | `20` 秒 | 同一 token 触发后多久内不重复提醒。 |
+| 最大市场价差 | `0.08` | 过滤价差过大的市场。 |
+| 时钟时区 | `Asia/Shanghai` | 控制页面时钟显示。 |
+| 数据采样间隔 | `2` 秒 | 价格日志的采样频率。 |
 
-- 突变统计窗口：默认 `1.5` 秒。
-- 价格突变阈值：默认 `8` 个百分点。
-- 同盘口静默时间：默认 `20` 秒。
-- 最大价差过滤：默认 `0.08`。
+配置和已监控市场保存在当前浏览器的 `localStorage` 中。
 
-## 当前取舍
+---
 
-- 这是一个本地看盘和提醒工具，不负责下单。
-- 不需要 Polymarket 账号或 API key。
-- CLOB 盘口优先使用 WebSocket 实时更新。
-- 为了保证提醒速度，页面只展示可接 Market WebSocket 的 CLOB 盘口。
-- 比分提醒只作为辅助信号，不等同于官方裁判结果。
+## 数据来源
 
-## 文件
+### Gamma API
 
-- `index.html`：前端页面、状态管理、WebSocket、提醒逻辑。
-- `server.py`：本地只读代理和静态文件服务。
+- 搜索事件。
+- 获取事件详情。
+- 获取 CLOB token ID。
+- 获取初始价格。
+- 手动和低频价格校准。
 
-## English
+### Market WebSocket
 
-Polymarket Odds Visualizer is a local sports-odds dashboard for Polymarket.
+- 实时 CLOB 市场事件。
+- `price_change`。
+- `best_bid_ask`。
+- `last_trade_price`。
 
-It searches events, displays CLOB markets with WebSocket support, tracks live CLOB price updates, and alerts on fast price moves or score changes.
+### Sports WebSocket
 
-Run:
+- 体育赛事比分和赛况变化。
+- 对匹配的已监控事件触发比分变化提醒。
 
-```bash
-python3 server.py
-```
-
-Open:
+`server.py` 提供本地只读代理：
 
 ```text
-http://127.0.0.1:5173
+/api/gamma/... -> https://gamma-api.polymarket.com/...
 ```
 
-Data sources:
+前端也包含直接访问 Gamma API 的 fallback，但实际可用性取决于浏览器和跨域策略。
 
-- Gamma API for event discovery and CLOB market metadata.
-- Market WebSocket for live CLOB price events.
-- Sports WebSocket for score updates.
+---
 
-This project is for monitoring and alerts only. It does not place trades.
+## 当前限制
+
+- 只有带 CLOB token ID 的市场才能使用 Market WebSocket 实时监控。
+- 没有 CLOB token ID 的市场可能不会显示或无法实时监听。
+- 体育比分提醒是辅助信号，不等同于官方结果确认。
+- 声音提醒依赖浏览器音频策略，可能需要用户先与页面交互。
+- 当前日志主要保存在浏览器内存中；`server.py` 没有实现持久化日志存储。
+- 当前外部通知能力还没有实现。
+
+---
+
+## 项目特点
+
+Odds Radar 只关注一件事：
+
+> 发现异常变化。
+
+它不是交易机器人，不负责下单。
+
+它不是完整行情终端，不追求展示所有市场信息。
+
+它更像一个放在本地浏览器里的概率异动雷达。
+
+---
+
+## Tech Stack
+
+- Plain HTML / CSS / JavaScript。
+- Python `http.server`。
+- Polymarket Gamma API。
+- Polymarket CLOB Market WebSocket。
+- Polymarket Sports WebSocket。
+- Browser `localStorage`。
+- Browser Web Audio API。
+
+---
+
+## License
+
+当前仓库尚未包含 `LICENSE` 文件。公开发布或接受外部贡献前，建议补充许可证。
