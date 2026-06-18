@@ -886,6 +886,19 @@
 		}
 
 		@media (max-width: 760px) {
+			html, body {
+				height: auto;
+				min-height: 100%;
+				overflow-x: hidden;
+				overflow-y: auto;
+			}
+			.app {
+				height: auto;
+				min-height: 100vh;
+				min-height: 100dvh;
+				display: block;
+				overflow: visible;
+			}
 			.topbar {
 				align-items: flex-start;
 				flex-direction: column;
@@ -904,6 +917,20 @@
 			.workspace {
 				grid-template-columns: 1fr;
 				padding: 12px;
+				height: auto;
+				overflow: visible;
+			}
+			.sidebar, .watch, .activity {
+				overflow: visible;
+			}
+			.sidebar, .activity {
+				display: block;
+			}
+			.results, .markets, .feed, .watch-grid {
+				overflow: visible;
+			}
+			.results {
+				max-height: none;
 			}
 			.hero {
 				grid-template-columns: 1fr;
