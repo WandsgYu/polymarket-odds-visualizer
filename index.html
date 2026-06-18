@@ -861,11 +861,47 @@
 		}
 
 		@media (max-width: 1180px) {
+			html, body {
+				height: auto;
+				min-height: 100%;
+				overflow-x: hidden;
+				overflow-y: auto;
+			}
+			.app {
+				height: auto;
+				min-height: 100vh;
+				min-height: 100dvh;
+				display: block;
+				overflow: visible;
+			}
 			.workspace {
-				grid-template-columns: 360px minmax(0, 1fr);
+				grid-template-columns: 1fr;
+				height: auto;
+				overflow: visible;
+			}
+			.sidebar, .watch, .activity {
+				overflow: visible;
+			}
+			.sidebar, .activity {
+				display: block;
+			}
+			.results {
+				max-height: 40dvh;
+			}
+			.markets {
+				max-height: 60dvh;
+				overflow-y: auto;
+			}
+			.watch-grid {
+				min-height: 360px;
+				max-height: 70dvh;
 			}
 			.activity {
-				grid-column: 1 / -1;
+				grid-column: auto;
+			}
+			.feed {
+				max-height: 320px;
+				overflow-y: auto;
 			}
 		}
 
@@ -930,6 +966,13 @@
 				overflow: visible;
 			}
 			.results {
+				max-height: none;
+			}
+			.markets, .feed {
+				max-height: none;
+			}
+			.watch-grid {
+				min-height: 0;
 				max-height: none;
 			}
 			.hero {
