@@ -553,6 +553,12 @@
 			align-content: stretch;
 		}
 
+		.watch-grid.double {
+			grid-template-columns: minmax(0, 1fr);
+			grid-template-rows: repeat(2, minmax(0, 1fr));
+			align-content: stretch;
+		}
+
 		.empty {
 			grid-column: 1 / -1;
 			border: 1px dashed rgba(255, 255, 255, 0.16);
@@ -581,6 +587,10 @@
 		}
 
 		.watch-grid.quad .watch-card {
+			min-height: 0;
+		}
+
+		.watch-grid.double .watch-card {
 			min-height: 0;
 		}
 
@@ -739,7 +749,8 @@
 			font-size: clamp(58px, 9vw, 118px);
 		}
 
-		.watch-grid.quad .big-price {
+		.watch-grid.quad .big-price,
+		.watch-grid.double .big-price {
 			font-size: clamp(68px, 8.4vw, 154px);
 		}
 
@@ -808,7 +819,7 @@
 			right: 18px;
 			z-index: 80;
 			display: none;
-			width: min(420px, calc(100vw - 36px));
+			width: min(560px, calc(100vw - 36px));
 			pointer-events: none;
 		}
 
@@ -841,17 +852,63 @@
 
 		.alert-main {
 			margin-top: 8px;
-			font-size: 34px;
+			font-size: 42px;
 			line-height: 1;
 			font-weight: 950;
 			letter-spacing: 0;
 		}
 
 		.alert-detail {
-			margin-top: 10px;
+			margin-top: 12px;
 			color: #dcfce7;
 			font-size: 13px;
 			line-height: 1.45;
+		}
+
+		.alert-summary {
+			padding: 11px 12px;
+			border-radius: 8px;
+			border: 1px solid rgba(255, 255, 255, 0.22);
+			background: rgba(255, 255, 255, 0.12);
+			color: #f0fdf4;
+			font-size: 15px;
+			font-weight: 850;
+			line-height: 1.35;
+		}
+
+		.alert-facts {
+			display: grid;
+			grid-template-columns: 1fr 1fr;
+			gap: 8px;
+			margin-top: 10px;
+		}
+
+		.alert-fact {
+			min-width: 0;
+			padding: 9px 10px;
+			border-radius: 8px;
+			background: rgba(2, 6, 23, 0.22);
+			border: 1px solid rgba(255, 255, 255, 0.12);
+		}
+
+		.alert-fact.wide {
+			grid-column: 1 / -1;
+		}
+
+		.alert-label {
+			margin-bottom: 4px;
+			color: #bbf7d0;
+			font-size: 11px;
+			font-weight: 850;
+			text-transform: uppercase;
+		}
+
+		.alert-value {
+			color: #ffffff;
+			font-size: 14px;
+			font-weight: 760;
+			line-height: 1.35;
+			overflow-wrap: anywhere;
 		}
 
 		.alert-close {
@@ -994,9 +1051,19 @@
 			.controls {
 				grid-template-columns: 1fr;
 			}
+			.alert-main {
+				font-size: 34px;
+			}
+			.alert-facts {
+				grid-template-columns: 1fr;
+			}
 			.watch-grid.quad {
 				grid-template-columns: 1fr;
 				grid-template-rows: none;
+			}
+			.watch-grid.double {
+				grid-template-columns: 1fr;
+				grid-template-rows: repeat(2, minmax(0, 1fr));
 			}
 			.outcome-panel {
 				border-right: 1px solid rgba(255, 255, 255, 0.08);
@@ -1230,6 +1297,15 @@
 					down: "down",
 					moveAlert: "Market move",
 					moveFeed: "Market move",
+					alertSummary: "Trigger summary",
+					alertProject: "Watch item",
+					alertMarket: "Triggered market",
+					alertOutcome: "Outcome",
+					alertWindow: "Time window",
+					alertMove: "Price change",
+					alertFromTo: "From -> To",
+					alertSource: "Trigger source",
+					alertThreshold: "Threshold",
 					scoreAlert: "Score alert",
 					scoreChanged: "Score changed",
 					testAlert: "Test Alert",
@@ -1324,6 +1400,15 @@
 					down: "下跌",
 					moveAlert: "盘口突变",
 					moveFeed: "盘口突变",
+					alertSummary: "触发摘要",
+					alertProject: "监控项目",
+					alertMarket: "触发盘口",
+					alertOutcome: "触发结果",
+					alertWindow: "统计窗口",
+					alertMove: "价格变化",
+					alertFromTo: "从 -> 到",
+					alertSource: "触发来源",
+					alertThreshold: "阈值",
 					scoreAlert: "进球提醒",
 					scoreChanged: "比分变化",
 					testAlert: "测试提醒",
@@ -1785,6 +1870,12 @@
 				return sign + (num * 100).toFixed(1) + " pp";
 			}
 
+			function formatPricePercent(value) {
+				const num = Number(value);
+				if (!Number.isFinite(num)) return "--";
+				return `${(Math.max(0, Math.min(1, num)) * 100).toFixed(1)}%`;
+			}
+
 			function money(value) {
 				const num = Number(value);
 				if (!Number.isFinite(num)) return "--";
@@ -2209,7 +2300,7 @@
 						grid.innerHTML = `<div class="empty">${escapeHtml(t("watchEmpty"))}</div>`;
 					return;
 				}
-				const layoutClass = state.watches.length === 1 ? "single" : state.watches.length <= 4 ? "quad" : "";
+				const layoutClass = state.watches.length === 1 ? "single" : state.watches.length === 2 ? "double" : state.watches.length <= 4 ? "quad" : "";
 				grid.className = ["watch-grid", layoutClass].filter(Boolean).join(" ");
 					grid.innerHTML = state.watches.map((watch, index) => {
 						const panelClass = (watch.tokenIds || []).length === 2 ? "two" : "";
@@ -2450,7 +2541,7 @@
 				if (trackJump) recordPricePoint(tokenId, nextPrice);
 				const threshold = Number(state.settings.jumpThreshold) / 100;
 				if (!options.silent && jump && Math.abs(jump.change) >= threshold) {
-						triggerWatchAlert(watch, outcomeIndex, jump.change, `${reason} · ${getJumpWindowLabel()}s ${t("window")}`);
+						triggerWatchAlert(watch, outcomeIndex, jump, `${reason} · ${getJumpWindowLabel()}s ${t("window")}`);
 				}
 			}
 
@@ -2464,7 +2555,7 @@
 					if (now - point.time > windowMs) return;
 					const change = nextPrice - point.price;
 					if (!best || Math.abs(change) > Math.abs(best.change)) {
-						best = { change, from: point.price };
+						best = { change, from: point.price, to: nextPrice, elapsedMs: now - point.time };
 					}
 				});
 				return best;
@@ -2477,7 +2568,7 @@
 				state.priceHistory[tokenId] = history.filter((point) => now - point.time <= getJumpWindowMs());
 			}
 
-				function triggerWatchAlert(watch, outcomeIndex, change, reason) {
+				function triggerWatchAlert(watch, outcomeIndex, jump, reason) {
 					if (watch.alertsEnabled === false) return;
 					const now = Date.now();
 				const quietMs = Number(state.settings.quietSeconds) * 1000;
@@ -2485,9 +2576,28 @@
 				if (!tokenId) return;
 				if (now - (state.lastAlertAt[tokenId] || 0) < quietMs) return;
 				state.lastAlertAt[tokenId] = now;
+				const change = Number(jump?.change);
 				const direction = change > 0 ? t("up") : t("down");
 				const outcome = watch.outcomes?.[outcomeIndex] || "Outcome";
-				showAlert(t("moveAlert"), `${direction} ${pp(change)}`, `${outcome} · ${watch.marketQuestion} · ${reason}`);
+				const sourceMarket = watch.sourceMarkets?.[outcomeIndex] || {};
+				const projectName = watch.eventTitle || watch.eventSlug || watch.marketQuestion || watch.id;
+				const marketName = sourceMarket.marketQuestion || watch.marketQuestion || watch.marketSlug || watch.id;
+				const windowSeconds = Math.max(0.1, (Number(jump?.elapsedMs) || getJumpWindowMs()) / 1000).toFixed(1).replace(/\.0$/, "");
+				const configuredWindow = getJumpWindowLabel();
+				const fromTo = `${formatPricePercent(jump?.from)} -> ${formatPricePercent(jump?.to ?? (jump?.from + change))}`;
+				const threshold = `${Number(state.settings.jumpThreshold) || 0} pp`;
+				const summary = `${outcome} ${direction} ${pp(change)} | ${windowSeconds}s / ${configuredWindow}s ${t("window")} | ${fromTo}`;
+				showAlert(t("moveAlert"), `${direction} ${pp(change)}`, [
+					{ label: t("alertSummary"), value: summary, wide: true, summary: true },
+					{ label: t("alertProject"), value: projectName, wide: true },
+					{ label: t("alertMarket"), value: marketName, wide: true },
+					{ label: t("alertOutcome"), value: outcome },
+					{ label: t("alertMove"), value: `${direction} ${pp(change)}` },
+					{ label: t("alertWindow"), value: `${windowSeconds}s / ${configuredWindow}s ${t("window")}` },
+					{ label: t("alertFromTo"), value: fromTo },
+					{ label: t("alertSource"), value: reason },
+					{ label: t("alertThreshold"), value: threshold }
+				]);
 				addFeed(`${t("moveFeed")}：${outcome} ${direction} ${pp(change)}`);
 				flashWatch(watch);
 			}
@@ -2561,9 +2671,33 @@
 			function showAlert(kicker, main, detail) {
 				$("alertKicker").textContent = kicker;
 				$("alertMain").textContent = main;
-				$("alertDetail").textContent = detail;
+				renderAlertDetail(detail);
 				$("alertOverlay").classList.add("show");
 				startAlertSound();
+			}
+
+			function renderAlertDetail(detail) {
+				const container = $("alertDetail");
+				container.textContent = "";
+				if (!Array.isArray(detail)) {
+					container.textContent = detail;
+					return;
+				}
+				const grid = document.createElement("div");
+				grid.className = "alert-facts";
+				detail.forEach((item) => {
+					const fact = document.createElement("div");
+					fact.className = `alert-fact${item.wide ? " wide" : ""}${item.summary ? " alert-summary" : ""}`;
+					const label = document.createElement("div");
+					label.className = "alert-label";
+					label.textContent = item.label;
+					const value = document.createElement("div");
+					value.className = "alert-value";
+					value.textContent = item.value;
+					fact.append(label, value);
+					grid.appendChild(fact);
+				});
+				container.appendChild(grid);
 			}
 
 			function startAlertSound() {
