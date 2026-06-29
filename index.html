@@ -1656,14 +1656,51 @@
 			};
 
 				async function fetchGamma(path) {
-					const localUrl = `/api/gamma${path}`;
-					try {
-						const localResponse = await fetch(localUrl, { cache: "no-store" });
-						if (localResponse.ok) return localResponse;
-					} catch {
-						// Static deployments can fall back to direct Gamma requests.
-					}
 					return fetch(`${GAMMA}${path}`, { cache: "no-store" });
+				}
+
+				const RELATED_EVENT_SUFFIXES = [
+					"more-markets",
+					"halftime-result",
+					"second-half-result",
+					"exact-score",
+					"first-to-score",
+					"total-corners",
+					"player-props"
+				];
+
+				function marketSourceLabel(event, market) {
+					if (!event || !market || !event.title) return "";
+					const selectedTitle = state.selectedEvent?.title || "";
+					return event.title.replace(selectedTitle, "").replace(/^ *[-:] */, "").trim();
+				}
+
+				function withMarketSource(market, event) {
+					return {
+						...market,
+						sourceEventSlug: event.slug,
+						sourceEventTitle: event.title || event.slug,
+						sourceEventLabel: marketSourceLabel(event, market)
+					};
+				}
+
+				async function fetchEventBySlug(slug) {
+					const response = await fetchGamma(`/events/slug/${encodeURIComponent(slug)}?_=${Date.now()}`);
+					if (!response.ok) throw new Error("HTTP " + response.status);
+					return response.json();
+				}
+
+				async function loadRelatedSportsEvents(parentEvent) {
+					if (!parentEvent?.slug) return [];
+					const childSlugs = RELATED_EVENT_SUFFIXES.map((suffix) => `${parentEvent.slug}-${suffix}`);
+					const settled = await Promise.all(childSlugs.map(async (slug) => {
+						try {
+							return await fetchEventBySlug(slug);
+						} catch {
+							return null;
+						}
+					}));
+					return settled.filter((event) => event && event.slug && !event.closed);
 				}
 
 				const state = {
@@ -2031,6 +2068,8 @@
 					watch.tokenIds = tokenIds;
 					watch.outcomes = outcomes;
 					watch.marketQuestion = market.question || watch.marketQuestion;
+					watch.eventSlug = market.sourceEventSlug || watch.eventSlug || state.selectedEvent?.slug || "";
+					watch.eventTitle = state.selectedEvent?.title || watch.eventTitle || "";
 					watch.initialPrices = tokenIds.map((tokenId, index) => {
 						const existingIndex = previousTokenIds.indexOf(tokenId);
 						return Number(previousInitialPrices[existingIndex] ?? previousInitialPrices[index]);
@@ -2121,9 +2160,7 @@
 						$("selectedEvent").innerHTML = `<div class="helper">${escapeHtml(t("eventLoading"))}</div>`;
 					$("markets").innerHTML = "";
 					try {
-						const response = await fetchGamma(`/events/slug/${encodeURIComponent(slug)}?_=${Date.now()}`);
-						if (!response.ok) throw new Error("HTTP " + response.status);
-						const event = await response.json();
+						const event = await fetchEventBySlug(slug);
 						state.selectedEvent = {
 							id: event.id,
 							slug: event.slug,
@@ -2132,7 +2169,17 @@
 							volume: event.volume,
 							endDate: event.endDate
 						};
-						state.allMarkets = event.markets || [];
+						const relatedEvents = await loadRelatedSportsEvents(event);
+						const eventMarkets = [event, ...relatedEvents].flatMap((sourceEvent) => {
+							return (sourceEvent.markets || []).map((market) => withMarketSource(market, sourceEvent));
+						});
+						const seenMarketSlugs = new Set();
+						state.allMarkets = eventMarkets.filter((market) => {
+							const key = market.slug || market.id;
+							if (!key || seenMarketSlugs.has(key)) return false;
+							seenMarketSlugs.add(key);
+							return true;
+						});
 						state.markets = filterMarkets(state.allMarkets);
 						reconcileWatchMetadata(state.markets);
 						saveState();
@@ -2213,6 +2260,7 @@
 								<div>
 									<div class="market-title">${escapeHtml(market.question || market.slug)}</div>
 									<div class="meta">
+										${market.sourceEventLabel ? `<span>${escapeHtml(market.sourceEventLabel)}</span>` : ""}
 										<span>${escapeHtml(market.slug || market.id)}</span>
 											<span>${escapeHtml(t("spread"))} ${escapeHtml(market.spread ?? "--")}</span>
 									</div>
@@ -2242,7 +2290,7 @@
 				}
 					const watch = {
 						id: market.slug || tokenIds.join(":"),
-						eventSlug: state.selectedEvent?.slug || "",
+						eventSlug: market.sourceEventSlug || state.selectedEvent?.slug || "",
 						eventTitle: state.selectedEvent?.title || "",
 						marketSlug: market.slug || "",
 						marketQuestion: market.question || "",

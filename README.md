@@ -156,7 +156,7 @@ Market WebSocket
 ## 本地运行
 
 ```bash
-python3 server.py
+python3 -m http.server 5173 --bind 127.0.0.1
 ```
 
 打开：
@@ -165,10 +165,9 @@ python3 server.py
 http://127.0.0.1:5173
 ```
 
-当前版本不需要安装依赖。项目主要由两个文件组成：
+当前版本不需要安装依赖。项目主要由一个前端文件组成：
 
 - `index.html`：前端界面、WebSocket 连接、异动检测和提醒逻辑。
-- `server.py`：本地静态文件服务和 Gamma API 只读代理。
 
 ---
 
@@ -209,13 +208,7 @@ http://127.0.0.1:5173
 - 体育赛事比分和赛况变化。
 - 对匹配的已监控事件触发比分变化提醒。
 
-`server.py` 提供本地只读代理：
-
-```text
-/api/gamma/... -> https://gamma-api.polymarket.com/...
-```
-
-前端也包含直接访问 Gamma API 的 fallback，但实际可用性取决于浏览器和跨域策略。
+前端直接访问 Gamma API，不再依赖本地 Python 代理。
 
 ---
 
@@ -225,7 +218,7 @@ http://127.0.0.1:5173
 - 没有 CLOB token ID 的市场可能不会显示或无法实时监听。
 - 体育比分提醒是辅助信号，不等同于官方结果确认。
 - 声音提醒依赖浏览器音频策略，可能需要用户先与页面交互。
-- 当前日志主要保存在浏览器内存中；`server.py` 没有实现持久化日志存储。
+- 当前日志主要保存在浏览器内存中；没有实现持久化日志存储。
 - 当前外部通知能力还没有实现。
 
 ---
@@ -247,7 +240,6 @@ Odds Radar 只关注一件事：
 ## Tech Stack
 
 - Plain HTML / CSS / JavaScript。
-- Python `http.server`。
 - Polymarket Gamma API。
 - Polymarket CLOB Market WebSocket。
 - Polymarket Sports WebSocket。
