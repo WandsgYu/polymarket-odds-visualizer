@@ -71,15 +71,20 @@
 				<div class="watch-grid" id="watchGrid"></div>
 			</section>
 
-				<aside class="activity">
-					<section class="section">
+				<aside class="activity" id="activityPanel">
+					<button class="activity-toggle" id="activityToggle" title="Toggle panel" aria-label="Toggle panel">
+						<span class="activity-toggle-icon">◀</span>
+						<span class="activity-toggle-label">Panel</span>
+					</button>
+					<div class="activity-content" id="activityContent">
+					<section class="section" id="sectionControls">
 						<div class="section-title" data-i18n="actionsTitle">Monitor Controls</div>
 						<div class="operation-actions">
 							<button id="connectBtn" class="btn primary" data-i18n="connectButton">Start Live Tracking</button>
 							<button id="testAlertBtn" class="btn" data-i18n="testButton">Test Alert</button>
 						</div>
 					</section>
-					<section class="section">
+					<section class="section" id="sectionSettings">
 						<div class="section-title" data-i18n="settingsTitle">Alert Settings</div>
 						<div class="controls">
 						<div class="control-row">
@@ -105,26 +110,27 @@
 						</div>
 					</section>
 
-					<section class="section">
+					<section class="section" id="sectionLog">
 						<div class="section-title" data-i18n="logTitle">Data Log</div>
 						<div class="control-row">
 							<label for="logIntervalSeconds" data-i18n="logIntervalLabel">Sample interval (seconds)</label>
 							<input id="logIntervalSeconds" class="field" type="number" min="1" max="60" step="1" value="2">
 						</div>
 						<div class="log-actions">
-							<button id="toggleLogBtn" class="btn small primary" data-i18n="pauseLogButton">Pause Log</button>
+							<button id="toggleLogBtn" class="btn small primary" data-i18n="resumeLogButton">Resume Log</button>
 							<button id="downloadLogBtn" class="btn small" data-i18n="downloadLogButton">Download CSV</button>
 							<button id="clearLogBtn" class="btn small danger" data-i18n="clearLogButton">Clear Log</button>
 						</div>
 						<div id="logStatus" class="log-status">0 rows</div>
 					</section>
 
-					<section class="section">
+					<section class="section" id="sectionReplay">
 					<div class="section-title">Alert Replay</div>
 					<div id="replayList" class="replay-list"></div>
 				</section>
 
 				<section class="section feed" id="feed"></section>
+					</div>
 				</aside>
 		</main>
 	</div>

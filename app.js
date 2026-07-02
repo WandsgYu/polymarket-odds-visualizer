@@ -4,6 +4,7 @@
 				const SPORTS_WS = "wss://sports-api.polymarket.com/ws";
 				const LS_STATE = "goal_pulse_state_v1";
 				const LS_LANG = "goal_pulse_lang";
+				const LS_ACTIVITY = "goal_pulse_activity_v1";
 			const MAX_BROWSER_LOG_ROWS = 12000;
 
 			const $ = (id) => document.getElementById(id);
@@ -514,7 +515,7 @@
 						maxSpread: 0.08,
 						timeZone: "Asia/Shanghai",
 						logIntervalSeconds: 2,
-						logEnabled: false
+						logEnabled: false  // default paused
 					},
 					dataLog: [],
 					dataLogTimer: null,
@@ -2044,6 +2045,7 @@
 					$("downloadLogBtn").addEventListener("click", downloadLogCsv);
 					$("clearLogBtn").addEventListener("click", clearDataLog);
 					$("alertClose").addEventListener("click", closeAlert);
+					$("activityToggle").addEventListener("click", toggleActivityPanel);
 				}
 
 				function restoreAlertPackages() {
@@ -2160,6 +2162,33 @@
 			if (el) el.classList.remove("section-collapsed");
 		}
 
+		function isActivityCollapsed() {
+			return document.querySelector(".workspace")?.classList.contains("activity-collapsed") ?? true;
+		}
+
+		function toggleActivityPanel() {
+			const workspace = document.querySelector(".workspace");
+			if (!workspace) return;
+			const collapsed = workspace.classList.toggle("activity-collapsed");
+			const icon = document.querySelector(".activity-toggle-icon");
+			if (icon) icon.textContent = collapsed ? "▶" : "◀";
+			try { localStorage.setItem(LS_ACTIVITY, JSON.stringify(collapsed)); } catch {}
+		}
+
+		function applyActivityPanelState() {
+			let collapsed = true; // default collapsed
+			try {
+				const saved = localStorage.getItem(LS_ACTIVITY);
+				if (saved !== null) collapsed = JSON.parse(saved);
+			} catch {}
+			const workspace = document.querySelector(".workspace");
+			if (workspace && collapsed) {
+				workspace.classList.add("activity-collapsed");
+			}
+			const icon = document.querySelector(".activity-toggle-icon");
+			if (icon) icon.textContent = collapsed ? "▶" : "◀";
+		}
+
 		function init() {
 					applyLanguage();
 					loadState();
@@ -2171,6 +2200,11 @@
 				renderFeed();
 				renderReplayPanel();
 				setupCollapsibleSections();
+				applyActivityPanelState();
+				// Default-collapse config-heavy sections so the feed log gets space
+				collapseSection("sectionSettings");
+				collapseSection("sectionLog");
+				collapseSection("sectionReplay");
 				searchEvents();
 				if (state.selectedEvent?.slug) loadEventDetails(state.selectedEvent.slug);
 					hydratePrices(t("gammaInitial"));
