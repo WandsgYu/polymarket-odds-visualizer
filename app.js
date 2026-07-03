@@ -1490,17 +1490,8 @@
 						const configuredWindow = getJumpWindowLabel();
 						const threshold = `${Number(state.settings.jumpThreshold) || 0} pp`;
 						const summary = `${e.outcome} ${e.direction} ${pp(e.change)} | ${windowSeconds}s / ${configuredWindow}s ${t("window")} | ${e.fromTo}`;
-						showAlert(t("moveAlert"), `${e.direction} ${pp(e.change)}`, [
-							{ label: t("alertSummary"), value: summary, wide: true, summary: true },
-							{ label: t("alertProject"), value: projectName, wide: true },
-							{ label: t("alertMarket"), value: marketName, wide: true },
-							{ label: t("alertOutcome"), value: e.outcome },
-							{ label: t("alertMove"), value: `${e.direction} ${pp(e.change)}` },
-							{ label: t("alertWindow"), value: `${windowSeconds}s / ${configuredWindow}s ${t("window")}` },
-							{ label: t("alertFromTo"), value: e.fromTo },
-							{ label: t("alertSource"), value: e.reason },
-							{ label: t("alertThreshold"), value: threshold }
-						]);
+						freezeAlertPackage(watch, entries);
+						showAlert(t("moveAlert"), state.alertPackages[0].id);
 						addFeed(`${t("moveFeed")}：${e.outcome} ${e.direction} ${pp(e.change)}`);
 					} else {
 						// Multiple outcomes — show coalesced alert
@@ -1535,17 +1526,10 @@
 						);
 
 						const summaryText = entries.map((e) => `${e.outcome} ${e.direction} ${pp(e.change)}`).join(" · ");
-						showAlert(
-							`${t("moveAlert")} (×${entries.length})`,
-							mainText,
-							[
-								{ label: t("alertSummary"), value: summaryText, wide: true, summary: true },
-								...detailItems
-							]
-						);
+						freezeAlertPackage(watch, entries);
+						showAlert(`${t("moveAlert")} (×${entries.length})`, state.alertPackages[0].id);
 						addFeed(`${t("moveFeed")}：${summaryText}`);
 					}
-					freezeAlertPackage(watch, entries);
 					renderReplayPanel();
 					flashWatch(watch);
 				}
@@ -1603,7 +1587,8 @@
 				].filter(Boolean);
 					const matchesFilter = filters.length === 0 || filters.some((filter) => message.slug.includes(filter) || filter.includes(message.slug));
 					if (matchesFilter && eventAlertsEnabledForSlug(message.slug) && previous && previous.score && message.score && previous.score !== message.score) {
-							showAlert(t("scoreAlert"), message.score, `${message.slug} · ${message.period || ""} ${message.elapsed || ""}`);
+							freezeAlertPackage(null, [{outcome: message.slug, direction: message.score, change: "", fromTo: `${previous.score || "?"} → ${message.score}`}]);
+						showAlert(t("scoreAlert"), state.alertPackages[0].id);
 							addFeed(`${t("scoreChanged")}：${message.slug} ${previous.score} -> ${message.score}`);
 					}
 				}
@@ -1647,12 +1632,13 @@
 			function freezeAlertPackage(watch, entries) {
 				const now = Date.now();
 				const preSnapshot = state.wsBuffer.map((e) => ({ ...e }));
+				const watchId = watch ? watch.id : (entries[0]?.outcome || "score");
 				const pkg = {
-					id: `alert-${now}-${watch.id}`,
+					id: `alert-${now}-${watchId}`,
 					alertTime: now,
-					watchId: watch.id,
-					eventTitle: watch.eventTitle || watch.eventSlug || "",
-					marketQuestion: watch.marketQuestion || "",
+					watchId: watchId,
+					eventTitle: watch ? (watch.eventTitle || watch.eventSlug || "") : (entries[0]?.outcome || ""),
+					marketQuestion: watch ? (watch.marketQuestion || "") : "",
 					outcomes: entries.map((e) => ({
 						outcome: e.outcome,
 						direction: e.direction,
@@ -1690,60 +1676,72 @@
 					return matchedWatches.some((watch) => watch.alertsEnabled !== false);
 				}
 
-			function showAlert(kicker, main, detail) {
-				$("alertKicker").textContent = kicker;
-				$("alertMain").textContent = main;
-				renderAlertDetail(detail);
-				$("alertOverlay").classList.add("show");
-				startAlertSound();
-			}
-
-			function renderAlertDetail(detail) {
-				const container = $("alertDetail");
-				container.textContent = "";
-				if (!Array.isArray(detail)) {
-					container.textContent = detail;
-					return;
+				function showAlert(kicker, packageId) {
+					$("alertKicker").textContent = kicker;
+					const btn = $("alertCsvBtn");
+					btn.dataset.packageId = packageId;
+					updateAlertCsvHint(packageId);
+					$("alertOverlay").classList.add("show");
+					startAlertSound();
+					// Clear any existing hint-update timer
+					const prevTimer = Number($("alertOverlay").dataset.checkTimer);
+					if (prevTimer) clearInterval(prevTimer);
+					// Set up a timer to update hint when postContext completes
+					const checkComplete = setInterval(() => {
+						const pkg = state.alertPackages.find((p) => p.id === packageId);
+						if (!pkg || pkg.postComplete) {
+							clearInterval(checkComplete);
+							updateAlertCsvHint(packageId);
+						}
+					}, 500);
+					$("alertOverlay").dataset.checkTimer = String(checkComplete);
 				}
-				const grid = document.createElement("div");
-				grid.className = "alert-facts";
-				detail.forEach((item) => {
-					const fact = document.createElement("div");
-					fact.className = `alert-fact${item.wide ? " wide" : ""}${item.summary ? " alert-summary" : ""}`;
-					const label = document.createElement("div");
-					label.className = "alert-label";
-					label.textContent = item.label;
-					const value = document.createElement("div");
-					value.className = "alert-value";
-					value.textContent = item.value;
-					fact.append(label, value);
-					grid.appendChild(fact);
-				});
-				container.appendChild(grid);
-			}
 
-			function startAlertSound() {
-				stopAlertSound();
-				playAlertPattern();
-				audioState.timer = setInterval(playAlertPattern, 950);
-			}
-
-			function stopAlertSound() {
-				if (audioState.timer) {
-					clearInterval(audioState.timer);
-					audioState.timer = null;
+				function updateAlertCsvHint(packageId) {
+					const pkg = state.alertPackages.find((p) => p.id === packageId);
+					const btn = $("alertCsvBtn");
+					if (!pkg || !btn) return;
+					const total = (pkg.preContext || []).length + (pkg.postContext || []).length;
+					if (pkg.postComplete) {
+						btn.textContent = `Download WS Log CSV (${total} messages, ±10s window)`;
+					} else {
+						btn.textContent = `Download WS Log CSV (${total} messages, capturing…)`;
+					}
 				}
-				audioState.nodes.forEach((node) => {
-					try { node.stop(); } catch {}
-					try { node.disconnect(); } catch {}
-				});
-				audioState.nodes = [];
-			}
 
-			function closeAlert() {
-				$("alertOverlay").classList.remove("show");
-				stopAlertSound();
-			}
+				function downloadAlertCsv(packageId) {
+					const pkg = state.alertPackages.find((p) => p.id === packageId);
+					if (!pkg) return;
+					const messages = [...(pkg.preContext || []), ...(pkg.postContext || [])];
+					const csv = wsMessagesToCsv(messages);
+					const timeStr = new Date(pkg.alertTime).toISOString().replace(/[:.]/g, "-").slice(0, 19);
+					downloadBlob(csv, `ws-log-alert-${timeStr}.csv`, "text/csv;charset=utf-8");
+				}
+
+				function wsMessagesToCsv(messages) {
+					const fields = ["time_iso", "time_epoch_ms", "type", "data_json"];
+					const esc = (value) => `"${String(value ?? "").replaceAll("\"", "\"\"")}"`;
+					return [
+						fields.join(","),
+						...messages.map((m) => {
+							const timeIso = new Date(m.time).toISOString();
+							return [
+								esc(timeIso),
+								esc(m.time),
+								esc(m.type),
+								esc(JSON.stringify(m.data))
+							].join(",");
+						})
+					].join("\n");
+				}
+
+				function closeAlert() {
+					$("alertOverlay").classList.remove("show");
+					stopAlertSound();
+					const timerId = Number($("alertOverlay").dataset.checkTimer);
+					if (timerId) clearInterval(timerId);
+					delete $("alertOverlay").dataset.checkTimer;
+				}
 
 			function playAlertPattern() {
 				try {
@@ -1998,7 +1996,22 @@
 					connectMarketWs();
 					connectSportsWs();
 				});
-					$("testAlertBtn").addEventListener("click", () => showAlert(t("testAlert"), "GOAL?", t("testAlertDetail")));
+					$("testAlertBtn").addEventListener("click", () => {
+						const now = Date.now();
+						const pkg = {
+							id: `alert-${now}-test`,
+							alertTime: now,
+							watchId: "test",
+							eventTitle: "Test Alert",
+							marketQuestion: "",
+							outcomes: [{ outcome: "Test", direction: "↑", change: "+0.0pp", fromTo: "0 → 0" }],
+							preContext: state.wsBuffer.map((e) => ({ ...e })),
+							postContext: [],
+							postComplete: true
+						};
+						state.alertPackages.unshift(pkg);
+						showAlert(t("testAlert"), pkg.id);
+					});
 				$("jumpWindowSeconds").addEventListener("change", (event) => {
 					state.settings.jumpWindowSeconds = Math.max(0.2, Math.min(10, Number(event.target.value) || 1.5));
 					event.target.value = state.settings.jumpWindowSeconds;
@@ -2045,6 +2058,10 @@
 					$("downloadLogBtn").addEventListener("click", downloadLogCsv);
 					$("clearLogBtn").addEventListener("click", clearDataLog);
 					$("alertClose").addEventListener("click", closeAlert);
+					$("alertCsvBtn").addEventListener("click", () => {
+						const packageId = $("alertCsvBtn").dataset.packageId;
+						if (packageId) downloadAlertCsv(packageId);
+					});
 					$("activityToggle").addEventListener("click", toggleActivityPanel);
 					$("fullscreenBtn").addEventListener("click", toggleFullscreenDashboard);
 					$("fullscreenExitBtn").addEventListener("click", toggleFullscreenDashboard);

@@ -32,6 +32,14 @@
 					</span>
 					<select id="langSelect" class="select lang-select" aria-label="Language"></select>
 				</div>
+						<button class="fullscreen-btn" id="fullscreenBtn" title="Fullscreen dashboard" aria-label="Fullscreen dashboard">
+							<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+								<polyline points="15 3 21 3 21 9"></polyline>
+								<polyline points="9 21 3 21 3 15"></polyline>
+								<line x1="21" y1="3" x2="14" y2="10"></line>
+								<line x1="3" y1="21" x2="10" y2="14"></line>
+							</svg>
+						</button>
 					<div class="pill"><span id="marketDot" class="dot warn"></span><span id="marketStatus">Market WS not connected</span></div>
 					<div class="pill"><span id="sportsDot" class="dot warn"></span><span id="sportsStatus">Sports WS not connected</span></div>
 			</div>
@@ -68,14 +76,6 @@
 						</div>
 					</div>
 				</div>
-				<button class="fullscreen-btn" id="fullscreenBtn" title="Fullscreen dashboard" aria-label="Fullscreen dashboard">
-					<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-						<polyline points="15 3 21 3 21 9"></polyline>
-						<polyline points="9 21 3 21 3 15"></polyline>
-						<line x1="21" y1="3" x2="14" y2="10"></line>
-						<line x1="3" y1="21" x2="10" y2="14"></line>
-					</svg>
-				</button>
 				<button class="fullscreen-exit-btn" id="fullscreenExitBtn" title="Exit fullscreen" aria-label="Exit fullscreen">
 					<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
 						<polyline points="4 8 4 4 8 4"></polyline>
@@ -154,9 +154,10 @@
 	<div id="alertOverlay" class="alert-overlay" role="dialog" aria-live="assertive">
 		<div class="alert-box">
 				<div class="alert-kicker" id="alertKicker">Move Alert</div>
-				<div class="alert-main" id="alertMain">GOAL?</div>
-				<div class="alert-detail" id="alertDetail">Market or score changed quickly</div>
-				<button id="alertClose" class="btn alert-close" data-i18n="closeButton">Close</button>
+				<div class="alert-csv-area" id="alertCsvArea">
+					<button class="btn primary alert-csv-btn" id="alertCsvBtn">Download WS Log CSV (10s before & after)</button>
+				</div>
+					<button id="alertClose" class="btn alert-close" data-i18n="closeButton">Close</button>
 		</div>
 	</div>
 

@@ -573,7 +573,6 @@ button {
 	display: grid;
 	grid-template-rows: auto minmax(0, 1fr);
 	container-type: inline-size;
-	position: relative;
 }
 
 .hero {
@@ -924,7 +923,7 @@ button {
 	right: 18px;
 	z-index: 80;
 	display: none;
-	width: min(560px, calc(100vw - 36px));
+	width: min(420px, calc(100vw - 36px));
 	pointer-events: none;
 }
 
@@ -953,67 +952,26 @@ button {
 	color: #bbf7d0;
 	font-size: 13px;
 	font-weight: 850;
+	margin-bottom: 12px;
 }
 
-.alert-main {
-	margin-top: 8px;
-	font-size: 42px;
-	line-height: 1;
-	font-weight: 950;
-	letter-spacing: 0;
-}
-
-.alert-detail {
-	margin-top: 12px;
-	color: #dcfce7;
-	font-size: 13px;
-	line-height: 1.45;
-}
-
-.alert-summary {
-	padding: 11px 12px;
-	border-radius: 8px;
-	border: 1px solid rgba(255, 255, 255, 0.22);
-	background: rgba(255, 255, 255, 0.12);
-	color: #f0fdf4;
-	font-size: 15px;
-	font-weight: 850;
-	line-height: 1.35;
-}
-
-.alert-facts {
-	display: grid;
-	grid-template-columns: 1fr 1fr;
+.alert-csv-area {
+	display: flex;
+	flex-direction: column;
 	gap: 8px;
-	margin-top: 10px;
 }
 
-.alert-fact {
-	min-width: 0;
-	padding: 9px 10px;
-	border-radius: 8px;
-	background: rgba(2, 6, 23, 0.22);
-	border: 1px solid rgba(255, 255, 255, 0.12);
+.alert-csv-btn {
+	width: 100%;
+	height: 42px;
+	font-size: 13px;
 }
 
-.alert-fact.wide {
-	grid-column: 1 / -1;
-}
-
-.alert-label {
-	margin-bottom: 4px;
+.alert-csv-hint {
 	color: #bbf7d0;
 	font-size: 11px;
-	font-weight: 850;
-	text-transform: uppercase;
-}
-
-.alert-value {
-	color: #ffffff;
-	font-size: 14px;
-	font-weight: 760;
-	line-height: 1.35;
-	overflow-wrap: anywhere;
+	line-height: 1.4;
+	opacity: 0.7;
 }
 
 .alert-close {
@@ -1166,12 +1124,6 @@ button {
 	.controls {
 		grid-template-columns: 1fr;
 	}
-	.alert-main {
-		font-size: 34px;
-	}
-	.alert-facts {
-		grid-template-columns: 1fr;
-	}
 	.watch-grid.quad {
 		grid-template-columns: 1fr;
 		grid-template-rows: none;
@@ -1312,20 +1264,17 @@ button {
 
 /* ── Fullscreen dashboard ── */
 .fullscreen-btn {
-	position: absolute;
-	top: 10px;
-	right: 10px;
-	z-index: 10;
-	width: 34px;
-	height: 34px;
+	display: inline-grid;
+	place-items: center;
+	width: 36px;
+	height: 36px;
 	padding: 0;
-	border-radius: 7px;
+	border-radius: 8px;
 	background: rgba(255, 255, 255, 0.06);
 	border: 1px solid rgba(255, 255, 255, 0.13);
 	color: var(--muted);
-	display: grid;
-	place-items: center;
 	cursor: pointer;
+	flex-shrink: 0;
 	transition: background 0.15s, color 0.15s, border-color 0.15s;
 }
 
@@ -1397,7 +1346,6 @@ button {
 	border-radius: 0;
 	border: none;
 	background: var(--bg);
-	position: relative;
 }
 
 .fullscreen-dashboard .watch-grid {
