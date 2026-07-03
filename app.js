@@ -1743,6 +1743,24 @@
 					delete $("alertOverlay").dataset.checkTimer;
 				}
 
+				function startAlertSound() {
+					stopAlertSound();
+					playAlertPattern();
+					audioState.timer = setInterval(playAlertPattern, 950);
+				}
+
+				function stopAlertSound() {
+					if (audioState.timer) {
+						clearInterval(audioState.timer);
+						audioState.timer = null;
+					}
+					audioState.nodes.forEach((node) => {
+						try { node.stop(); } catch {}
+						try { node.disconnect(); } catch {}
+					});
+					audioState.nodes = [];
+				}
+
 			function playAlertPattern() {
 				try {
 					const AudioContext = window.AudioContext || window.webkitAudioContext;
