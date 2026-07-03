@@ -2046,6 +2046,13 @@
 					$("clearLogBtn").addEventListener("click", clearDataLog);
 					$("alertClose").addEventListener("click", closeAlert);
 					$("activityToggle").addEventListener("click", toggleActivityPanel);
+					$("fullscreenBtn").addEventListener("click", toggleFullscreenDashboard);
+					$("fullscreenExitBtn").addEventListener("click", toggleFullscreenDashboard);
+					document.addEventListener("keydown", (event) => {
+						if (event.key === "Escape" && document.body.classList.contains("fullscreen-dashboard")) {
+							toggleFullscreenDashboard();
+						}
+					});
 				}
 
 				function restoreAlertPackages() {
@@ -2173,6 +2180,10 @@
 			const icon = document.querySelector(".activity-toggle-icon");
 			if (icon) icon.textContent = collapsed ? "▶" : "◀";
 			try { localStorage.setItem(LS_ACTIVITY, JSON.stringify(collapsed)); } catch {}
+		}
+
+		function toggleFullscreenDashboard() {
+			document.body.classList.toggle("fullscreen-dashboard");
 		}
 
 		function applyActivityPanelState() {
