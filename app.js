@@ -1680,33 +1680,31 @@
 					$("alertKicker").textContent = kicker;
 					const btn = $("alertCsvBtn");
 					btn.dataset.packageId = packageId;
-					updateAlertCsvHint(packageId);
+					btn.textContent = "Capturing WS log data… (auto-download when ready)";
 					$("alertOverlay").classList.add("show");
 					startAlertSound();
 					// Clear any existing hint-update timer
 					const prevTimer = Number($("alertOverlay").dataset.checkTimer);
 					if (prevTimer) clearInterval(prevTimer);
-					// Set up a timer to update hint when postContext completes
+					// Poll until postContext capture is complete, then auto-download
 					const checkComplete = setInterval(() => {
 						const pkg = state.alertPackages.find((p) => p.id === packageId);
-						if (!pkg || pkg.postComplete) {
+						if (!pkg) {
 							clearInterval(checkComplete);
-							updateAlertCsvHint(packageId);
+							return;
+						}
+						if (pkg.postComplete) {
+							clearInterval(checkComplete);
+							// Auto-download the complete ±10s CSV
+							downloadAlertCsv(packageId);
+							const total = (pkg.preContext || []).length + (pkg.postContext || []).length;
+							btn.textContent = `Downloaded ✓ (${total} messages, ±10s window) — click to re-download`;
+						} else {
+							const total = (pkg.preContext || []).length + (pkg.postContext || []).length;
+							btn.textContent = `Capturing WS log data… ${total} msgs so far`;
 						}
 					}, 500);
 					$("alertOverlay").dataset.checkTimer = String(checkComplete);
-				}
-
-				function updateAlertCsvHint(packageId) {
-					const pkg = state.alertPackages.find((p) => p.id === packageId);
-					const btn = $("alertCsvBtn");
-					if (!pkg || !btn) return;
-					const total = (pkg.preContext || []).length + (pkg.postContext || []).length;
-					if (pkg.postComplete) {
-						btn.textContent = `Download WS Log CSV (${total} messages, ±10s window)`;
-					} else {
-						btn.textContent = `Download WS Log CSV (${total} messages, capturing…)`;
-					}
 				}
 
 				function downloadAlertCsv(packageId) {
