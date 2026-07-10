@@ -1,6 +1,6 @@
 # Polymarket Odds Radar
 
-[GitHub](https://github.com/WandsgYu/polymarket-odds-radar) · [在线体验](https://wandsgyu.github.io/polymarket-odds-radar/)
+[GitHub](https://github.com/WandsgYu/polymarket-odds-radar) · [在线体验](https://wandsgyu.github.io/polymarket-odds-visualizer/)
 
 实时监控 Polymarket 市场异动，在赔率剧烈变化时立即发出提醒。
 
