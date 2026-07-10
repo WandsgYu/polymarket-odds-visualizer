@@ -1,253 +1,124 @@
-# Polymarket Odds Radar
+# Polymarket Goal Pulse
 
-[GitHub](https://github.com/WandsgYu/polymarket-odds-radar) · [在线体验](https://wandsgyu.github.io/polymarket-odds-visualizer/)
+**English** | [简体中文](./README.zh-CN.md)
 
-实时监控 Polymarket 市场异动，在赔率剧烈变化时立即发出提醒。
+[Live Demo](https://wandsgyu.github.io/polymarket-odds-visualizer/) · [GitHub Repository](https://github.com/WandsgYu/polymarket-odds-visualizer)
 
-一个专注于概率变化监控（Probability Monitoring）的 Polymarket 本地工具。
+A real-time Polymarket movement radar that runs in your browser and alerts you when market probabilities move fast.
 
-与传统行情面板不同，Odds Radar 不关心你正在看什么市场，而是帮你发现：
+> Goal Pulse is a monitoring tool, not a trading bot. It never places trades for you.
 
-> 哪些市场刚刚发生了变化。
+## Why Goal Pulse?
 
----
+The most useful signal on Polymarket is often not the current probability, but what just changed.
 
-## 为什么做这个项目
+- A market jumps several percentage points within seconds.
+- A goal causes related sports markets to reprice.
+- Breaking news starts moving a previously quiet market.
+- One of many watched markets suddenly becomes active.
 
-Polymarket 最有价值的信息往往不是当前价格，而是变化本身。
+Manually refreshing multiple markets makes these moments easy to miss. Goal Pulse continuously watches them and brings the important changes to your attention.
 
-例如：
+## Features
 
-- 某个事件突然上涨 10%。
-- 某个球队进球后赔率瞬间变化。
-- 某个新闻出现后市场开始重新定价。
-- 某个长期横盘的市场突然出现异动。
+- **Real-time market monitoring** through the Polymarket Market WebSocket.
+- **Configurable movement detection** with custom time windows, thresholds, and cooldowns.
+- **Persistent sound and visual alerts** for significant market or score changes.
+- **Multi-market watchlist** for monitoring several outcomes on one screen.
+- **Sports score signals** through the Polymarket Sports WebSocket.
+- **Market quality filtering** based on spread.
+- **Local data capture** with configurable sampling and CSV export.
+- **Multilingual interface** in English, 中文, 日本語, 한국어, and Español.
 
-如果你同时关注多个市场，靠手动刷新页面很容易错过这些信号。
+## Try It Now
 
-因此我构建了 Odds Radar。
+No installation is required:
 
-它负责持续监听市场。当出现明显异动时：
+**[Open the live Goal Pulse dashboard](https://wandsgyu.github.io/polymarket-odds-visualizer/)**
 
-- 页面高亮提醒。
-- 声音报警。
-- 事件记录。
+Click **Test Alert** once after opening the page so your browser can enable alert audio.
 
-让你第一时间注意到变化。
+## Run Locally
 
----
-
-## 核心功能
-
-### 实时赔率监控
-
-- 通过 Polymarket Market WebSocket 获取实时价格数据。
-- 自动更新市场价格。
-- 支持同时监控多个市场。
-- 通过 Gamma API 搜索事件和读取市场元数据。
-
-### 异动检测
-
-支持自定义：
-
-- 检测时间窗口。
-- 触发阈值。
-- 冷却时间。
-
-例如：
-
-```text
-3 秒内上涨 8%
-立即报警
-```
-
-### 声音报警
-
-当市场发生剧烈变化时：
-
-```text
-🔔 自动播放报警音
-```
-
-即使你正在看比赛、刷网页或者处理其他事情，也不会错过关键变化。
-
-### 赛事比分联动
-
-支持：
-
-- 比分变化监控。
-- 比赛状态变化监控。
-- 市场赔率联动观察。
-
-适合：
-
-- 电竞。
-- 足球。
-- 篮球。
-- 其他体育预测市场。
-
-### 市场过滤
-
-支持：
-
-- Spread 过滤。
-- 低质量市场过滤。
-- 结合成交量信息观察市场质量。
-
-减少噪音。
-
-### 数据记录
-
-自动采样价格变化：
-
-- 浏览器本地记录。
-- CSV 导出。
-- 后续分析。
-
----
-
-## 使用场景
-
-### 观看体育赛事
-
-打开比赛直播。
-
-让 Odds Radar 负责监控市场。
-
-当赔率发生明显变化时自动提醒。
-
-### 监控突发新闻
-
-例如：
-
-- 美国大选。
-- 战争冲突。
-- 美联储决议。
-- OpenAI 相关新闻。
-
-当市场开始重新定价时第一时间发现。
-
-### 多市场同时盯盘
-
-无需反复切换网页。
-
-让系统自动发现异常变化。
-
----
-
-## 技术架构
-
-```text
-Gamma API
-     ↓
-事件搜索
-     ↓
-Market WebSocket
-     ↓
-实时价格流
-     ↓
-异动检测引擎
-     ↓
-页面告警 + 声音告警
-```
-
----
-
-## 本地运行
+The project has no package dependencies. Clone the repository and run a static server from the project directory:
 
 ```bash
 python3 -m http.server 5173 --bind 127.0.0.1
 ```
 
-打开：
+Then open:
 
 ```text
 http://127.0.0.1:5173
 ```
 
-当前版本不需要安装依赖。项目主要由一个前端文件组成：
+## How It Works
 
-- `index.html`：前端界面、WebSocket 连接、异动检测和提醒逻辑。
+```text
+Gamma API
+    ↓
+Event search and market metadata
+    ↓
+Market WebSocket + Sports WebSocket
+    ↓
+Live price and score updates
+    ↓
+Movement detection
+    ↓
+Visual alert + sound alert + local log
+```
 
----
+## Use Cases
 
-## 配置项
+- Watch football, basketball, or esports markets while following a live match.
+- Monitor election, macro, technology, and breaking-news markets.
+- Track several markets without repeatedly switching tabs and refreshing pages.
+- Export data around alerts to study how quickly markets react.
 
-| 配置 | 默认值 | 作用 |
+## Default Settings
+
+| Setting | Default | Purpose |
 | --- | ---: | --- |
-| 突变统计窗口 | `1.5` 秒 | 用多短的时间窗口判断概率变化。 |
-| 价格突变阈值 | `8` 个百分点 | 超过多少概率变化才触发提醒。 |
-| 单市场静默期 | `20` 秒 | 同一 token 触发后多久内不重复提醒。 |
-| 最大市场价差 | `0.08` | 过滤价差过大的市场。 |
-| 时钟时区 | `Asia/Shanghai` | 控制页面时钟显示。 |
-| 数据采样间隔 | `2` 秒 | 价格日志的采样频率。 |
+| Movement window | `1.5s` | Time window used to measure a fast probability move |
+| Movement threshold | `8pp` | Minimum percentage-point change required for an alert |
+| Per-market cooldown | `20s` | Prevents repeated alerts from the same token |
+| Maximum spread | `0.08` | Filters markets with an excessive spread |
+| Log interval | `2s` | Sampling frequency for the local price log |
 
-配置和已监控市场保存在当前浏览器的 `localStorage` 中。
+Settings and watched markets are stored in the current browser's `localStorage`.
 
----
+## Data Sources
 
-## 数据来源
+- **Gamma API** for event search, market metadata, CLOB token IDs, and initial prices.
+- **Market WebSocket** for `price_change`, `best_bid_ask`, and `last_trade_price` events.
+- **Sports WebSocket** for sports scores and match-state changes.
 
-### Gamma API
+The frontend connects to these sources directly and does not require a local Python proxy.
 
-- 搜索事件。
-- 获取事件详情。
-- 获取 CLOB token ID。
-- 获取初始价格。
-- 手动和低频价格校准。
+## Current Limitations
 
-### Market WebSocket
-
-- 实时 CLOB 市场事件。
-- `price_change`。
-- `best_bid_ask`。
-- `last_trade_price`。
-
-### Sports WebSocket
-
-- 体育赛事比分和赛况变化。
-- 对匹配的已监控事件触发比分变化提醒。
-
-前端直接访问 Gamma API，不再依赖本地 Python 代理。
-
----
-
-## 当前限制
-
-- 只有带 CLOB token ID 的市场才能使用 Market WebSocket 实时监控。
-- 没有 CLOB token ID 的市场可能不会显示或无法实时监听。
-- 体育比分提醒是辅助信号，不等同于官方结果确认。
-- 声音提醒依赖浏览器音频策略，可能需要用户先与页面交互。
-- 当前日志主要保存在浏览器内存中；没有实现持久化日志存储。
-- 当前外部通知能力还没有实现。
-
----
-
-## 项目特点
-
-Odds Radar 只关注一件事：
-
-> 发现异常变化。
-
-它不是交易机器人，不负责下单。
-
-它不是完整行情终端，不追求展示所有市场信息。
-
-它更像一个放在本地浏览器里的概率异动雷达。
-
----
+- Real-time Market WebSocket monitoring requires a market with CLOB token IDs.
+- Sports score alerts are supporting signals, not official result confirmation.
+- Browser audio policies may require you to click **Test Alert** before sound can play.
+- Logs are primarily stored in the current browser and are not persisted to a cloud service.
+- External notifications such as Telegram, Discord, or email are not implemented yet.
+- This tool does not execute trades and is not financial advice.
 
 ## Tech Stack
 
-- Plain HTML / CSS / JavaScript。
-- Polymarket Gamma API。
-- Polymarket CLOB Market WebSocket。
-- Polymarket Sports WebSocket。
-- Browser `localStorage`。
-- Browser Web Audio API。
+- Plain HTML / CSS / JavaScript
+- Polymarket Gamma API
+- Polymarket CLOB Market WebSocket
+- Polymarket Sports WebSocket
+- Browser `localStorage`
+- Web Audio API
 
----
+## Feedback and Contributions
+
+Bug reports and feature ideas are welcome in [GitHub Issues](https://github.com/WandsgYu/polymarket-odds-visualizer/issues).
+
+If Goal Pulse is useful to you, consider giving the repository a Star. It helps signal that this is worth improving.
 
 ## License
 
-当前仓库尚未包含 `LICENSE` 文件。公开发布或接受外部贡献前，建议补充许可证。
+No open-source license has been selected yet. The source is publicly viewable, but default copyright rules apply until a license is added.
