@@ -1676,13 +1676,13 @@
 					return matchedWatches.some((watch) => watch.alertsEnabled !== false);
 				}
 
-				async function showAlert(kicker, packageId) {
+				function showAlert(kicker, packageId) {
 					$("alertKicker").textContent = kicker;
 					const btn = $("alertCsvBtn");
 					btn.dataset.packageId = packageId;
 					btn.textContent = "Capturing WS log data… (auto-download when ready)";
 					$("alertOverlay").classList.add("show");
-					await startAlertSound();
+					startAlertSound();
 					// Clear any existing hint-update timer
 					const prevTimer = Number($("alertOverlay").dataset.checkTimer);
 					if (prevTimer) clearInterval(prevTimer);
@@ -1741,9 +1741,9 @@
 					delete $("alertOverlay").dataset.checkTimer;
 				}
 
-				async function startAlertSound() {
+				function startAlertSound() {
 					stopAlertSound();
-					await playAlertPattern();
+					void playAlertPattern();
 					audioState.timer = setInterval(() => {
 						void playAlertPattern();
 					}, 950);
