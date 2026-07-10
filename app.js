@@ -1676,13 +1676,13 @@
 					return matchedWatches.some((watch) => watch.alertsEnabled !== false);
 				}
 
-				function showAlert(kicker, packageId) {
+				async function showAlert(kicker, packageId) {
 					$("alertKicker").textContent = kicker;
 					const btn = $("alertCsvBtn");
 					btn.dataset.packageId = packageId;
 					btn.textContent = "Capturing WS log data… (auto-download when ready)";
 					$("alertOverlay").classList.add("show");
-					startAlertSound();
+					await startAlertSound();
 					// Clear any existing hint-update timer
 					const prevTimer = Number($("alertOverlay").dataset.checkTimer);
 					if (prevTimer) clearInterval(prevTimer);
@@ -1741,10 +1741,12 @@
 					delete $("alertOverlay").dataset.checkTimer;
 				}
 
-				function startAlertSound() {
+				async function startAlertSound() {
 					stopAlertSound();
-					playAlertPattern();
-					audioState.timer = setInterval(playAlertPattern, 950);
+					await playAlertPattern();
+					audioState.timer = setInterval(() => {
+						void playAlertPattern();
+					}, 950);
 				}
 
 				function stopAlertSound() {
@@ -1759,12 +1761,14 @@
 					audioState.nodes = [];
 				}
 
-			function playAlertPattern() {
+			async function playAlertPattern() {
 				try {
 					const AudioContext = window.AudioContext || window.webkitAudioContext;
+					if (!AudioContext) throw new Error("Web Audio API is unavailable");
 					const ctx = audioState.context || new AudioContext();
 					audioState.context = ctx;
-					if (ctx.state === "suspended") ctx.resume();
+					if (ctx.state === "suspended") await ctx.resume();
+					if (ctx.state !== "running") throw new Error(`AudioContext is ${ctx.state}`);
 					const gain = ctx.createGain();
 					gain.gain.setValueAtTime(0.001, ctx.currentTime);
 					gain.gain.exponentialRampToValueAtTime(0.48, ctx.currentTime + 0.02);
@@ -1783,8 +1787,8 @@
 						try { gain.disconnect(); } catch {}
 						audioState.nodes = audioState.nodes.filter((node) => node.context && node.context.currentTime < 0);
 					}, 900);
-				} catch {
-					// Audio is best-effort.
+				} catch (error) {
+					console.warn("Alert sound could not start:", error);
 				}
 			}
 
@@ -2026,7 +2030,7 @@
 							postComplete: true
 						};
 						state.alertPackages.unshift(pkg);
-						showAlert(t("testAlert"), pkg.id);
+						void showAlert(t("testAlert"), pkg.id);
 					});
 				$("jumpWindowSeconds").addEventListener("change", (event) => {
 					state.settings.jumpWindowSeconds = Math.max(0.2, Math.min(10, Number(event.target.value) || 1.5));
