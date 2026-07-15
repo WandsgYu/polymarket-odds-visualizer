@@ -126,4 +126,4 @@ Bug reports and focused feature ideas are welcome in [GitHub Issues](https://git
 
 ## License
 
-No open-source license has been selected. The source is publicly viewable, but default copyright rules apply.
+[MIT](LICENSE)

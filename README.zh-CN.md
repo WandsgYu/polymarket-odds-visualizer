@@ -123,4 +123,4 @@ Market WebSocket + Sports WebSocket
 
 ## License
 
-当前仓库尚未选择开源许可证。在许可证确定前，代码可公开查看，但默认版权规则仍然适用。
+[MIT](LICENSE)
