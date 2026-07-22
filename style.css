@@ -392,7 +392,10 @@ button {
 	flex-direction: column;
 	flex: 1 1 auto;
 	min-height: 0;
-	overflow: hidden;
+	overflow-x: hidden;
+	overflow-y: auto;
+	overscroll-behavior: contain;
+	scrollbar-gutter: stable;
 }
 
 .activity-collapsed .activity-content {

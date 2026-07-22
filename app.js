@@ -10,10 +10,7 @@
 			const $ = (id) => document.getElementById(id);
 			const LANGUAGE_OPTIONS = [
 				{ value: "en", nativeName: "English", htmlLang: "en" },
-				{ value: "zh", nativeName: "中文", htmlLang: "zh-CN" },
-				{ value: "ja", nativeName: "日本語", htmlLang: "ja" },
-				{ value: "ko", nativeName: "한국어", htmlLang: "ko" },
-				{ value: "es", nativeName: "Español", htmlLang: "es" }
+				{ value: "zh", nativeName: "中文", htmlLang: "zh-CN" }
 			];
 			const i18n = {
 				en: {
@@ -223,176 +220,17 @@
 					feedEmpty: "等待 WebSocket 或搜索动作。"
 				}
 			};
-			i18n.ja = {
-				...i18n.en,
-				brandSubtitle: "試合を検索し、マーケットを監視し、急な変化を検知",
-				languageLabel: "言語",
-				searchTitle: "1. イベント検索",
-				searchPlaceholder: "チーム、リーグ、イベントキーワード",
-				searchButton: "検索",
-				searchHelp: "イベントを検索して選択し、対象マーケットを監視に追加します。",
-				headline: "監視するマーケットを選択",
-				selectedHeadline: "選択中のイベント",
-				subline: "このページを開いたままにすると、マーケットとスコアの変化を継続的に追跡し、大きな変化を通知します。",
-				actionsTitle: "監視操作",
-				connectButton: "リアルタイム監視を開始",
-				testButton: "通知テスト",
-				settingsTitle: "アラート設定",
-				timeZoneLabel: "タイムゾーン",
-				jumpWindowLabel: "変動判定ウィンドウ（秒）",
-				jumpThresholdLabel: "価格変動しきい値（ポイント）",
-				quietSecondsLabel: "同一マーケットの静音秒数",
-				maxSpreadLabel: "最大スプレッド",
-				logTitle: "データログ",
-				logIntervalLabel: "記録間隔（秒）",
-				pauseLogButton: "ログ停止",
-				resumeLogButton: "ログ再開",
-				downloadLogButton: "CSV ダウンロード",
-				clearLogButton: "ログ削除",
-				closeButton: "閉じる",
-				resultsLoading: "検索中...",
-				resultsEmpty: "イベントが見つかりません。別のキーワードを試してください。",
-				searchFailed: "検索に失敗しました",
-				eventLoading: "イベント詳細を読み込み中...",
-				eventFailed: "イベント詳細の読み込みに失敗しました",
-				eventLoaded: "イベントを読み込みました",
-				marketsTitle: "2. マーケット選択",
-				spread: "スプレッド",
-				monitorMarket: "マーケットを監視",
-				monitorMatch: "1X2 ボードを追加",
-				matchStripFound: "この試合の 1X2 マーケットを検出",
-				matchStripUnavailable: "このイベントでは完全な 1X2 マーケットを検出できません。",
-				watchEmpty: "まだ監視項目がありません。左側でイベントを検索し、マーケットを追加してください。",
-				removeTitle: "削除",
-				watchRemoved: "マーケットを削除しました",
-				alertsOn: "通知オン",
-				alertsOff: "通知なし",
-				up: "上昇",
-				down: "下落",
-				moveAlert: "マーケット変動",
-				scoreAlert: "スコア通知",
-				scoreChanged: "スコア変化",
-				testAlert: "通知テスト",
-				testAlertDetail: "音とポップアップは手動で閉じるまで続きます",
-				feedEmpty: "WebSocket または検索操作を待機中。"
-			};
-			i18n.ko = {
-				...i18n.en,
-				brandSubtitle: "경기를 검색하고, 마켓을 모니터링하고, 빠른 변화를 포착",
-				languageLabel: "언어",
-				searchTitle: "1. 이벤트 검색",
-				searchPlaceholder: "팀, 리그 또는 이벤트 키워드",
-				searchButton: "검색",
-				searchHelp: "이벤트를 검색해 선택한 뒤 모니터링할 마켓을 추가하세요.",
-				headline: "모니터링할 마켓 선택",
-				selectedHeadline: "선택한 이벤트",
-				subline: "이 페이지를 열어 두면 마켓과 점수 변화를 계속 추적하고, 의미 있는 변화가 있을 때 알림을 보냅니다.",
-				actionsTitle: "모니터링 작업",
-				connectButton: "실시간 모니터링 시작",
-				testButton: "알림 테스트",
-				settingsTitle: "알림 설정",
-				timeZoneLabel: "시간대 설정",
-				jumpWindowLabel: "변동 감지 구간(초)",
-				jumpThresholdLabel: "가격 변동 임계값(포인트)",
-				quietSecondsLabel: "동일 마켓 알림 제한(초)",
-				maxSpreadLabel: "최대 스프레드",
-				logTitle: "데이터 로그",
-				logIntervalLabel: "기록 간격(초)",
-				pauseLogButton: "로그 일시정지",
-				resumeLogButton: "로그 재개",
-				downloadLogButton: "CSV 다운로드",
-				clearLogButton: "로그 삭제",
-				closeButton: "닫기",
-				resultsLoading: "검색 중...",
-				resultsEmpty: "이벤트를 찾을 수 없습니다. 다른 키워드를 시도하세요.",
-				searchFailed: "검색 실패",
-				eventLoading: "이벤트 세부정보 로딩 중...",
-				eventFailed: "이벤트 세부정보 로딩 실패",
-				eventLoaded: "이벤트 로드됨",
-				marketsTitle: "2. 마켓 선택",
-				spread: "스프레드",
-				monitorMarket: "마켓 모니터링",
-				monitorMatch: "1X2 보드 추가",
-				matchStripFound: "이 경기의 1X2 마켓을 감지했습니다",
-				matchStripUnavailable: "이 이벤트에서는 완전한 1X2 마켓을 찾지 못했습니다.",
-				watchEmpty: "아직 모니터링 항목이 없습니다. 왼쪽에서 이벤트를 검색한 뒤 마켓을 추가하세요.",
-				removeTitle: "삭제",
-				watchRemoved: "마켓 삭제됨",
-				alertsOn: "알림 켜짐",
-				alertsOff: "알림 없음",
-				up: "상승",
-				down: "하락",
-				moveAlert: "마켓 변동",
-				scoreAlert: "점수 알림",
-				scoreChanged: "점수 변경",
-				testAlert: "알림 테스트",
-				testAlertDetail: "소리와 팝업은 직접 닫을 때까지 계속됩니다",
-				feedEmpty: "WebSocket 또는 검색 작업을 기다리는 중."
-			};
-			i18n.es = {
-				...i18n.en,
-				brandSubtitle: "Busca eventos, monitorea mercados y detecta cambios rápidos",
-				languageLabel: "Idioma",
-				searchTitle: "1. Buscar eventos",
-				searchPlaceholder: "Equipo, liga o palabra clave",
-				searchButton: "Buscar",
-				searchHelp: "Busca un evento, selecciónalo y luego añade un mercado para monitorear.",
-				headline: "Elige un mercado para monitorear",
-				selectedHeadline: "Evento seleccionado",
-				subline: "Mantén esta página abierta para seguir mercados y marcadores en vivo. Recibirás una alerta cuando haya un cambio importante.",
-				actionsTitle: "Controles",
-				connectButton: "Iniciar monitoreo en vivo",
-				testButton: "Probar alerta",
-				settingsTitle: "Alertas",
-				timeZoneLabel: "Zona horaria",
-				jumpWindowLabel: "Ventana de movimiento (segundos)",
-				jumpThresholdLabel: "Umbral de movimiento (puntos)",
-				quietSecondsLabel: "Silencio por mercado (segundos)",
-				maxSpreadLabel: "Spread máximo",
-				logTitle: "Registro de datos",
-				logIntervalLabel: "Intervalo de muestra (segundos)",
-				pauseLogButton: "Pausar registro",
-				resumeLogButton: "Reanudar registro",
-				downloadLogButton: "Descargar CSV",
-				clearLogButton: "Borrar registro",
-				closeButton: "Cerrar",
-				resultsLoading: "Buscando...",
-				resultsEmpty: "No se encontraron eventos. Prueba otra palabra clave.",
-				searchFailed: "Error de búsqueda",
-				eventLoading: "Cargando detalles del evento...",
-				eventFailed: "No se pudieron cargar los detalles",
-				eventLoaded: "Evento cargado",
-				marketsTitle: "2. Elegir mercado",
-				spread: "Spread",
-				monitorMarket: "Monitorear mercado",
-				monitorMatch: "Añadir panel 1X2",
-				matchStripFound: "Mercados 1X2 detectados para este partido",
-				matchStripUnavailable: "No se detectó un panel 1X2 completo para este evento.",
-				watchEmpty: "Aún no hay elementos monitoreados. Busca un evento a la izquierda y añade un mercado.",
-				removeTitle: "Eliminar",
-				watchRemoved: "Mercado eliminado",
-				alertsOn: "Alertas activas",
-				alertsOff: "Sin alertas",
-				up: "sube",
-				down: "baja",
-				moveAlert: "Movimiento de mercado",
-				scoreAlert: "Alerta de marcador",
-				scoreChanged: "Marcador cambiado",
-				testAlert: "Probar alerta",
-				testAlertDetail: "El sonido y el aviso continuarán hasta cerrarlos manualmente",
-				feedEmpty: "Esperando WebSocket o búsqueda."
-			};
 			let currentLang = localStorage.getItem(LS_LANG) || "en";
 			const t = (key, ...args) => {
 				const value = (i18n[currentLang] || i18n.en)[key] ?? i18n.en[key] ?? key;
 				return typeof value === "function" ? value(...args) : value;
 			};
 			const CLOCK_TIME_ZONES = [
-				{ value: "Asia/Shanghai", label: { en: "Beijing Time", zh: "北京时间", ja: "北京時間", ko: "베이징 시간", es: "Hora de Pekín" } },
-				{ value: "America/New_York", label: { en: "US Eastern Time", zh: "美东时间", ja: "米国東部時間", ko: "미국 동부 시간", es: "Hora del Este de EE. UU." } },
-				{ value: "America/Los_Angeles", label: { en: "US Pacific Time", zh: "美西时间", ja: "米国太平洋時間", ko: "미국 태평양 시간", es: "Hora del Pacífico de EE. UU." } },
-				{ value: "Europe/London", label: { en: "London Time", zh: "伦敦时间", ja: "ロンドン時間", ko: "런던 시간", es: "Hora de Londres" } },
-				{ value: "UTC", label: { en: "UTC", zh: "UTC", ja: "UTC", ko: "UTC", es: "UTC" } }
+				{ value: "Asia/Shanghai", label: { en: "Beijing Time", zh: "北京时间" } },
+				{ value: "America/New_York", label: { en: "US Eastern Time", zh: "美东时间" } },
+				{ value: "America/Los_Angeles", label: { en: "US Pacific Time", zh: "美西时间" } },
+				{ value: "Europe/London", label: { en: "London Time", zh: "伦敦时间" } },
+				{ value: "UTC", label: { en: "UTC", zh: "UTC" } }
 			];
 
 			function normalizeLanguage(value) {
@@ -1639,6 +1477,8 @@
 					watchId: watchId,
 					eventTitle: watch ? (watch.eventTitle || watch.eventSlug || "") : (entries[0]?.outcome || ""),
 					marketQuestion: watch ? (watch.marketQuestion || "") : "",
+					eventSlug: watch ? (watch.eventSlug || "") : (entries[0]?.outcome || ""),
+					assetIds: watch ? [...(watch.tokenIds || [])] : [],
 					outcomes: entries.map((e) => ({
 						outcome: e.outcome,
 						direction: e.direction,
@@ -1660,6 +1500,8 @@
 						watchId: p.watchId,
 						eventTitle: p.eventTitle,
 						marketQuestion: p.marketQuestion,
+						eventSlug: p.eventSlug,
+						assetIds: p.assetIds,
 						outcomes: p.outcomes,
 						postComplete: p.postComplete
 					}));
@@ -1711,26 +1553,9 @@
 					const pkg = state.alertPackages.find((p) => p.id === packageId);
 					if (!pkg) return;
 					const messages = [...(pkg.preContext || []), ...(pkg.postContext || [])];
-					const csv = wsMessagesToCsv(messages);
+					const csv = GoalPulseAlertCsv.toCsv(messages, pkg);
 					const timeStr = new Date(pkg.alertTime).toISOString().replace(/[:.]/g, "-").slice(0, 19);
-					downloadBlob(csv, `ws-log-alert-${timeStr}.csv`, "text/csv;charset=utf-8");
-				}
-
-				function wsMessagesToCsv(messages) {
-					const fields = ["time_iso", "time_epoch_ms", "type", "data_json"];
-					const esc = (value) => `"${String(value ?? "").replaceAll("\"", "\"\"")}"`;
-					return [
-						fields.join(","),
-						...messages.map((m) => {
-							const timeIso = new Date(m.time).toISOString();
-							return [
-								esc(timeIso),
-								esc(m.time),
-								esc(m.type),
-								esc(JSON.stringify(m.data))
-							].join(",");
-						})
-					].join("\n");
+					downloadBlob(csv, `readable-alert-log-${timeStr}.csv`, "text/csv;charset=utf-8");
 				}
 
 				function closeAlert() {
@@ -2024,6 +1849,8 @@
 							watchId: "test",
 							eventTitle: "Test Alert",
 							marketQuestion: "",
+							eventSlug: "",
+							assetIds: [],
 							outcomes: [{ outcome: "Test", direction: "↑", change: "+0.0pp", fromTo: "0 → 0" }],
 							preContext: state.wsBuffer.map((e) => ({ ...e })),
 							postContext: [],
