@@ -29,6 +29,7 @@ Goal Pulse keeps those markets on one board, detects fast movement, alerts you i
 - **Live market data** from Polymarket's Market WebSocket.
 - **Sports score signals** from the Sports WebSocket.
 - **Multi-market watchlist** with all outcomes visible on one screen.
+- **Roomy market browser** with side-by-side discovery on desktop, a full-screen mobile flow, event-local search, and cross-event batch selection.
 - **Configurable detection** for time window, percentage-point threshold, spread, and cooldown.
 - **Persistent alerts** with sound and a visual overlay that continue until you close them.
 - **Readable alert CSV** downloaded automatically with up to 10 seconds of relevant WebSocket data before and after an alert.
@@ -64,7 +65,7 @@ The browser talks directly to Polymarket's public data services. There is no loc
 
 Open the [live dashboard](https://wandsgyu.github.io/polymarket-odds-visualizer/).
 
-- The dashboard starts with an automatic `FED` event search. Replace it with any event, team, or market keyword.
+- Click **Add markets** to open the market browser. It starts with `FED` results; replace the search with any event, team, or market keyword.
 - Click **Test Alert** once to let the browser enable audio. The test also downloads a small sample alert CSV so you can verify the export flow.
 
 ### Run locally
@@ -79,12 +80,30 @@ Open [http://127.0.0.1:5173](http://127.0.0.1:5173).
 
 ## Typical workflow
 
-1. Use the default `FED` results or search for another Polymarket event.
-2. Select an event and add one or more active CLOB markets to the watchlist.
+1. Click **Add markets** and use the default `FED` results or search for another event.
+2. Select an event, compare or filter its markets, then select one or more and click **Add to monitor (N)**. You can collect selections across events before adding them. Existing monitors continue running while you browse.
 3. Tune the movement window, threshold, cooldown, and spread filter.
 4. Optionally resume the sampled Data Log if you want continuous price samples.
 5. Keep the dashboard open while following the event, or switch to fullscreen mode.
 6. When an alert fires, inspect Alert Replay and the automatically downloaded readable CSV.
+
+## Market browser
+
+Desktop uses a wide, two-pane browser for events and markets. Narrow screens use a full-screen event → market flow, with a fixed action bar. **Back to events** and the browser Back button preserve search, scroll, and pending selections; **Back to monitor** or Escape closes discovery. Pending selections survive closing the browser, but are not saved across a page refresh. Added monitors are persisted as before.
+
+Market rows include every outcome, its probability, spread, and a clear **Monitoring** state. Event rules expand on demand. Sports events with a complete 1X2 set retain the combined match monitor. A new alert interrupts discovery and returns to the same selection after it is dismissed.
+
+## Development checks
+
+Serving the site still requires no npm install or build. For regression tests only, use Node.js 24.15+ (or a compatible newer version):
+
+```bash
+npm ci
+npm run check
+npm test
+```
+
+The DOM tests use mocked data and sockets to cover selection, history, failures, race conditions, alerts, restored monitors, and sports combinations. Responsive layout and real data require a browser check too. GitHub Actions runs the automated checks on pull requests and main-branch pushes.
 
 ## Default detector settings
 
