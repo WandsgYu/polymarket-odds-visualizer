@@ -4,7 +4,7 @@
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>Polymarket Goal Pulse</title>
-	<link rel="stylesheet" href="style.css">
+	<link rel="stylesheet" href="style.css?v=20261101-market-browser">
 </head>
 <body>
 	<div class="app">
@@ -17,6 +17,7 @@
 				</div>
 			</div>
 			<div class="status-strip">
+				<button id="openBrowserBtn" class="btn primary" data-i18n="addMarkets">Add markets</button>
 				<div class="language-control">
 					<span class="language-icon" aria-hidden="true">
 						<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -46,27 +47,12 @@
 		</header>
 
 		<main class="workspace">
-			<aside class="sidebar">
-				<section class="section">
-						<div class="section-title" data-i18n="searchTitle">1. Search Events</div>
-					<div class="search-row">
-							<input id="searchInput" class="field" value="FED" data-i18n-placeholder="searchPlaceholder" placeholder="Team, league, or event keyword">
-							<button id="searchBtn" class="btn primary" data-i18n="searchButton">Search</button>
-						</div>
-						<div class="helper" data-i18n="searchHelp">Search for an event, select it from the results, then choose a market to monitor.</div>
-				</section>
-
-				<section class="section results" id="results"></section>
-
-				<section class="section" id="selectedEvent"></section>
-
-				<section class="section markets" id="markets"></section>
-			</aside>
-
 			<section class="watch">
 				<div class="hero">
 					<div>
-							<h1 id="headline" data-i18n="headline">Choose a market to start monitoring</h1>
+							<div class="board-eyebrow" data-i18n="monitorBoard">LIVE MONITOR</div>
+							<h1 id="headline" data-i18n="boardTitle">Your watchlist</h1>
+							<div id="watchCount" class="helper"></div>
 							<p id="subline" data-i18n="subline">Keep this page open to track live market and score updates. You will be alerted when a meaningful change happens.</p>
 					</div>
 					<div class="clock-stack" aria-live="polite">
@@ -151,6 +137,40 @@
 		</main>
 	</div>
 
+	<dialog id="marketBrowser" class="market-browser" aria-labelledby="browserTitle" aria-describedby="browserHelp">
+		<header class="browser-header">
+			<div><div class="board-eyebrow" data-i18n="discoverMarkets">DISCOVER MARKETS</div><h2 id="browserTitle" data-i18n="addMarkets">Add markets</h2><p id="browserHelp" data-i18n="browserHelp">Choose an event, compare markets, then add them to your watchlist.</p></div>
+			<button id="closeBrowserBtn" class="btn" data-i18n="doneBrowsing">Back to monitor</button>
+		</header>
+		<div class="browser-body" id="browserBody">
+			<section class="event-browser" aria-labelledby="eventSearchLabel">
+				<form id="eventSearchForm" class="browser-search" role="search">
+					<label id="eventSearchLabel" for="searchInput" data-i18n="searchTitle">1. Search Events</label>
+					<div class="search-row"><input id="searchInput" class="field" value="FED" data-i18n-placeholder="searchPlaceholder" placeholder="Team, league, or event keyword" type="search"><button id="searchBtn" class="btn primary" type="submit" data-i18n="searchButton">Search</button></div>
+					<div id="eventResultCount" class="helper" aria-live="polite"></div>
+				</form>
+				<div id="results" class="browser-results" aria-busy="false"></div>
+			</section>
+			<section class="market-browser-detail" aria-label="Markets">
+				<div class="browser-detail-header">
+					<button id="backToEventsBtn" class="btn small" data-i18n="backToEvents">Back to events</button>
+					<div id="selectedEvent"></div>
+					<div id="marketTools" hidden>
+						<label for="marketSearchInput" class="sr-only" data-i18n="filterMarkets">Filter markets in this event</label>
+						<input id="marketSearchInput" type="search" class="field" data-i18n-placeholder="filterMarkets" placeholder="Filter markets in this event">
+						<div class="market-filter-row"><span id="marketResultCount" class="helper" aria-live="polite"></span><button id="selectVisibleBtn" class="btn small" data-i18n="selectVisible">Select visible</button></div>
+						<p class="helper" data-i18n="allOutcomesHelp">Each market includes all its outcomes. Existing monitors keep running.</p>
+					</div>
+				</div>
+				<div id="markets" class="browser-markets"></div>
+			</section>
+		</div>
+		<footer class="browser-footer">
+			<div><div id="selectionStatus" role="status" aria-live="polite"></div><button id="clearSelectionBtn" class="text-button" data-i18n="clearSelection">Clear selection</button></div>
+			<button id="addSelectedBtn" class="btn primary" disabled>Add selected</button>
+		</footer>
+	</dialog>
+
 	<div id="alertOverlay" class="alert-overlay" role="dialog" aria-live="assertive">
 		<div class="alert-box">
 				<div class="alert-kicker" id="alertKicker">Move Alert</div>
@@ -162,6 +182,6 @@
 	</div>
 
 	<script src="alert-csv.js?v=20260722-readable-alert-log" defer></script>
-	<script src="app.js?v=20260722-readable-alert-log" defer></script>
+	<script src="app.js?v=20261101-market-browser" defer></script>
 </body>
 </html>

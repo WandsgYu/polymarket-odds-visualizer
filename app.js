@@ -14,6 +14,19 @@
 			];
 			const i18n = {
 				en: {
+                    addMarkets: "Add markets", monitorBoard: "LIVE MONITOR", boardTitle: "Your watchlist",
+                    discoverMarkets: "DISCOVER MARKETS", browserHelp: "Choose an event, compare markets, then add them to your watchlist.",
+                    doneBrowsing: "Back to monitor", backToEvents: "Back to events", filterMarkets: "Filter markets in this event",
+                    selectVisible: "Select visible", clearSelection: "Clear selection", selected: "Selected", selectMarket: "Select market",
+                    watching: "Monitoring", eventRules: "Event rules", chooseEvent: "Choose an event to explore its markets",
+                    chooseEventHelp: "Search on the left or choose a result. Your monitors keep running while you browse.",
+                    noMatchingMarkets: "No matching markets. Try another keyword or review the spread limit in Alert Settings.",
+                    selectionCount: (n) => `${n} market${n === 1 ? "" : "s"} selected`, addSelected: (n) => `Add to monitor (${n})`,
+                    watchCount: (n) => `${n} market${n === 1 ? "" : "s"} monitored`, eventCount: (n) => `${n} events`,
+                    marketCount: (n, total) => `${n} of ${total} markets`, addedCount: (n) => `Added ${n} market${n === 1 ? "" : "s"} to your watchlist.`,
+                    allOutcomesHelp: "Each market includes all its outcomes. Existing monitors keep running.",
+                    retryEvent: "Retry loading event", spreadLimit: (n) => `Spread limit: ${n}`,
+
 					brandSubtitle: "Search events, monitor markets, and catch fast moves",
 					languageLabel: "Language",
 					searchTitle: "1. Search Events",
@@ -62,7 +75,7 @@
 					comboAlreadyWatching: "This 1X2 board is already in the watchlist",
 					watchStarted: "Started monitoring market",
 					comboWatchStarted: "Added 1X2 board",
-					watchEmpty: "No watch items yet. Search for an event on the left, then click Monitor Market.",
+					watchEmpty: "Your board is ready. Add markets to start monitoring live probabilities.",
 					removeTitle: "Remove",
 					watchRemoved: "Removed market",
 					alertsOn: "Alerts on",
@@ -117,6 +130,19 @@
 					feedEmpty: "Waiting for WebSocket or search activity."
 				},
 				zh: {
+                    addMarkets: "添加监听", monitorBoard: "实时监听", boardTitle: "我的监听看板",
+                    discoverMarkets: "发现盘口", browserHelp: "选择事件、比较盘口，然后加入监听看板。",
+                    doneBrowsing: "返回监控", backToEvents: "返回事件列表", filterMarkets: "搜索当前事件内的盘口",
+                    selectVisible: "选择当前结果", clearSelection: "清空已选", selected: "已选择", selectMarket: "选择盘口",
+                    watching: "已监听", eventRules: "事件规则", chooseEvent: "选择事件，查看可监听的盘口",
+                    chooseEventHelp: "搜索事件或选择一个搜索结果。浏览期间，已有监听持续运行。",
+                    noMatchingMarkets: "没有符合条件的盘口。请尝试其他关键词，或检查告警设置中的最大价差。",
+                    selectionCount: (n) => `已选择 ${n} 个盘口`, addSelected: (n) => `加入监听（${n}）`,
+                    watchCount: (n) => `正在监听 ${n} 个盘口`, eventCount: (n) => `${n} 个事件`,
+                    marketCount: (n, total) => `${n} / ${total} 个盘口`, addedCount: (n) => `已加入 ${n} 个盘口。`,
+                    allOutcomesHelp: "监听整个盘口（包含全部结果）。已有监听持续运行。",
+                    retryEvent: "重新加载事件", spreadLimit: (n) => `最大价差：${n}`,
+
 					brandSubtitle: "搜索赛事，订阅盘口，捕捉快速变化",
 					languageLabel: "语言设置",
 					searchTitle: "1. 搜索事件",
@@ -165,7 +191,7 @@
 					comboAlreadyWatching: "该胜平负看板已在监听列表中",
 					watchStarted: "开始监听盘口",
 					comboWatchStarted: "已添加胜平负看板",
-					watchEmpty: "还没有监听项。左侧搜索赛事，然后在具体盘口上点“监听盘口”。",
+					watchEmpty: "看板已就绪。添加盘口，开始监听实时概率变化。",
 					removeTitle: "移除",
 					watchRemoved: "已移除监听盘口",
 					alertsOn: "报警开",
@@ -714,7 +740,7 @@
 					watch.outcomes = outcomes;
 					watch.marketQuestion = market.question || watch.marketQuestion;
 					watch.eventSlug = market.sourceEventSlug || watch.eventSlug || state.selectedEvent?.slug || "";
-					watch.eventTitle = state.selectedEvent?.title || watch.eventTitle || "";
+					watch.eventTitle = market.sourceEventTitle || watch.eventTitle || state.selectedEvent?.title || "";
 					watch.initialPrices = tokenIds.map((tokenId, index) => {
 						const existingIndex = previousTokenIds.indexOf(tokenId);
 						return Number(previousInitialPrices[existingIndex] ?? previousInitialPrices[index]);
@@ -760,6 +786,9 @@
 				async function searchEvents() {
 					const q = $("searchInput").value.trim();
 					if (!q) return;
+                    const searchId = ++browserState.searchId;
+                    $("results").setAttribute("aria-busy", "true");
+                    $("eventResultCount").textContent = t("resultsLoading");
 					$("searchBtn").disabled = true;
 					$("results").innerHTML = `<div class="helper">${escapeHtml(t("resultsLoading"))}</div>`;
 					try {
@@ -767,47 +796,106 @@
 						const response = await fetchGamma(path);
 						if (!response.ok) throw new Error("HTTP " + response.status);
 						const data = await response.json();
+                        if (searchId !== browserState.searchId) return;
 						state.results = (data.events || []).filter((event) => event && event.slug && !event.closed);
 						renderResults();
 						expandSection("results");
 						setupCollapsibleSections();
 						addFeed(t("searchFeed", q, state.results.length));
 					} catch (error) {
-						$("results").innerHTML = `<div class="helper">${escapeHtml(t("searchFailed"))}：${escapeHtml(error.message)}</div>`;
+                        if (searchId !== browserState.searchId) return;
+						$("eventResultCount").textContent = t("searchFailed");
+                        $("results").innerHTML = `<div class="helper" role="alert">${escapeHtml(t("searchFailed"))}：${escapeHtml(error.message)}</div>`;
 						addFeed(t("searchFailed") + "：" + error.message);
 					} finally {
-						$("searchBtn").disabled = false;
+						if (searchId === browserState.searchId) { $("searchBtn").disabled = false; $("results").setAttribute("aria-busy", "false"); }
 					}
 				}
 
-			function renderResults() {
-				$("results").innerHTML = state.results.map((event, index) => `
-					<button class="result-item" data-event-index="${index}">
-						<div class="result-title">${escapeHtml(event.title || event.slug)}</div>
-						<div class="meta">
-							<span>${escapeHtml(event.slug)}</span>
-								<span>${escapeHtml(t("volume"))} ${money(event.volume)}</span>
-								<span>${event.closed ? escapeHtml(t("closed")) : escapeHtml(t("active"))}</span>
-						</div>
-					</button>
-					`).join("") || `<div class="helper">${escapeHtml(t("resultsEmpty"))}</div>`;
-
-				document.querySelectorAll("[data-event-index]").forEach((button) => {
-					button.addEventListener("click", () => selectEvent(Number(button.dataset.eventIndex)));
-				});
-			}
+            const browserState = { pending: new Map(), requestId: 0, searchId: 0, loading: false, error: false, eventSlug: null, resultScroll: 0, returnAfterAlert: false, lastFocus: null, added: 0, historyDepth: 0 };
+            const marketKey = (market) => market.slug || String(market.id || parseMaybeJson(market.clobTokenIds).join(":"));
+            const isWatching = (market) => state.watches.some((watch) => watch.marketSlug === marketKey(market));
+            function updateBrowserSummary() {
+                $("watchCount").textContent = t("watchCount", state.watches.length);
+                $("selectionStatus").textContent = browserState.added ? t("addedCount", browserState.added) : t("selectionCount", browserState.pending.size);
+                $("addSelectedBtn").textContent = t("addSelected", browserState.pending.size);
+                $("addSelectedBtn").disabled = browserState.pending.size === 0;
+                $("clearSelectionBtn").hidden = browserState.pending.size === 0;
+            }
+            function openMarketBrowser(resume = false) {
+                if ($("alertOverlay").classList.contains("show")) return;
+                if (!resume) {
+                    browserState.lastFocus = document.activeElement;
+                    history.pushState({ ...history.state, goalPulseBrowser: 1 }, "");
+                    browserState.historyDepth = 1;
+                    if ($("browserBody").classList.contains("show-markets")) enterMarketStep();
+                }
+                if (!$("marketBrowser").open) $("marketBrowser").showModal();
+                document.body.classList.add("browser-open");
+                if (state.selectedEvent && !browserState.loading) renderMarkets();
+                updateBrowserSummary();
+                if (!$("browserBody").classList.contains("show-markets")) $("searchInput").focus();
+            }
+            function enterMarketStep() {
+                if (browserState.historyDepth === 1) {
+                    history.pushState({ ...history.state, goalPulseBrowser: 2 }, "");
+                    browserState.historyDepth = 2;
+                }
+                $("browserBody").classList.add("show-markets");
+            }
+            function closeMarketBrowser() {
+                if (browserState.historyDepth) history.go(-browserState.historyDepth);
+                else $("marketBrowser").close();
+            }
+            function showEventResults() {
+                if (browserState.historyDepth === 2) { history.back(); return; }
+                $("browserBody").classList.remove("show-markets");
+                $("results").scrollTop = browserState.resultScroll;
+                const selected = $("results").querySelector('[aria-current="true"]');
+                (selected || $("searchInput")).focus({ preventScroll: true });
+            }
+            function visibleMarkets() {
+                const query = $("marketSearchInput").value.trim().toLocaleLowerCase();
+                return state.markets.filter((market) => !query || [market.question, market.sourceEventLabel, ...parseMaybeJson(market.outcomes)].join(" ").toLocaleLowerCase().includes(query));
+            }
+            function renderResults() {
+                $("eventResultCount").textContent = t("eventCount", state.results.length);
+                $("results").innerHTML = state.results.map((event, index) => `
+                    <button class="result-item ${state.selectedEvent?.slug === event.slug ? "current" : ""}" data-event-index="${index}" ${state.selectedEvent?.slug === event.slug ? 'aria-current="true"' : ""}>
+                        <span class="result-title">${escapeHtml(event.title || event.slug)}</span>
+                        <span class="meta"><span>${escapeHtml(t("active"))}</span>${Number(event.volume) > 0 ? `<span>${escapeHtml(t("volume"))} ${money(event.volume)}</span>` : ""}${event.endDate ? `<span>${escapeHtml(new Date(event.endDate).toLocaleDateString(currentLang === "zh" ? "zh-CN" : "en-US"))}</span>` : ""}</span>
+                    </button>`).join("") || `<div class="browser-empty"><p>${escapeHtml(t("resultsEmpty"))}</p></div>`;
+                $("results").querySelectorAll("[data-event-index]").forEach((button) => button.addEventListener("click", () => selectEvent(Number(button.dataset.eventIndex))));
+                updateBrowserSummary();
+            }
 
 				async function selectEvent(index) {
 					const item = state.results[index];
 					if (!item) return;
+                    if (item.slug === state.selectedEvent?.slug && browserState.eventSlug === item.slug && !browserState.loading && !browserState.error) {
+                        enterMarketStep();
+                        if (matchMedia("(max-width: 767px)").matches) $("backToEventsBtn").focus();
+                        return;
+                    }
 					await loadEventDetails(item.slug);
 				}
 
 				async function loadEventDetails(slug) {
-						$("selectedEvent").innerHTML = `<div class="helper">${escapeHtml(t("eventLoading"))}</div>`;
+						const requestId = ++browserState.requestId;
+                    browserState.loading = true;
+                    browserState.error = false;
+                    browserState.eventSlug = slug;
+                    browserState.resultScroll = $("results").scrollTop;
+                    enterMarketStep();
+                    $("marketTools").hidden = true;
+                    $("selectedEvent").innerHTML = `<p role="status">${escapeHtml(t("eventLoading"))}</p>`;
+                    $("markets").setAttribute("aria-busy", "true");
+                    if ($("marketBrowser").open && matchMedia("(max-width: 767px)").matches) $("backToEventsBtn").focus();
 					$("markets").innerHTML = "";
 					try {
 						const event = await fetchEventBySlug(slug);
+                        const relatedEvents = await loadRelatedSportsEvents(event);
+                        if (requestId !== browserState.requestId) return;
 						state.selectedEvent = {
 							id: event.id,
 							slug: event.slug,
@@ -816,7 +904,6 @@
 							volume: event.volume,
 							endDate: event.endDate
 						};
-						const relatedEvents = await loadRelatedSportsEvents(event);
 						const eventMarkets = [event, ...relatedEvents].flatMap((sourceEvent) => {
 							return (sourceEvent.markets || []).map((market) => withMarketSource(market, sourceEvent));
 						});
@@ -829,53 +916,67 @@
 						});
 						state.markets = filterMarkets(state.allMarkets);
 						reconcileWatchMetadata(state.markets);
+                        browserState.loading = false;
+                        $("marketSearchInput").value = "";
+                        $("markets").scrollTop = 0;
+                        $("markets").setAttribute("aria-busy", "false");
+                        renderResults();
+                        $("results").scrollTop = browserState.resultScroll;
 						saveState();
 						renderSelectedEvent();
 						renderMarkets();
 							addFeed(`${t("eventLoaded")}：${event.title || event.slug}`);
 						} catch (error) {
-							$("selectedEvent").innerHTML = `<div class="helper">${escapeHtml(t("eventFailed"))}：${escapeHtml(error.message)}</div>`;
+							if (requestId !== browserState.requestId) return;
+                            browserState.loading = false;
+                            browserState.error = true;
+                            $("markets").setAttribute("aria-busy", "false");
+                            $("selectedEvent").innerHTML = `<p role="alert">${escapeHtml(t("eventFailed"))}：${escapeHtml(error.message)}</p><button class="btn" id="retryEventBtn">${escapeHtml(t("retryEvent"))}</button>`;
+                            $("retryEventBtn").addEventListener("click", () => loadEventDetails(slug));
 							addFeed(t("eventFailed") + "：" + error.message);
 					}
 				}
 
-			function renderSelectedEvent() {
-				const event = state.selectedEvent;
-				if (!event) {
-						$("selectedEvent").innerHTML = `<div class="helper">${escapeHtml(t("selectEventFirst"))}</div>`;
-					return;
-				}
-				$("selectedEvent").innerHTML = `
-					<div class="event-card">
-						<div class="event-title">${escapeHtml(event.title || event.slug)}</div>
-						<div class="meta">
-							<span>${escapeHtml(event.slug)}</span>
-								<span>${escapeHtml(t("volume"))} ${money(event.volume)}</span>
-						</div>
-						<div class="event-description">${escapeHtml(event.description || "")}</div>
-					</div>
-				`;
-					$("headline").textContent = event.title || t("selectedHeadline");
-			}
-
-				function renderMarkets() {
-					const maxSpread = getMaxVisibleSpread();
-					const matchStrip = detectMatchStrip();
-					$("markets").innerHTML = `
-							<div class="section-title">${escapeHtml(t("marketsTitle"))}</div>
-							<div class="helper">${escapeHtml(t("marketsHelp", maxSpread.toFixed(2)))}</div>
-							${matchStrip ? renderMatchStripCandidate(matchStrip) : `<div class="helper">${escapeHtml(t("matchStripUnavailable"))}</div>`}
-							${state.markets.map((market, marketIndex) => renderMarket(market, marketIndex)).join("") || `<div class="helper">${escapeHtml(t("marketsEmpty"))}</div>`}
-					`;
-					document.querySelectorAll("[data-add-match-strip]").forEach((button) => {
-						button.addEventListener("click", () => addMatchStripWatch());
-					});
-					document.querySelectorAll("[data-add-market-watch]").forEach((button) => {
-						button.addEventListener("click", () => {
-							addWatch(state.markets[Number(button.dataset.addMarketWatch)]);
-						});
-					});
-				}
+            function renderSelectedEvent() {
+                if (browserState.loading || browserState.error) return;
+                const event = state.selectedEvent;
+                if (!event) {
+                    $("selectedEvent").innerHTML = `<div class="browser-empty"><h3>${escapeHtml(t("chooseEvent"))}</h3><p>${escapeHtml(t("chooseEventHelp"))}</p></div>`;
+                    $("marketTools").hidden = true;
+                    return;
+                }
+                $("marketTools").hidden = false;
+                $("selectedEvent").innerHTML = `<h3 class="event-title">${escapeHtml(event.title || event.slug)}</h3>
+                    <div class="meta">${Number(event.volume) > 0 ? `<span>${escapeHtml(t("volume"))} ${money(event.volume)}</span>` : ""}${event.endDate ? `<span>${escapeHtml(new Date(event.endDate).toLocaleDateString(currentLang === "zh" ? "zh-CN" : "en-US"))}</span>` : ""}<span>${escapeHtml(t("spreadLimit", getMaxVisibleSpread().toFixed(2)))}</span></div>
+                    ${event.description ? `<details class="event-rules"><summary>${escapeHtml(t("eventRules"))}</summary><p>${escapeHtml(event.description)}</p></details>` : ""}`;
+            }
+            function renderMarkets() {
+                if (browserState.loading || browserState.error) return;
+                const markets = visibleMarkets();
+                const scrollTop = $("markets").scrollTop;
+                const activeKey = document.activeElement?.dataset?.selectMarket;
+                $("marketResultCount").textContent = t("marketCount", markets.length, state.markets.length);
+                const matchStrip = $("marketSearchInput").value.trim() ? null : detectMatchStrip();
+                const combo = matchStrip && !state.watches.some((watch) => watch.id === matchStrip.id) ? renderMatchStripCandidate(matchStrip) : "";
+                $("markets").innerHTML = combo + (markets.map(renderMarket).join("") || `<div class="browser-empty"><p>${escapeHtml(t("noMatchingMarkets"))}</p></div>`);
+                $("markets").scrollTop = scrollTop;
+                $("markets").querySelector("[data-add-match-strip]")?.addEventListener("click", () => { addMatchStripWatch(); renderMarkets(); });
+                $("markets").querySelectorAll("[data-select-market]").forEach((button) => {
+                    button.addEventListener("click", () => {
+                        const market = state.markets.find((item) => marketKey(item) === button.dataset.selectMarket);
+                        if (!market || isWatching(market)) return;
+                        const key = marketKey(market);
+                        if (browserState.pending.has(key)) browserState.pending.delete(key);
+                        else browserState.pending.set(key, { ...market, sourceEventTitle: market.sourceEventTitle || state.selectedEvent?.title });
+                        browserState.added = 0;
+                        renderMarkets();
+                        updateBrowserSummary();
+                    });
+                });
+                if (activeKey) [...$("markets").querySelectorAll("[data-select-market]")].find((button) => button.dataset.selectMarket === activeKey)?.focus({ preventScroll: true });
+                $("selectVisibleBtn").disabled = markets.every(isWatching);
+                updateBrowserSummary();
+            }
 
 				function renderMatchStripCandidate(watch) {
 					const panelModel = getWatchPanelModel(watch.initialPrices);
@@ -897,49 +998,32 @@
 					`;
 				}
 
-				function renderMarket(market, marketIndex) {
-					const outcomes = parseMaybeJson(market.outcomes);
-					const tokenIds = parseMaybeJson(market.clobTokenIds);
-					const prices = normalizedOutcomePrices(market);
-					return `
-						<div class="market-item">
-							<div class="market-header">
-								<div>
-									<div class="market-title">${escapeHtml(market.question || market.slug)}</div>
-									<div class="meta">
-										${market.sourceEventLabel ? `<span>${escapeHtml(market.sourceEventLabel)}</span>` : ""}
-										<span>${escapeHtml(market.slug || market.id)}</span>
-											<span>${escapeHtml(t("spread"))} ${escapeHtml(market.spread ?? "--")}</span>
-									</div>
-								</div>
-									<button class="add market-add" data-add-market-watch="${marketIndex}" ${tokenIds.length ? "" : "disabled"}>${escapeHtml(t("monitorMarket"))}</button>
-							</div>
-						<div class="outcomes">
-							${outcomes.map((name, outcomeIndex) => `
-								<div class="outcome">
-									<div class="outcome-name" title="${escapeHtml(name)}">${escapeHtml(name)}</div>
-									<div class="price">${pct(prices[outcomeIndex])}</div>
-								</div>
-							`).join("")}
-						</div>
-					</div>
-				`;
-			}
-
-			function addWatch(market) {
+            function renderMarket(market) {
+                const key = marketKey(market);
+                const watching = isWatching(market);
+                const selected = browserState.pending.has(key);
+                const outcomes = parseMaybeJson(market.outcomes);
+                const prices = normalizedOutcomePrices(market);
+                return `<article class="market-item ${selected ? "is-selected" : ""} ${watching ? "is-watching" : ""}">
+                    <div class="market-header"><h4 class="market-title">${escapeHtml(market.question || market.slug)}</h4>
+                    <button class="btn market-select ${selected ? "primary" : ""}" data-select-market="${escapeHtml(key)}" aria-pressed="${selected || watching}" aria-label="${escapeHtml((watching ? t("watching") : selected ? t("selected") : t("selectMarket")) + ": " + (market.question || market.slug))}" ${watching ? "disabled" : ""}>${escapeHtml(watching ? t("watching") : selected ? t("selected") : t("selectMarket"))}</button></div>
+                    <div class="market-outcomes">${outcomes.map((name, index) => `<div class="market-outcome"><span>${escapeHtml(name)}</span><strong>${pct(prices[index])}%</strong></div>`).join("")}</div>
+                    <div class="meta">${market.sourceEventLabel ? `<span>${escapeHtml(market.sourceEventLabel)}</span>` : ""}<span>${escapeHtml(t("spread"))} ${escapeHtml(market.spread ?? "—")}</span></div></article>`;
+            }
+            function addWatch(market, batch = false) {
 				const outcomes = parseMaybeJson(market.outcomes);
 				const tokenIds = parseMaybeJson(market.clobTokenIds);
 				const prices = normalizedOutcomePrices(market);
 				if (tokenIds.length === 0) return;
-				if (state.watches.some((watch) => watch.marketSlug === market.slug)) {
+				if (isWatching(market)) {
 						addFeed(t("alreadyWatching"));
 					return;
 				}
 					const watch = {
 						id: market.slug || tokenIds.join(":"),
 						eventSlug: market.sourceEventSlug || state.selectedEvent?.slug || "",
-						eventTitle: state.selectedEvent?.title || "",
-						marketSlug: market.slug || "",
+						eventTitle: market.sourceEventTitle || state.selectedEvent?.title || "",
+						marketSlug: marketKey(market),
 						marketQuestion: market.question || "",
 						tokenIds,
 					outcomes,
@@ -957,11 +1041,9 @@
 						state.priceHistory[tokenId] = [{ time: Date.now(), price }];
 					}
 				});
-				saveState();
-					renderWatches();
-					startPriceCalibrationTimer();
-					startDataLogTimer();
-					connectMarketWs();
+				if (!batch) {
+                        saveState(); renderWatches(); startPriceCalibrationTimer(); startDataLogTimer(); connectMarketWs();
+                    }
 						addFeed(`${t("watchStarted")}：${watch.marketQuestion}`);
 				}
 
@@ -990,9 +1072,11 @@
 
 			function renderWatches() {
 				const grid = $("watchGrid");
+                updateBrowserSummary();
 				if (state.watches.length === 0) {
 					grid.className = "watch-grid";
-						grid.innerHTML = `<div class="empty">${escapeHtml(t("watchEmpty"))}</div>`;
+						grid.innerHTML = `<div class="empty"><p>${escapeHtml(t("watchEmpty"))}</p><button class="btn primary" id="emptyAddBtn">${escapeHtml(t("addMarkets"))}</button></div>`;
+                        $("emptyAddBtn").addEventListener("click", () => openMarketBrowser());
 					return;
 				}
 				const layoutClass = state.watches.length === 1 ? "single" : state.watches.length === 2 ? "double" : state.watches.length <= 4 ? "quad" : "";
@@ -1067,6 +1151,8 @@
 				function updateWatchCard(watch) {
 					const card = document.querySelector(`[data-watch-id="${CSS.escape(watch.id)}"]`);
 					if (!card) return;
+                    card.querySelector(".watch-name").textContent = watch.eventTitle || watch.eventSlug || "";
+                    card.querySelector(".market-title").textContent = watch.marketQuestion || "";
 					const currentPrices = getWatchPrices(watch);
 					const panelModel = getWatchPanelModel(currentPrices);
 					const panels = card.querySelector("[data-outcome-panels]");
@@ -1519,11 +1605,14 @@
 				}
 
 				function showAlert(kicker, packageId) {
+                    browserState.returnAfterAlert = browserState.returnAfterAlert || $("marketBrowser").open;
+                    if ($("marketBrowser").open) $("marketBrowser").close();
 					$("alertKicker").textContent = kicker;
 					const btn = $("alertCsvBtn");
 					btn.dataset.packageId = packageId;
 					btn.textContent = "Capturing WS log data… (auto-download when ready)";
 					$("alertOverlay").classList.add("show");
+                    $("alertClose").focus();
 					startAlertSound();
 					// Clear any existing hint-update timer
 					const prevTimer = Number($("alertOverlay").dataset.checkTimer);
@@ -1564,6 +1653,7 @@
 					const timerId = Number($("alertOverlay").dataset.checkTimer);
 					if (timerId) clearInterval(timerId);
 					delete $("alertOverlay").dataset.checkTimer;
+                    if (browserState.returnAfterAlert) { browserState.returnAfterAlert = false; if (browserState.historyDepth) openMarketBrowser(true); }
 				}
 
 				function startAlertSound() {
@@ -1625,7 +1715,7 @@
 							const response = await fetchGamma(`/events/slug/${encodeURIComponent(slug)}?_=${Date.now()}`);
 						if (!response.ok) throw new Error("HTTP " + response.status);
 						const event = await response.json();
-						const markets = event.markets || [];
+						const markets = (event.markets || []).map((market) => withMarketSource(market, event));
 						reconcileWatchMetadata(markets);
 							state.watches
 								.filter((watch) => watch.eventSlug === slug || (!watch.eventSlug && slug === state.selectedEvent?.slug))
@@ -1656,6 +1746,7 @@
 								});
 						}
 							updateWatchCards();
+                            saveState();
 					} catch (error) {
 							addFeed(t("gammaFailed") + "：" + error.message);
 					}
@@ -1822,10 +1913,44 @@
 				}
 
 				function bindEvents() {
-				$("searchBtn").addEventListener("click", searchEvents);
-					$("searchInput").addEventListener("keydown", (event) => {
-						if (event.key === "Enter") searchEvents();
-					});
+				$("eventSearchForm").addEventListener("submit", (event) => { event.preventDefault(); searchEvents(); });
+                $("openBrowserBtn").addEventListener("click", () => openMarketBrowser());
+                $("closeBrowserBtn").addEventListener("click", closeMarketBrowser);
+                $("marketBrowser").addEventListener("cancel", (event) => { event.preventDefault(); closeMarketBrowser(); });
+                window.addEventListener("popstate", (event) => {
+                    browserState.historyDepth = event.state?.goalPulseBrowser || 0;
+                    if (!browserState.historyDepth) { $("marketBrowser").close(); return; }
+                    $("browserBody").classList.toggle("show-markets", browserState.historyDepth === 2);
+                    if (!$("alertOverlay").classList.contains("show")) openMarketBrowser(true);
+                    if (browserState.historyDepth === 1) {
+                        $("results").scrollTop = browserState.resultScroll;
+                        ($("results").querySelector('[aria-current="true"]') || $("searchInput")).focus({ preventScroll: true });
+                    }
+                });
+                $("marketBrowser").addEventListener("close", () => {
+                    document.body.classList.remove("browser-open");
+                    if ($("alertOverlay").classList.contains("show")) $("alertClose").focus();
+                    else (browserState.lastFocus?.isConnected ? browserState.lastFocus : $("openBrowserBtn"))?.focus({ preventScroll: true });
+                });
+                $("backToEventsBtn").addEventListener("click", showEventResults);
+                $("marketSearchInput").addEventListener("input", renderMarkets);
+                $("selectVisibleBtn").addEventListener("click", () => {
+                    visibleMarkets().filter((market) => !isWatching(market)).forEach((market) => browserState.pending.set(marketKey(market), { ...market }));
+                    browserState.added = 0;
+                    renderMarkets();
+                });
+                $("clearSelectionBtn").addEventListener("click", () => {
+                    browserState.pending.clear(); browserState.added = 0; renderMarkets(); updateBrowserSummary();
+                });
+                $("addSelectedBtn").addEventListener("click", () => {
+                    const before = state.watches.length;
+                    browserState.pending.forEach((market) => addWatch(market, true));
+                    browserState.pending.clear();
+                    browserState.added = state.watches.length - before;
+                    saveState(); renderWatches(); renderMarkets(); updateBrowserSummary();
+                    startPriceCalibrationTimer(); startDataLogTimer(); connectMarketWs();
+                    $("closeBrowserBtn").focus();
+                });
 					$("langSelect").addEventListener("change", (event) => {
 						currentLang = normalizeLanguage(event.target.value);
 						localStorage.setItem(LS_LANG, currentLang);
@@ -1913,7 +2038,7 @@
 					$("fullscreenBtn").addEventListener("click", toggleFullscreenDashboard);
 					$("fullscreenExitBtn").addEventListener("click", toggleFullscreenDashboard);
 					document.addEventListener("keydown", (event) => {
-						if (event.key === "Escape" && document.body.classList.contains("fullscreen-dashboard")) {
+						if (event.key === "Escape" && !$("marketBrowser").open && document.body.classList.contains("fullscreen-dashboard")) {
 							toggleFullscreenDashboard();
 						}
 					});
@@ -2004,7 +2129,7 @@
 			}
 
 			function setupCollapsibleSections() {
-			document.querySelectorAll(".section").forEach((section) => {
+			document.querySelectorAll(".activity .section").forEach((section) => {
 				const title = section.querySelector(":scope > .section-title");
 				if (!title) return;
 				// Wrap non-title children in .section-content
@@ -2065,6 +2190,7 @@
 		}
 
 		function init() {
+                    if (history.state?.goalPulseBrowser) { const restoredState = { ...history.state }; delete restoredState.goalPulseBrowser; history.replaceState(restoredState, ""); }
 					applyLanguage();
 					loadState();
 					bindEvents();
